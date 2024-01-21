@@ -83,5 +83,37 @@ class TestGitaAPI(unittest.TestCase):
         self.assertEqual(result["chapter"], 1)
         self.assertEqual(result["verses"], "All")
 
+
+    def test_invalid_negative_chapter(self):
+        with self.assertRaises(ValueError):
+            validate_ref_type("-1")
+
+    def test_range_with_equal_start_end(self):
+        with self.assertRaises(ValueError):
+            validate_ref_type("3.5-5")
+
+    def test_chapter_with_extra_characters(self):
+        with self.assertRaises(ValueError):
+            validate_ref_type("5a")
+
+    def test_nonexistent_verse_in_existing_chapter(self):
+        with self.assertRaises(ValueError):
+            get_reference("verse", 1, 999, None, 16)
+
+    def test_chapter_no_translation_for_valid_author(self):
+        # Assuming chapter 1 has no translation for author ID 999
+        with self.assertRaises(ValueError):
+            get_reference("chapter", 1, None, None, 999)
+
+    def test_valid_range_across_non_sequential_verses(self):
+        # Modify this test according to your data's specifics
+        result = get_reference("range", 2, 1, 5, 16)
+        self.assertIn("author", result)
+        self.assertIn("text", result)
+
+    def test_chapter_and_verse_as_string(self):
+        with self.assertRaises(ValueError):
+            get_reference("verse", "1", "1", None, 16)
+
 if __name__ == '__main__':
     unittest.main()
