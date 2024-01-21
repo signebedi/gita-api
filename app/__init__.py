@@ -23,14 +23,21 @@ def validate_ref_type(reference):
     """
     if CHAPTER_REGEX.match(reference):
         return 'chapter', int(reference), None, None
+
     elif VERSE_REGEX.match(reference):
         chapter, verse = map(int, reference.split('.'))
         return 'verse', chapter, verse, None
+
     elif RANGE_REGEX.match(reference):
         chapter_part, verse_range = reference.split('.')
         chapter = int(chapter_part)
         start_verse, end_verse = map(int, verse_range.split('-'))
+
+        if start_verse >= end_verse:
+            raise ValueError("Invalid verse range: start verse should be less than end verse")
+
         return 'range', chapter, start_verse, end_verse
+
     else:
         raise ValueError('Invalid reference format')
 
