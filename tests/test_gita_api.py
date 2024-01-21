@@ -33,9 +33,9 @@ class TestGitaAPI(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_ref_type("2.a")
 
-    # def test_invalid_range_format(self):
-    #     with self.assertRaises(ValueError):
-    #         validate_ref_type("3.5-4")
+    def test_invalid_range_format(self):
+        with self.assertRaises(ValueError):
+            validate_ref_type("3.5-4")
 
     def test_invalid_chapter_in_range(self):
         with self.assertRaises(ValueError):
@@ -63,6 +63,18 @@ class TestGitaAPI(unittest.TestCase):
     def test_get_reference_invalid_ref_type(self):
         with self.assertRaises(ValueError):
             get_reference("invalid_type", 1, 1, None, 16)
+
+    def test_get_reference_invalid_author_id(self):
+        with self.assertRaises(ValueError):
+            get_reference("range", 1, 1, None, 24)
+
+    def test_get_reference_invalid_author_type(self):
+        with self.assertRaises(ValueError):
+            get_reference("range", 1, 1, 2, "invalid_type")
+
+    def test_get_reference_invalid_range_for_null_range_end(self):
+        with self.assertRaises(ValueError):
+            get_reference("range", 1, 1, None, 16)
 
     def test_get_reference_chapter_all_verses(self):
         result = get_reference("chapter", 1, None, None, 16)
