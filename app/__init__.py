@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 # Load the JSON file into a DataFrame
 df = pd.read_json('data/translation.json')
+df2 = pd.read_json('data/verse.json')
 
 # Regular expressions for different types of references
 CHAPTER_REGEX = re.compile(r'^([1-9]|1[0-8])$')
@@ -13,6 +14,56 @@ VERSE_REGEX = re.compile(r'^([1-9]|1[0-8])\.([1-9]|[1-9][0-9]+)$')
 RANGE_REGEX = re.compile(r'^([1-9]|1[0-8])\.([1-9]|[1-9][0-9]+)-([1-9]|[1-9][0-9]+)$')
 
 
+def validate_ref_type(reference):
+    """
+    Validate the reference and determine its type.
+
+    :param reference: str - The reference string to validate.
+    :return: tuple - A tuple containing the reference type and additional details.
+    """
+    if CHAPTER_REGEX.match(reference):
+        return 'chapter', int(reference), None, None
+    elif VERSE_REGEX.match(reference):
+        chapter, verse = map(int, reference.split('.'))
+        return 'verse', chapter, verse, None
+    elif RANGE_REGEX.match(reference):
+        chapter_part, verse_range = reference.split('.')
+        chapter = int(chapter_part)
+        start_verse, end_verse = map(int, verse_range.split('-'))
+        return 'range', chapter, start_verse, end_verse
+    else:
+        raise ValueError('Invalid reference format')
+
+def get_reference(ref_type, chapter, verse, range_end, author_id):
+    """
+    Fetch the Gita content based on the reference type and details.
+
+    :param ref_type: str - The type of reference ('chapter', 'verse', or 'range').
+    :param chapter: int - The chapter number.
+    :param verse: int - The verse number (if applicable).
+    :param range_end: int - The end verse number (if applicable).
+    :param author_id: int - The author ID.
+    :return: list - A list of descriptions.
+    """
+    # Filter df2 based on the reference type to get the verse IDs
+    if ref_type == 'chapter':
+        verse_ids = df2[df2['chapter_number'] == chapter]['id'].tolist()
+    elif ref_type == 'verse':
+        verse_ids = df2[(df2['chapter_number'] == chapter) & (df2['verse_number'] == verse)]['id'].tolist()
+    elif ref_type == 'range':
+        verse_ids = df2[(df2['chapter_number'] == chapter) & (df2['verse_number'].between(verse, range_end))]['id'].tolist()
+    else:
+        raise ValueError('Invalid reference type')
+
+    if not verse_ids:
+        raise ValueError('No verses found for the given reference')
+
+    # Use verse_ids to filter df and get descriptions for the specified author
+    filtered_df = df[(df['verse_id'].isin(verse_ids)) & (df['author_id'] == author_id)]
+    if filtered_df.empty:
+        raise ValueError('No records found for the author and verses')
+
+    return filtered_df['description'].tolist()
 
 @app.route('/gita', methods=['GET'])
 def get_gita_section():
@@ -23,35 +74,16 @@ def get_gita_section():
     if not reference:
         return jsonify({'error': 'No reference provided'}), 400
 
+    reference = reference.strip()
 
-    # Validate and parse the reference
-    if CHAPTER_REGEX.match(reference):
-        ref_type = 'chapter'
-        chapter = int(reference)
-    elif VERSE_REGEX.match(reference):
-        ref_type = 'verse'
-        chapter, verse = map(int, reference.split('.'))
-    elif RANGE_REGEX.match(reference):
-        ref_type = 'range'
-        chapter, verse_range = reference.split('.')
-        start_verse, end_verse = map(int, verse_range.split('-'))
-    else:
-        return jsonify({'error': 'Invalid reference format'}), 400
-
-    # Query the DataFrame for the relevant content
     try:
-        if ref_type == 'chapter':
-            verses = df[(df['author_id'] == author_id) & (df['verseNumber'].between(chapter * 100 + 1, chapter * 100 + 100))]
-        elif ref_type == 'verse':
-            verses = df[(df['author_id'] == author_id) & (df['verseNumber'] == chapter * 100 + verse)]
-        else:  # ref_type == 'range'
-            verses = df[(df['author_id'] == author_id) & (df['verseNumber'].between(chapter * 100 + start_verse, chapter * 100 + end_verse))]
+        # Validate reference type
+        ref_type, chapter, verse, range_end = validate_ref_type(reference)
 
-        if verses.empty:
-            raise ValueError('No records found')
+        # Fetch the relevant content
+        gita_content = get_reference(ref_type, chapter, verse, range_end, author_id)
 
-        gita_content = verses['description'].tolist()
-    except Exception as e:
+    except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
     return jsonify({'content': gita_content}), 200
