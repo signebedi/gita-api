@@ -1,8 +1,13 @@
 import re
 import pandas as pd
 from flask import Flask, request, jsonify
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
+
+# Add rate limits
+limiter = Limiter(get_remote_address, app=app, default_limits=["200 per day", "50 per hour"])
 
 # Load the JSON file into a DataFrame
 df = pd.read_json('data/translation.json')
@@ -64,7 +69,7 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
 
         if not range_end:
             raise ValueError('Invalid reference type')
-            
+
         verse_ids = df2[(df2['chapter_number'] == chapter) & (df2['verse_number'].between(verse, range_end))]['id'].tolist()
         full_reference = f"{chapter}.{verse}-{range_end}"
     else:
