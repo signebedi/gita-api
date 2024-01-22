@@ -31,10 +31,10 @@ class Config(object):
 
 class ProductionConfig(Config):
     SECRET_KEY = collect_secrets_from_file(".secret_key")
-    SQLALCHEMY_DATABASE_URI = 'mysql://user@localhost/foo'
+    # SQLALCHEMY_DATABASE_URI = 'mysql://user@localhost/foo'
     HCAPTCHA_ENABLED = True
-    HCAPTCHA_SITE_KEY = ""
-    HCAPTCHA_SECRET_KEY = ""
+    HCAPTCHA_SITE_KEY = collect_secrets_from_file(".hcaptcha_site_key")
+    HCAPTCHA_SECRET_KEY = collect_secrets_from_file(".hcaptcha_secret_key")
     SMTP_ENABLED = True
     SMTP_MAIL_SERVER = ""
     SMTP_PORT = ""
