@@ -5,6 +5,7 @@ from flask import (
     request, 
     jsonify, 
     render_template, 
+    url_for,
     current_app
 )
 from flask_limiter import Limiter
@@ -24,6 +25,7 @@ if env == 'production':
 else:
     app.config.from_object(DevelopmentConfig)
 
+# Allow us to get access to the end user's source IP
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 
 # Arrange standard data to pass to jinja templates
