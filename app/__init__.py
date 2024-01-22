@@ -7,7 +7,9 @@ from flask_limiter.util import get_remote_address
 app = Flask(__name__)
 
 # Add rate limits
-limiter = Limiter(get_remote_address, app=app, default_limits=["200 per day", "50 per hour"])
+limiter = Limiter(get_remote_address, app=app, 
+    default_limits=["200 per day", "50 per hour"],
+)
 
 # Load the JSON file into a DataFrame
 df = pd.read_json('data/translation.json')
