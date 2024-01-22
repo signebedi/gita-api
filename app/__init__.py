@@ -9,6 +9,8 @@ from flask import (
     render_template, 
     url_for,
     current_app,
+    flash,
+    redirect,
 )
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -20,6 +22,7 @@ from flask_login import (
     UserMixin,
 )
 from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
 from app.config import DevelopmentConfig, ProductionConfig
@@ -200,6 +203,64 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
+    # we only make this view visible if the user isn't logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
+
+    if request.method == 'POST':
+
+        username = request.form['username']
+        password = request.form['password']
+
+
+        error = None
+
+        if app.config["HCAPTCHA_ENABLED"]:
+            if not hcaptcha.verify():
+                flash('There was a Captcha validation error.', "warning")
+                return redirect(url_for('login'))
+
+
+        try:
+            user = User.query.filter(User.username.ilike(username.lower())).first()
+        except Exception as e:
+            flash('There was a problem logging in. Please try again shortly. If the problem persists, contact your system administrator.', "warning")
+            return redirect(url_for('login'))
+
+
+        if not user:
+            error = 'Incorrect username. '
+        elif not check_password_hash(user.password, password):
+
+            if app.config["MAX_LOGIN_ATTEMPTS"]:
+                user.failed_login_attempts += 1
+                if user.failed_login_attempts >= app.config["MAX_LOGIN_ATTEMPTS"]:
+                    user.active = 0
+                    flash('Account is locked due to too many failed login attempts.', 'danger')
+                db.session.commit()
+            error = 'Incorrect password. '
+
+        elif user.active == 0:
+            flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
+            return redirect(url_for('login'))
+
+        if error is None:
+
+            login_user(user, remember=remember)
+
+            # Update last_login time
+            user.last_login = datetime.datetime.now()
+            db.session.commit()
+
+            flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
+
+            return redirect(url_for('home'))
+
+        flash(error, "warning")
+
+
     return render_template('login.html.jinja', 
                             **standard_view_kwargs()
                             )
@@ -208,6 +269,67 @@ def login():
 
 @app.route('/create', methods=['GET', 'POST'])
 def create_user():
+
+    # we only make this view visible if the user isn't logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        # reenter_password = request.form['reenter_password']
+
+        if app.config["HCAPTCHA_ENABLED"]:
+            if not hcaptcha.verify():
+                flash('There was a Captcha validation error.', "warning")
+                return redirect(url_for('login'))
+
+        if username == "":
+            username = None
+        if email == "":
+            email = None
+
+        error = None
+
+        if not username:
+            error = 'Username is required. '
+        elif not password:
+            error = 'Password is required. '
+        elif not email:
+            error = 'Email is required. '
+
+        elif email and User.query.filter(User.email.ilike(email)).first():
+            error = 'Email is already registered. ' 
+        elif User.query.filter(User.username.ilike(username.lower())).first():
+            error = f'Username {username.lower()} is already registered. ' 
+
+        if error is None:
+            try:
+                new_user = User(
+                            email=email, 
+                            username=username.lower(), 
+                            password=generate_password_hash(password),
+                            active=app.config["REQUIRE_EMAIL_VERIFICATION"],
+                        ) 
+                db.session.add(new_user)
+                db.session.commit()
+
+                if app.config["REQUIRE_EMAIL_VERIFICATION"]:
+                #     key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
+                #     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
+                    flash(f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link. ', "success")
+                else:
+                #     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email, logfile=log)
+                    flash(f'Successfully created user \'{username.lower()}\'.', "success")
+
+            except Exception as e: 
+                error = f"There was an issue registering the user.{' '+str(e) if env != 'production' else ''}"
+            else:
+                return redirect(url_for("login"))
+
+        flash(f"There was an error in processing your request. {error}", 'warning')
+
     return render_template('create_user.html.jinja', 
                             **standard_view_kwargs()
                             )

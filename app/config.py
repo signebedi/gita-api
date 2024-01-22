@@ -28,6 +28,8 @@ class Config(object):
     SMTP_ENABLED = False
     CELERY_ENABLED = False
     RATE_LIMITS_ENABLED = False
+    MAX_LOGIN_ATTEMPTS = False
+    REQUIRE_EMAIL_VERIFICATION=False
 
 class ProductionConfig(Config):
     SECRET_KEY = collect_secrets_from_file(".secret_key")
@@ -53,6 +55,8 @@ class ProductionConfig(Config):
     RATE_LIMITS_ENABLED = True
     # Placeholder - define not-in-memory storage for Flask-Limiter,
     # see https://flask-limiter.readthedocs.io#configuring-a-storage-backend.
+    MAX_LOGIN_ATTEMPTS=5
+    REQUIRE_EMAIL_VERIFICATION=True
 
 class DevelopmentConfig(Config):
     DEBUG = True
