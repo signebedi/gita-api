@@ -1,0 +1,29 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}
+Create User
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Create User</h1>
+    <form method="POST" action="{{ url_for('create_user') }}">
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="username" class="form-control" pattern="^[a-zA-Z0-9_]{3,15}$" title="Username should be 3-15 characters long and contain only letters, numbers, and underscores." required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$" title="Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number." required>
+        </div>
+        <div class="mb-3">
+            {{ hcaptcha.render() }}
+        </div>
+        <button type="submit" class="btn btn-primary" onClick="this.form.submit(); this.disabled=true; this.value='Creating...';">Create</button>
+    </form>
+</div>
+{% endblock %}
