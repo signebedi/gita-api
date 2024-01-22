@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 # Add rate limits
 limiter = Limiter(get_remote_address, app=app, 
-    default_limits=["200 per day", "50 per hour"],
+    # default_limits=["1000 per day", "50 per hour"],
 )
 
 # Load the JSON file into a DataFrame
@@ -49,6 +49,25 @@ def validate_ref_type(reference):
 
     else:
         raise ValueError('Invalid reference format')
+
+
+@app.route('/validate_reference', methods=['POST'])
+def validate_reference():
+    try:
+        # Parse the JSON payload
+        data = request.get_json()
+        reference = data.get('value')
+
+        if not reference:
+            return jsonify({'status': 'failure', 'msg': 'No reference provided'}), 400
+
+        # Validate the reference
+        ref_type, chapter, verse, range_end = validate_ref_type(reference)
+        return jsonify({'status': 'success', 'ref_type': ref_type, 'chapter': chapter, 'verse': verse, 'range_end': range_end})
+
+    except ValueError as e:
+        return jsonify({'status': 'failure', 'msg': str(e)}), 400
+
 
 
 def get_reference(ref_type, chapter, verse, range_end, author_id):
@@ -102,7 +121,10 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
 def home():
     return render_template('index.html.jinja', authors=authors)
 
+
 @app.route('/api/gita', methods=['GET'])
+@limiter.limit("50/hour")
+@limiter.limit("200/day")
 def get_gita_section():
     reference = request.args.get('reference')
     author_id = int(request.args.get('author_id', default='16'))

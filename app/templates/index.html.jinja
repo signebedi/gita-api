@@ -20,7 +20,10 @@ Gita API
 
         <fieldset class="form-group">
             <label for="reference" class="form-label mt-5">Reference (Chapter.Verse):</label>
-            <input type="text" id="reference" name="reference" class="form-control" placeholder="e.g., 1.5">
+            <input type="text" onchange="validateReference(this.value);" id="reference" name="reference" class="form-control" placeholder="e.g., 1.5">
+			<div class="valid-feedback" id="reference-is-valid">This field is valid!</div>
+			<div class="invalid-feedback" id="reference-is-invalid">This field is invalid!</div>    
+
         </fieldset>
 
         <fieldset style="padding-top: 10px;" class="form-group">
@@ -61,5 +64,38 @@ Gita API
                 container.innerHTML = `<p>An error occurred: ${error}</p>`;
             });
     });
+
+    async function validateReference(val) {
+
+        const foo = document.getElementById("reference")
+
+        let payload = {
+            value: val
+        };
+
+        let response = await fetch('{{ url_for ('validate_reference') }}', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        let result = await response.json();
+        var submit = document.getElementById("form-button-submit");
+
+        if (result['status'] == 'success') {
+            foo.classList.remove("is-invalid")
+            foo.classList.add("is-valid")
+            submit.classList.remove("disabled")
+
+        } else {
+            document.getElementById("reference-is-invalid").innerHTML = "This field is invalid! " + result['msg']
+            foo.classList.add("is-invalid")
+            foo.classList.remove("is-valid")
+            submit.classList.add("disabled")
+        }
+    }
+
 </script>
 {% endblock %}
