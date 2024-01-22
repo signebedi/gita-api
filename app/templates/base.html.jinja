@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Stylesheet -->
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link id="light-theme" href="{{ url_for('static', filename='bootstrap-flatly-5.3.1.min.css') }}" rel="stylesheet">
+
+    <!-- Dark theme (initially disabled) -->
+    <link id="dark-theme" rel="stylesheet" href="{{ url_for('static', filename='bootstrap-darkly-5.3.1.min.css') }}" disabled>
+
+
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('home') }}">Gita API</a>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <div class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+                    <button id="theme-toggle" class="theme-button">
+                        <!-- Moon SVG -->
+                        <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+
+                        <!-- Sun SVG -->
+                        <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="display: none;">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- End of Navbar -->
+
+
+    {% block content %}{% endblock %}
+
+
+    <!-- Bootstrap 5 JS  -->
+    <script src="{{ url_for('static', filename='bootstrap.bundle-5.2.3.js') }}"></script>
+
+    <script>
+        function setTheme(theme) {
+            let lightTheme = document.getElementById('light-theme');
+            let darkTheme = document.getElementById('dark-theme');
+            let moonIcon = document.getElementById('moon-icon');
+            let sunIcon = document.getElementById('sun-icon');
+
+            if (theme === 'dark') {
+                darkTheme.removeAttribute('disabled');
+                lightTheme.setAttribute('disabled', 'true');
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+                document.body.setAttribute('data-theme', 'dark'); 
+            } else {
+                lightTheme.removeAttribute('disabled');
+                darkTheme.setAttribute('disabled', 'true');
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+                document.body.removeAttribute('data-theme'); 
+            }
+        }
+
+        // Check system preference if no user preference exists
+        function initializeTheme() {
+            let storedPreference = localStorage.getItem('theme');
+            let userPrefersDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : false;
+            
+            if (storedPreference) {
+                setTheme(storedPreference);
+            } else if (userPrefersDark) {
+                setTheme('dark');
+            } else {
+                setTheme('light');
+            }
+        }
+
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            let lightTheme = document.getElementById('light-theme');
+            let darkTheme = document.getElementById('dark-theme');
+
+            if (darkTheme.disabled) {
+                setTheme('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                setTheme('light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+
+
+        window.addEventListener('DOMContentLoaded', initializeTheme);
+
+    </script>
+
+
+    {% block scripts %}{% endblock %}
+
+
+</body>
+</html>
+

@@ -23,7 +23,7 @@ class FlaskAppTestCaseWithoutRateLimiting(unittest.TestCase):
         self.assertIn('error', response.get_json())
 
 class FlaskAppTestCaseWithRateLimiting(unittest.TestCase):
-
+    
     def setUp(self):
         limiter.enabled = True
         self.app = app.test_client()

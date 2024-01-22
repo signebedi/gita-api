@@ -1,6 +1,6 @@
 import re
 import pandas as pd
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
@@ -14,6 +14,8 @@ limiter = Limiter(get_remote_address, app=app,
 # Load the JSON file into a DataFrame
 df = pd.read_json('data/translation.json')
 df2 = pd.read_json('data/verse.json')
+df3 = pd.read_json('data/authors.json')
+authors = list(df3[['id', 'name']].itertuples(index=False, name=None))
 
 # Regular expressions for different types of references
 CHAPTER_REGEX = re.compile(r'^([1-9]|1[0-8])$')
@@ -96,8 +98,11 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
 
     return output
 
+@app.route('/', methods=['GET'])
+def home():
+    return render_template('index.html.jinja', authors=authors)
 
-@app.route('/gita', methods=['GET'])
+@app.route('/api/gita', methods=['GET'])
 def get_gita_section():
     reference = request.args.get('reference')
     author_id = int(request.args.get('author_id', default='16'))

@@ -1,0 +1,65 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}
+Gita API
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Welcome to the Gita API</h1>
+    <form id="gitaForm">
+        <fieldset class="form-group">
+            <label for="author" class="form-label mt-5">Select Author:</label>
+            <select name="author" id="author" class="form-select">
+                {% for id, name in authors %}
+                    <option value="{{ id }}" {% if id == 16 %}selected='yes'{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </fieldset>
+
+        <fieldset class="form-group">
+            <label for="reference" class="form-label mt-5">Reference (Chapter.Verse):</label>
+            <input type="text" id="reference" name="reference" class="form-control" placeholder="e.g., 1.5">
+        </fieldset>
+
+        <fieldset style="padding-top: 10px;" class="form-group">
+            <button type="submit" class="btn btn-primary" id="form-button-submit">Submit</button>
+        </fieldset>
+    </form>
+    </div>
+
+<div id="resultContainer" class="container mt-5"></div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+<script>
+    document.getElementById('gitaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const authorId = document.getElementById('author').value;
+        const reference = document.getElementById('reference').value;
+        const container = document.getElementById('resultContainer');
+
+        fetch(`/api/gita?reference=${reference}&author_id=${authorId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    container.innerHTML = `<p>Error: ${data.error}</p>`;
+                } else if (data.content && data.content.text) {
+                    const textHtml = data.content.text.map(text => `<p>${text}</p>`).join('');
+                    container.innerHTML = textHtml;
+                } else {
+                    container.innerHTML = `<p>No content available.</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = `<p>An error occurred: ${error}</p>`;
+            });
+    });
+</script>
+{% endblock %}

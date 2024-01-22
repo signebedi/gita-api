@@ -1,0 +1,40 @@
+.alerts-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1050;
+    width: auto;
+    margin: 20px;
+}
+
+.theme-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    transition: transform 0.3s ease;
+}
+
+.theme-button:hover {
+    transform: scale(1.1);
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Default light theme styles for text inputs and text areas */
+input, select, textarea {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ccc;
+}
+
+/* Dark theme styles for text inputs and text areas */
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea {
+    /* background-color: #333333; */
+    background-color: rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    border: 1px solid #555;
+}
