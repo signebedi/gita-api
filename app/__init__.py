@@ -3,6 +3,7 @@ import pandas as pd
 from flask import Flask, request, jsonify, render_template
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from markupsafe import escape
 
 app = Flask(__name__)
 
@@ -56,7 +57,7 @@ def validate_reference():
     try:
         # Parse the JSON payload
         data = request.get_json()
-        reference = data.get('value')
+        reference = escape(data.get('value'))
 
         if not reference:
             return jsonify({'status': 'failure', 'msg': 'No reference provided'}), 400
@@ -133,7 +134,7 @@ def get_gita_section():
     if not reference:
         return jsonify({'error': 'No reference provided'}), 400
 
-    reference = reference.strip()
+    reference = escape(reference.strip())
 
     try:
         # Validate reference type
