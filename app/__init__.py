@@ -1,18 +1,62 @@
-import re
+import re, os
 import pandas as pd
-from flask import Flask, request, jsonify, render_template
+from flask import (
+    Flask, 
+    request, 
+    jsonify, 
+    render_template, 
+    current_app
+)
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from markupsafe import escape
+from flask_login import LoginManager, current_user
+from werkzeug.middleware.proxy_fix import ProxyFix
+from app.config import DevelopmentConfig, ProductionConfig
 
-VERSION = "1.0.0"
+__version__ = "1.0.0"
 
 app = Flask(__name__)
+
+env = os.environ.get('FLASK_ENV', 'development')
+if env == 'production':
+    app.config.from_object(ProductionConfig)
+else:
+    app.config.from_object(DevelopmentConfig)
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
+
+# Arrange standard data to pass to jinja templates
+def standard_view_kwargs():
+    kwargs = {}
+    kwargs['version'] = __version__
+    kwargs['config'] = {
+        "HCAPTCHA_ENABLED": app.config["HCAPTCHA_ENABLED"],
+        "HCAPTCHA_SITE_KEY": app.config["HCAPTCHA_SITE_KEY"] if app.config["HCAPTCHA_ENABLED"] else None,
+    }
+    return kwargs
+
 
 # Add rate limits
 limiter = Limiter(get_remote_address, app=app, 
     # default_limits=["1000 per day", "50 per hour"],
 )
+limiter.enabled = app.config['RATE_LIMITS_ENABLED']
+
+# Create hCaptcha object if enabled
+if app.config['HCAPTCHA_ENABLED']:
+    from flask_hcaptcha import hCaptcha
+    hcaptcha = hCaptcha()
+    hcaptcha.init_app(app)
+
+# Setup login manager
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 # Load the JSON file into a DataFrame
 df = pd.read_json('data/translation.json')
@@ -120,9 +164,18 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
 
     return output
 
+@app.route('/text', methods=['GET'])
+def text():
+    return render_template('text.html.jinja', 
+                            authors=authors,
+                            **standard_view_kwargs()
+                            )
+
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html.jinja', authors=authors, version=VERSION)
+    return render_template('about.html.jinja', **standard_view_kwargs())
+
+
 
 
 @app.route('/api/gita', methods=['GET'])
