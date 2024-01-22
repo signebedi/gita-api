@@ -14,6 +14,12 @@
     <!-- Dark theme (initially disabled) -->
     <link id="dark-theme" rel="stylesheet" href="{{ url_for('static', filename='bootstrap-darkly-5.3.1.min.css') }}" disabled>
 
+    <!-- Jquery -->
+    <script src="{{ url_for('static', filename='jquery-3.7.0.min.js') }}"></script>
+    <!-- Jquery UI -->
+    <script src="{{ url_for('static', filename='jquery-ui.js') }}"></script>
+
+
     {% if config['HCAPTCHA_ENABLED'] %}
     <!-- hCaptcha (if enabled) -->
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
@@ -32,35 +38,30 @@
 
                 <ul class="navbar-nav">
 
+                    {% if current_user.is_authenticated %}
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('text') }}">Text Search</a>
                     </li>
 
-                    {# {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('edit_config') }}">Config</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('create_invoice') }}">Create</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('view_all') }}">View</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('view_schedule') }}">Schedule</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
                     {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('login') }}">Login</a>
                     </li>
-                    {% endif %} #}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_user') }}">Create Account</a>
+                    </li>
+
+                    {% endif %}
                 </ul>
 
 
                 <div class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+                    {% if current_user.is_authenticated %}
+                    <li style="padding: 10px;">Currently logged in as <small class="text-muted">{{ current_user.username }}</small>.</li>
+                    {% endif %}
 
                     <button id="theme-toggle" class="theme-button">
                         <!-- Moon SVG -->

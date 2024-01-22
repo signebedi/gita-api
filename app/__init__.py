@@ -10,7 +10,7 @@ from flask import (
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from markupsafe import escape
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager, current_user, login_required
 from werkzeug.middleware.proxy_fix import ProxyFix
 from app.config import DevelopmentConfig, ProductionConfig
 
@@ -34,6 +34,8 @@ def standard_view_kwargs():
         "HCAPTCHA_ENABLED": app.config["HCAPTCHA_ENABLED"],
         "HCAPTCHA_SITE_KEY": app.config["HCAPTCHA_SITE_KEY"] if app.config["HCAPTCHA_ENABLED"] else None,
     }
+    kwargs['current_user'] = current_user
+
     return kwargs
 
 
@@ -51,7 +53,7 @@ if app.config['HCAPTCHA_ENABLED']:
 
 # Setup login manager
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'
+login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 @login_manager.user_loader
@@ -164,7 +166,23 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
 
     return output
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    return render_template('login.html.jinja', 
+                            **standard_view_kwargs()
+                            )
+
+
+
+@app.route('/create', methods=['GET', 'POST'])
+def create_user():
+    return render_template('create_user.html.jinja', 
+                            **standard_view_kwargs()
+                            )
+
 @app.route('/text', methods=['GET'])
+@login_required
 def text():
     return render_template('text.html.jinja', 
                             authors=authors,
