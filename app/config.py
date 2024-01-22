@@ -2,10 +2,10 @@ import os, secrets
 
 def collect_secrets_from_file(filename):
     try:
-        os.makedirs(os.path.join(os.getcwd(), 'config'))
+        os.makedirs(os.path.join(os.getcwd(), 'instance'))
     except OSError:
         pass
-    filepath = os.path.join(os.getcwd(), 'config', filename)
+    filepath = os.path.join(os.getcwd(), 'instance', filename)
     if not os.path.exists(filepath):
         with open(filepath, 'w') as f: 
             # create, write, and return secret key if doesn't exist
@@ -17,10 +17,13 @@ def collect_secrets_from_file(filename):
         return f.readlines()[0].strip()
 
 
+
+
 class Config(object):
     DEBUG = False
     SECRET_KEY = "supersecret_dev_key"
-    DATABASE_URI = 'sqlite://:memory:'
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(os.getcwd(), "instance", "app.sqlite")}'
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
     HCAPTCHA_ENABLED = False
     SMTP_ENABLED = False
     CELERY_ENABLED = False
@@ -28,7 +31,7 @@ class Config(object):
 
 class ProductionConfig(Config):
     SECRET_KEY = collect_secrets_from_file(".secret_key")
-    DATABASE_URI = 'mysql://user@localhost/foo'
+    SQLALCHEMY_DATABASE_URI = 'mysql://user@localhost/foo'
     HCAPTCHA_ENABLED = True
     HCAPTCHA_SITE_KEY = ""
     HCAPTCHA_SECRET_KEY = ""

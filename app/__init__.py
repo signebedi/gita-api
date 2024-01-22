@@ -1,19 +1,30 @@
 import re, os
 import pandas as pd
+from datetime import datetime
+
 from flask import (
     Flask, 
     request, 
     jsonify, 
     render_template, 
     url_for,
-    current_app
+    current_app,
 )
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from markupsafe import escape
-from flask_login import LoginManager, current_user, login_required
+from flask_login import (
+    LoginManager, 
+    current_user, 
+    login_required, 
+    UserMixin,
+)
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_sqlalchemy import SQLAlchemy
+
 from app.config import DevelopmentConfig, ProductionConfig
+
+
 
 __version__ = "1.0.0"
 
@@ -27,6 +38,24 @@ else:
 
 # Allow us to get access to the end user's source IP
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
+db = SQLAlchemy()
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True) 
+    email = db.Column(db.String(1000))
+    password = db.Column(db.String(1000))
+    username = db.Column(db.String(1000), unique=True)
+    active = db.Column(db.Integer)
+    created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+    last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+    failed_login_attempts = db.Column(db.Integer, default=0)
+
+db.init_app(app=app)
+with app.app_context():
+    db.create_all()
 
 # Arrange standard data to pass to jinja templates
 def standard_view_kwargs():
