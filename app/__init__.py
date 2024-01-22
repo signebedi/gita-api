@@ -20,8 +20,8 @@ authors = list(df3[['id', 'name']].itertuples(index=False, name=None))
 
 # Regular expressions for different types of references
 CHAPTER_REGEX = re.compile(r'^([1-9]|1[0-8])$')
-VERSE_REGEX = re.compile(r'^([1-9]|1[0-8])\.([1-9]|[1-9][0-9]+)$')
-RANGE_REGEX = re.compile(r'^([1-9]|1[0-8])\.([1-9]|[1-9][0-9]+)-([1-9]|[1-9][0-9]+)$')
+VERSE_REGEX = re.compile(r'^([1-9]|1[0-8])\.([1-9]|[1-9][0-9])$')
+RANGE_REGEX = re.compile(r'^([1-9]|1[0-8])\.([1-9]|[1-9][0-9])-([1-9]|[1-9][0-9])$')
 
 
 def validate_ref_type(reference):
@@ -64,7 +64,7 @@ def validate_reference():
 
         # Validate the reference
         ref_type, chapter, verse, range_end = validate_ref_type(reference)
-        return jsonify({'status': 'success', 'ref_type': ref_type, 'chapter': chapter, 'verse': verse, 'range_end': range_end})
+        return jsonify({'status': 'success'}), 200
 
     except ValueError as e:
         return jsonify({'status': 'failure', 'msg': str(e)}), 400
