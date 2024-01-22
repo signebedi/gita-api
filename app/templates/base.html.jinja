@@ -14,6 +14,11 @@
     <!-- Dark theme (initially disabled) -->
     <link id="dark-theme" rel="stylesheet" href="{{ url_for('static', filename='bootstrap-darkly-5.3.1.min.css') }}" disabled>
 
+    {% if config['HCAPTCHA_ENABLED'] %}
+    <!-- hCaptcha (if enabled) -->
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    {% endif %}
+
 
 </head>
 <body>
