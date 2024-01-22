@@ -5,6 +5,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from markupsafe import escape
 
+VERSION = "1.0.0"
+
 app = Flask(__name__)
 
 # Add rate limits
@@ -120,7 +122,7 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html.jinja', authors=authors)
+    return render_template('index.html.jinja', authors=authors, version=VERSION)
 
 
 @app.route('/api/gita', methods=['GET'])
