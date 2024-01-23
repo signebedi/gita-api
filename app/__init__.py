@@ -70,6 +70,9 @@ mailer = Mailer(
     from_address = app.config['SMTP_FROM_ADDRESS'],
 )
 
+with app.app_context():
+    signatures = Signatures(app, db=db, byte_len=32, rate_limiting=True)
+
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True) 
@@ -81,9 +84,9 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     failed_login_attempts = db.Column(db.Integer, default=0)
+    # api_key_id = db.Column(db.Integer, db.ForeignKey('signing.id'), nullable=True)
+    api_key = db.Column(db.String(1000), nullable=True)
 
-with app.app_context():
-    signatures = Signatures(app, db=db, byte_len=32, rate_limiting=True)
 
 db.init_app(app=app)
 with app.app_context():
@@ -347,6 +350,12 @@ def create_user():
                             password=generate_password_hash(password),
                             active=app.config["REQUIRE_EMAIL_VERIFICATION"] == False,
                         ) 
+
+                # Create the users API key
+                api_key = signatures.write_key(scope=['api_key'], expiration=365*24, active=True, email=email)
+                new_user.api_key = api_key
+                # *** But what do we do when it expires?
+
                 db.session.add(new_user)
                 db.session.commit()
 
@@ -391,8 +400,7 @@ def verify_email(signature):
 
     if valid:
 
-        Signing = Signatures.get_model()
-        s = Signing.query.filter_by(signature=signature).first()
+        s = signatures.get_model().query.filter_by(signature=signature).first()
         email = s.email
 
         try:
@@ -400,12 +408,12 @@ def verify_email(signature):
             user.active=1
             db.session.commit()
 
-            signing.expire_key(signature)
+            signatures.expire_key(signature)
             flash(f"Successfully activated user {user.username}. ", "success")
             return redirect(url_for('login'))
 
         except Exception as e: 
-            flash (f"There was an error in processing your request.", 'warning')
+            flash (f"There was an error in processing your request.{' '+str(e) if env != 'production' else ''}", 'warning')
     
     return redirect(url_for('login'))
 
