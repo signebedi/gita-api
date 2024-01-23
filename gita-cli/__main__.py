@@ -23,7 +23,8 @@ def prompt_bool(message, default=None):
         else:
             click.echo("Please enter 'y' for yes or 'n' for no.")
 
-@cli.command('init-app')
+@cli.command('init')
+@click.argument('env_type', type=click.Choice(['prod', 'dev'], case_sensitive=False))
 @click.option('--domain', default=None, help='Domain of the application')
 @click.option('--debug', default=None, type=bool, help='Enable or disable debug mode')
 @click.option('--secret-key', default=None, help='Secret key for the application')
@@ -41,14 +42,26 @@ def prompt_bool(message, default=None):
 @click.option('--smtp-from-address', default=None, help='SMTP From Address')
 @click.option('--hcaptcha-site-key', default=None, help='hCaptcha Site Key')
 @click.option('--hcaptcha-secret-key', default=None, help='hCaptcha Secret Key')
-def init_app_command(domain, debug, secret_key, sqlalchemy_database_uri, hcaptcha_enabled, smtp_enabled, celery_enabled, rate_limits_enabled, max_login_attempts, require_email_verification, smtp_mail_server, smtp_port, smtp_username, smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key):
-    env_file = os.path.join(os.getcwd(), 'instance', '.env')
-    
+def init_app_command(env_type, domain, debug, secret_key, sqlalchemy_database_uri, hcaptcha_enabled, smtp_enabled, celery_enabled, rate_limits_enabled, max_login_attempts, require_email_verification, smtp_mail_server, smtp_port, smtp_username, smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key):
+
+    if env_type.lower() == 'prod':
+        env_file = os.path.join(os.getcwd(), 'instance', 'prod.env')
+    else:
+        env_file = os.path.join(os.getcwd(), 'instance', 'dev.env')
+
     # Ensure the instance folder exists
     try:
         os.makedirs(os.path.join(os.getcwd(), 'instance'))
     except OSError:
         pass
+
+    # Ensure both prod.env and dev.env files exist
+    for file in ['prod.env', 'dev.env']:
+        try:
+            open(os.path.join(os.getcwd(), 'instance', file), 'a').close()
+        except OSError:
+            pass    
+        
 
     # Generate a secret key if not provided
     if not secret_key:

@@ -41,6 +41,9 @@ if env == 'production':
 else:
     app.config.from_object(DevelopmentConfig)
 
+print(app.config)
+
+
 # Allow us to get access to the end user's source IP
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 db = SQLAlchemy()
