@@ -1,6 +1,7 @@
 import os
 import click
 import secrets
+from typing import Union
 from dotenv import set_key
 
 # Creating a Click group
@@ -78,9 +79,17 @@ def init_app_command(env_type, domain, debug, secret_key, sqlalchemy_database_ur
         'SMTP_ENABLED': smtp_enabled if smtp_enabled is not None else prompt_bool('Is SMTP enabled?', default=False),
         'CELERY_ENABLED': celery_enabled if celery_enabled is not None else prompt_bool('Is CELERY enabled?', default=False),
         'RATE_LIMITS_ENABLED': rate_limits_enabled if rate_limits_enabled is not None else prompt_bool('Is RATE LIMITS enabled?', default=False),
-        'MAX_LOGIN_ATTEMPTS': max_login_attempts if max_login_attempts is not None else prompt_bool('Is MAX LOGIN ATTEMPTS enabled?', default=False),
         'REQUIRE_EMAIL_VERIFICATION': require_email_verification if require_email_verification is not None else prompt_bool('Is REQUIRE EMAIL VERIFICATION enabled?', default=False)
     }
+
+    if max_login_attempts is None:
+        max_login_attempts = prompt_bool('Is MAX LOGIN ATTEMPTS enabled?', default=False)
+
+    if max_login_attempts:
+        max_login_attempts = click.prompt('How many MAX LOGIN ATTEMPTS?', default=3)
+    
+    config['MAX_LOGIN_ATTEMPTS'] = max_login_attempts
+
 
     # Additional configurations based on enabled features
     if config['HCAPTCHA_ENABLED']:
