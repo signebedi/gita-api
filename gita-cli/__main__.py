@@ -27,7 +27,7 @@ def prompt_bool(message, default=None):
 @cli.command('init')
 @click.argument('env_type', type=click.Choice(['prod', 'dev'], case_sensitive=False))
 @click.option('--domain', default=None, help='Domain of the application')
-@click.option('--debug', default=None, type=bool, help='Enable or disable debug mode')
+# @click.option('--debug', default=None, type=bool, help='Enable or disable debug mode')
 @click.option('--secret-key', default=None, help='Secret key for the application')
 @click.option('--sqlalchemy-database-uri', default=None, help='Database URI for SQLAlchemy')
 @click.option('--hcaptcha-enabled', default=None, type=bool, help='Enable hCaptcha')
@@ -43,7 +43,7 @@ def prompt_bool(message, default=None):
 @click.option('--smtp-from-address', default=None, help='SMTP From Address')
 @click.option('--hcaptcha-site-key', default=None, help='hCaptcha Site Key')
 @click.option('--hcaptcha-secret-key', default=None, help='hCaptcha Secret Key')
-def init_app_command(env_type, domain, debug, secret_key, sqlalchemy_database_uri, hcaptcha_enabled, smtp_enabled, celery_enabled, rate_limits_enabled, max_login_attempts, require_email_verification, smtp_mail_server, smtp_port, smtp_username, smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key):
+def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcaptcha_enabled, smtp_enabled, celery_enabled, rate_limits_enabled, max_login_attempts, require_email_verification, smtp_mail_server, smtp_port, smtp_username, smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key):
 
     if env_type.lower() == 'prod':
         env_file = os.path.join(os.getcwd(), 'instance', 'prod.env')
@@ -71,7 +71,6 @@ def init_app_command(env_type, domain, debug, secret_key, sqlalchemy_database_ur
     # Basic configurations
     config = {
         'DOMAIN': domain if domain is not None else click.prompt('Enter DOMAIN', default='http://localhost:5000'),
-        'DEBUG': debug if debug is not None else prompt_bool('Is DEBUG mode?', default=False),
         'SECRET_KEY': secret_key,
         'SQLALCHEMY_DATABASE_URI': sqlalchemy_database_uri if sqlalchemy_database_uri is not None else f"sqlite:///{os.path.join(os.getcwd(), 'instance', 'app.sqlite')}",
         'SQLALCHEMY_TRACK_MODIFICATIONS': False,
