@@ -12,6 +12,7 @@ from flask import (
     flash,
     redirect,
     abort,
+    session,
 )
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -119,8 +120,8 @@ login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 @login_manager.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(user_id):
+    return User.query.get(user_id)
 
 # Load the JSON file into a DataFrame
 df = pd.read_json('data/translation.json')
@@ -270,7 +271,7 @@ def login():
                 db.session.commit()
             error = 'Incorrect password. '
 
-        elif user.active == 0:
+        elif not user.active:
             flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
             return redirect(url_for('login'))
 
@@ -293,6 +294,11 @@ def login():
                             **standard_view_kwargs()
                             )
 
+@app.route('/logout')
+@login_required
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -339,7 +345,7 @@ def create_user():
                             email=email, 
                             username=username.lower(), 
                             password=generate_password_hash(password),
-                            active=app.config["REQUIRE_EMAIL_VERIFICATION"] == True,
+                            active=app.config["REQUIRE_EMAIL_VERIFICATION"] == False,
                         ) 
                 db.session.add(new_user)
                 db.session.commit()
