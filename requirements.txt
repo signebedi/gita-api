@@ -4,3 +4,4 @@ Flask-Limiter<4.0.0
 Flask-Login<1.0.0
 flask-signing<1.0.0
 pandas<3.0.0
+python-dotenv<2.0.0
