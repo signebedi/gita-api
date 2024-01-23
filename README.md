@@ -38,3 +38,76 @@ Example Response.
   "verses": "5-7",
   "reference": "3.5-7"
 }
+```
+
+#### Installation
+
+Here are some installation instructions for Ubuntu 22.04. [Planned work to implement an Ansible Role](https://github.com/signebedi/gita-api/issues/30) will introduce a distribution-agnostic approach, the code below may not work for Nginx and Package Manager package names for non-Debian Linux distributions. 
+
+Start with initial setup, as root.
+
+```bash
+apt update && apt upgrade -y
+apt install git vim python3 python3-venv certbox nginx
+cd /opt
+git clone https://github.com/signebedi/gita-api
+cd gita-api/
+python3 -m venv venv 
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Install postgres if you'd like:
+```bash
+# Install the postgres packages
+apt install postgresql postgresql-contrib
+
+# Switch to the postgres user
+sudo -i -u postgres
+
+# Create a new user
+psql -c "CREATE USER gita_api WITH PASSWORD 'your_password';"
+
+# Create a new database
+psql -c "CREATE DATABASE gita_api_db OWNER gita_api;"
+
+# Grant all privileges of the database to the user
+psql -c "GRANT ALL PRIVILEGES ON DATABASE gita_api_db TO gita_api;"
+
+# Exit from postgres user
+exit
+
+```
+
+Next we start with configuration. You need to be in your virtualenv for these scripts to work. If you are getting errors when running the scripts below, consider running `source /opt/gita-api/venv/bin/activate` as root. If you are implementing in **development**, follow the following steps.
+
+```bash
+# Setup a development configuration
+python /opt/gita-api/gita-init config dev
+
+# Setup a development daemon
+python /opt/gita-api/gita-init gunicorn --environment development --start-on-success
+```
+These will open up interfaces to help you generate your application configuration. When in doubt, run `python /opt/gita-api/gita-init config --help` to see available options. This also applies for `python /opt/gita-api/gita-init gunicorn --help` and `python /opt/gita-api/gita-init nginx --help`.
+
+
+If you are implementing in **production**, follow the following steps
+
+```bash
+# Setup a production configuration
+python gita-init config prod
+
+# Setup a production daemon
+python gita-init gunicorn --start-on-success
+```
+
+If you would like to use a local Nginx installation as a reverse proxy, you can use one of the following commands depending on whether you want to set of TLS/SSL.
+```bash
+# Setup NGINX without TSL/SSL
+python gita-init nginx --start-on-success --server-name gita.atreeus.com
+
+# Setup NGINX with TLS/SSL and Let's Encrypt Certificates
+python gita-init nginx --start-on-success --server-name gita.atreeus.com --ssl-enabled --request-certbot-certs
+```
+
+All of the gita-init commands above can be run headlessly by passing params as options. If you experience a bug with any of these commands, please open an [issue](https://github.com/signebedi/gita-api/issues/new) and provide the commands you ran and outputs you received.  

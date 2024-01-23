@@ -89,8 +89,8 @@ class User(UserMixin, db.Model):
 
 
 db.init_app(app=app)
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+#     db.create_all()
 
 # Arrange standard data to pass to jinja templates
 def standard_view_kwargs():
@@ -477,4 +477,7 @@ def get_gita_section():
     return jsonify({'content': gita_content}), 200
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+
     app.run(debug=True)

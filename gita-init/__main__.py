@@ -140,7 +140,7 @@ def init_systemd_command(user, group, environment, working_directory, environmen
 
     systemd_unit = f"""
 [Unit]
-Description={environment} git-api gunicorn daemon
+Description={environment} gita-api gunicorn daemon
 After=network.target
 
 [Service]
@@ -155,7 +155,7 @@ ExecStart={environment_path}/gunicorn 'wsgi:app' --config {gunicorn_config}
 WantedBy=multi-user.target
 """
     # click.echo(systemd_unit)
-    unit_file_path = f'/etc/systemd/system/{environment}-git-api.service'
+    unit_file_path = f'/etc/systemd/system/{environment}-gita-api.service'
     # click.echo(unit_file_path)
 
     # Write the systemd unit content to a temporary file
@@ -172,15 +172,15 @@ WantedBy=multi-user.target
     change_ownership(working_directory, user, group)
 
     if start_on_success:
-        os.system(f'sudo systemctl start {environment}-git-api.service')
-        os.system(f'sudo systemctl enable {environment}-git-api.service')
+        os.system(f'sudo systemctl start {environment}-gita-api.service')
+        os.system(f'sudo systemctl enable {environment}-gita-api.service')
 
-    click.echo("Systemd unit file for git-api has been created and daemon reloaded.")
+    click.echo("Systemd unit file for gita-api has been created and daemon reloaded.")
     click.echo("Use the following commands to start and enable the service:")
-    click.echo(f"sudo systemctl start {environment}-git-api.service")
-    click.echo(f"sudo systemctl enable {environment}-git-api.service")
+    click.echo(f"sudo systemctl start {environment}-gita-api.service")
+    click.echo(f"sudo systemctl enable {environment}-gita-api.service")
     if start_on_success:
-        click.echo(f"{environment}-git-api.service has been started and enabled.")
+        click.echo(f"{environment}-gita-api.service has been started and enabled.")
 
 def request_certificates(domain):
     cert_path = f'/etc/letsencrypt/live/{domain}/fullchain.pem'
