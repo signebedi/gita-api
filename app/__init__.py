@@ -11,9 +11,11 @@ from flask import (
     current_app,
     flash,
     redirect,
+    abort,
 )
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_signing import Signatures
 from markupsafe import escape
 from flask_login import (
     LoginManager, 
@@ -41,7 +43,7 @@ if env == 'production':
 else:
     app.config.from_object(DevelopmentConfig)
 
-print(app.config)
+# print(app.config)
 
 
 # Allow us to get access to the end user's source IP
@@ -70,6 +72,9 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     failed_login_attempts = db.Column(db.Integer, default=0)
+
+with app.app_context():
+    signatures = Signatures(app, db=db, byte_len=32, rate_limiting=True)
 
 db.init_app(app=app)
 with app.app_context():
@@ -326,9 +331,7 @@ def create_user():
                             email=email, 
                             username=username.lower(), 
                             password=generate_password_hash(password),
-                            #  This needs to be implemented after adding Flask-Signing
-                            # active=app.config["REQUIRE_EMAIL_VERIFICATION"],
-                            active=True,
+                            active=app.config["REQUIRE_EMAIL_VERIFICATION"],
                         ) 
                 db.session.add(new_user)
                 db.session.commit()
@@ -338,8 +341,8 @@ def create_user():
 
                 if app.config["REQUIRE_EMAIL_VERIFICATION"]:
                     # key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
-                    key = "PLACEHOLDER"
-                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at the Gita API at {app.config['DOMAIN']}. Please verify your email by clicking the following link: {app.config['DOMAIN']}/auth/verify_email/{key}. Please note this link will expire after 48 hours."
+                    key = signatures.write_key(scope=['email_verification'], expiration=48, active=True, email=email)
+                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at the Gita API at {app.config['DOMAIN']}. Please verify your email by clicking the following link: {app.config['DOMAIN']}/verify/{key}. Please note this link will expire after 48 hours."
                     flash_msg = f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link.'
 
                 else:
@@ -359,6 +362,40 @@ def create_user():
     return render_template('create_user.html.jinja', 
                             **standard_view_kwargs()
                             )
+
+
+@app.route('/verify/<signature>', methods=('GET', 'POST'))
+def verify_email(signature):
+
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
+    if not app.config["REQUIRE_EMAIL_VERIFICATION"]:
+        return abort(404)
+
+    valid = signatures.verify_key(signature=signature, scope='email_verification')
+
+    if valid:
+
+        Signing = Signatures.get_model()
+        s = Signing.query.filter_by(signature=signature).first()
+        email = s.email
+
+        try:
+            user = User.query.filter_by(email=str(email)).first() 
+            user.active=1
+            db.session.commit()
+
+            signing.expire_key(signature)
+            flash(f"Successfully activated user {user.username}. ", "success")
+            return redirect(url_for('login'))
+
+        except Exception as e: 
+            flash (f"There was an error in processing your request.", 'warning')
+    
+    return redirect(url_for('login'))
+
+
 
 @app.route('/text', methods=['GET'])
 @login_required
