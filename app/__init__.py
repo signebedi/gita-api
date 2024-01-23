@@ -29,7 +29,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
-from app.config import DevelopmentConfig, ProductionConfig
+from app.config import DevelopmentConfig, ProductionConfig, TestingConfig
 from app.smtp import Mailer
 
 
@@ -40,11 +40,19 @@ app = Flask(__name__)
 env = os.environ.get('FLASK_ENV', 'development')
 if env == 'production':
     app.config.from_object(ProductionConfig)
+elif env == 'testing':
+    app.config.from_object(TestingConfig)
 else:
     app.config.from_object(DevelopmentConfig)
 
 # print(app.config)
 
+# Assert that app.config['DOMAIN'] is not None
+assert app.config['DOMAIN'] is not None, "The 'DOMAIN' configuration must be set. Did you run 'gita-cli init'?"
+
+# Assert that if app.config['REQUIRE_EMAIL_VERIFICATION'] is True, then app.config['SMTP_ENABLED'] must also be True
+assert not app.config['REQUIRE_EMAIL_VERIFICATION'] or app.config['SMTP_ENABLED'], \
+    "SMTP must be enabled ('SMTP_ENABLED' = True) when email verification is required ('REQUIRE_EMAIL_VERIFICATION' = True). Did you run 'gita-cli init'?"
 
 # Allow us to get access to the end user's source IP
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
@@ -331,7 +339,7 @@ def create_user():
                             email=email, 
                             username=username.lower(), 
                             password=generate_password_hash(password),
-                            active=app.config["REQUIRE_EMAIL_VERIFICATION"],
+                            active=app.config["REQUIRE_EMAIL_VERIFICATION"] == True,
                         ) 
                 db.session.add(new_user)
                 db.session.commit()
