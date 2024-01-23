@@ -70,9 +70,9 @@ def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcap
 
     # Basic configurations
     config = {
-        'DOMAIN': domain if domain is not None else click.prompt('Enter DOMAIN', default='http://localhost:5000'),
+        'DOMAIN': domain if domain is not None else click.prompt('Enter DOMAIN', default='http://127.0.0.1:5000'),
         'SECRET_KEY': secret_key,
-        'SQLALCHEMY_DATABASE_URI': sqlalchemy_database_uri if sqlalchemy_database_uri is not None else f"sqlite:///{os.path.join(os.getcwd(), 'instance', 'app.sqlite')}",
+        'SQLALCHEMY_DATABASE_URI': sqlalchemy_database_uri if sqlalchemy_database_uri is not None else click.prompt('What is your database connection string?', default=f"sqlite:///{os.path.join(os.getcwd(), 'instance', 'app.sqlite')}"),
         'SQLALCHEMY_TRACK_MODIFICATIONS': False,
         'HCAPTCHA_ENABLED': hcaptcha_enabled if hcaptcha_enabled is not None else prompt_bool('Is HCAPTCHA enabled?', default=False),
         'SMTP_ENABLED': smtp_enabled if smtp_enabled is not None else prompt_bool('Is SMTP enabled?', default=False),
