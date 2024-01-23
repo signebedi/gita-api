@@ -11,7 +11,8 @@ Create User
 
         <fieldset class="form-group">
             <label for="username" class="form-label">Username</label>
-            <input type="text" id="username" name="username" class="form-control" required>
+            <input type="text" id="username" name="username" class="form-control" 
+                    onchange="validateField('username', /^[a-z0-9_]{5,15}$/, 'Invalid username. Username should be 3-15 characters long and contain only letters, numbers, and underscores.')" required>
             {# Username should be 3-15 characters long and contain only lowercase letters, numbers, and underscores. #}
             <div class="valid-feedback" id="username-is-valid" style="display: none;">This field is valid!</div>
             <div class="invalid-feedback" id="username-is-invalid" style="display: none;"></div>
@@ -24,7 +25,8 @@ Create User
 
         <fieldset class="form-group">
             <label for="password" class="form-label">Password</label>
-            <input type="password" id="password" name="password" class="form-control" required>
+            <input type="password" id="password" name="password" class="form-control" 
+                    onchange="validateField('password', /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Invalid password. Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.')" required>
             {# Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number. #}
             <div class="valid-feedback" id="password-is-valid" style="display: none;">This field is valid!</div>
             <div class="invalid-feedback" id="password-is-invalid" style="display: none;"></div>
@@ -53,54 +55,39 @@ Create User
 
 {% block scripts %}
 <script>
-
 $(document).ready(function() {
     var submitBtn = $('#registrationForm button[type="submit"]');
     submitBtn.prop('disabled', true); // Initially disable the submit button
 
-    function validateInputs() {
-        var username = $('#username').val();
-        var password = $('#password').val();
-        var usernameRegex = /^[a-z0-9_]{5,15}$/;
-        var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        var isValid = true;
+    window.validateField = function(fieldId, regex, invalidMessage) {
+        var field = $('#' + fieldId);
+        var value = field.val();
+        var isValid = regex.test(value);
 
-        // Validate username
-        if (!usernameRegex.test(username)) {
-            $('#username-is-invalid').show().text('Invalid username. Username should be 5-15 characters long and contain only lowercase letters, numbers, and underscores.');
-            $('#username-is-valid').hide();
-            isValid = false;
-        } else {
-            $('#username-is-invalid').hide();
-            $('#username-is-valid').show();
-        }
+        var feedbackId = fieldId + '-is-' + (isValid ? 'valid' : 'invalid');
+        var oppositeFeedbackId = fieldId + '-is-' + (isValid ? 'invalid' : 'valid');
 
-        // Validate password
-        if (!passwordRegex.test(password)) {
-            $('#password-is-invalid').show().text('Invalid password. Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, one special character, and one number.');
-            $('#password-is-valid').hide();
-            isValid = false;
-        } else {
-            $('#password-is-invalid').hide();
-            $('#password-is-valid').show();
-        }
+        $('#' + feedbackId).show().text(isValid ? 'This field is valid!' : invalidMessage);
+        $('#' + oppositeFeedbackId).hide();
+        
+        field.removeClass(isValid ? 'is-invalid' : 'is-valid');
+        field.addClass(isValid ? 'is-valid' : 'is-invalid');
 
-        submitBtn.prop('disabled', !isValid); // Enable or disable the submit button
-        return isValid;
+        updateSubmitButton();
+    };
+
+    function updateSubmitButton() {
+        var isUsernameValid = /^[a-z0-9_]{5,15}$/.test($('#username').val());
+        var isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test($('#password').val());
+        submitBtn.prop('disabled', !(isUsernameValid && isPasswordValid));
     }
 
-    // Check inputs on keyup
-    $('#username, #password').on('keyup', function() {
-        validateInputs();
-    });
-
     $('#registrationForm').on('submit', function(event) {
-        if (!validateInputs()) {
-            event.preventDefault(); // Prevent form submission if validations fail
+        if (!( /^[a-z0-9_]{5,15}$/.test($('#username').val()) && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test($('#password').val()) )) {
+            event.preventDefault();
         }
     });
 });
-
 </script>
 
 {% endblock %}
