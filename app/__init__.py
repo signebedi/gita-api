@@ -275,7 +275,7 @@ def login():
             error = 'Incorrect password. '
 
         elif not user.active:
-            flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
+            flash('Your user is currently inactive. If you recently registered, please check your email for a verification link.', "warning")
             return redirect(url_for('login'))
 
         if error is None:
@@ -301,6 +301,7 @@ def login():
 @login_required
 def logout():
     session.clear()
+    flash("You have successfully logged out.", "sucdess")
     return redirect(url_for('home'))
 
 @app.route('/profile')
@@ -416,7 +417,7 @@ def verify_email(signature):
             db.session.commit()
 
             signatures.expire_key(signature)
-            flash(f"Successfully activated user {user.username}. ", "success")
+            flash(f"Successfully activated user {user.username}.", "success")
             return redirect(url_for('login'))
 
         except Exception as e: 

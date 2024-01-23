@@ -149,7 +149,7 @@ Group={group}
 WorkingDirectory={working_directory}
 Environment='FLASK_ENV={environment}'
 Environment='PATH={environment_path}'
-ExecStart={environment_path}/gunicorn 'app:app' --config {gunicorn_config}
+ExecStart={environment_path}/gunicorn 'wsgi:app' --config {gunicorn_config}
 
 [Install]
 WantedBy=multi-user.target
