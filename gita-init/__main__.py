@@ -225,19 +225,50 @@ def init_nginx_command(server_name, ssl_enabled, request_certbot_certs, ssl_cert
         subprocess.run(['sudo', 'certbot', 'certonly', '--standalone', '-d', server_name])
 
     nginx_config = f"""
+# Default server block for handling unmatched domain requests on port 80
+server {{
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    return 444;  # This will close the connection without responding
+}}
+
 upstream app_server {{
     server {app_ip}:{app_port};
 }}
+
+# Server block for handling HTTP requests
 server {{
     listen                      {http_port};
     listen                      [::]:{http_port};
     server_name                 {server_name};
-    {'return 301 https://$server_name$request_uri;' if ssl_enabled else ''}
+
+    {'return 301 https://$server_name$request_uri;' if ssl_enabled else '''
+    location / {{
+        proxy_pass http://app_server;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }}'''
+    }
 }}
 """
 
+    # Additional server block for handling HTTPS requests, if SSL is enabled
     if ssl_enabled:
         nginx_config += f"""
+# Default server block for handling unmatched domain requests on port 443
+server {{
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name _;
+    ssl_certificate             {ssl_cert_path};
+    ssl_certificate_key         {ssl_cert_key_path};
+    return 444;  # This will close the connection without responding
+}}
+
+# Server block for handling HTTPS requests
 server {{
     listen                      {https_port} ssl;
     listen                      [::]:{https_port} ssl;
@@ -255,6 +286,7 @@ server {{
     }}
 }}
 """
+
 
     # Write the NGINX configuration to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.conf') as tmp_file:
