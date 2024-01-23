@@ -213,7 +213,8 @@ def request_certificates(domain):
 @click.option('--app-port', default=8000, help='Port where the app is running (default: 8000)')
 @click.option('--app-ip', default='0.0.0.0', help='IP address of the app (default: 0.0.0.0)')
 @click.option('--start-on-success', is_flag=True, help='Start and enable NGINX configuration on success')
-def init_nginx_command(server_name, ssl_enabled, request_certbot_certs, ssl_cert_path, ssl_cert_key_path, http_port, https_port, app_port, app_ip, start_on_success):
+@click.option('--retain-default', is_flag=True, help="Retain the default NGINX config in sites-enabled")
+def init_nginx_command(server_name, ssl_enabled, request_certbot_certs, ssl_cert_path, ssl_cert_key_path, http_port, https_port, app_port, app_ip, start_on_success, retain_default):
     """
     Note that you will need certbot installed if installing SSL/TLS certificates at runtime.
     """
@@ -264,6 +265,15 @@ server {{
     nginx_conf_path = f'/etc/nginx/sites-available/{server_name}'
     os.system(f'sudo mv {temp_path} {nginx_conf_path}')
     os.system(f'sudo ln -s {nginx_conf_path} /etc/nginx/sites-enabled/')
+
+    # Remove default NGINX configuration unless --retain-default is passed
+    if not retain_default:
+        default_config_path = '/etc/nginx/sites-enabled/default'
+        if os.path.exists(default_config_path):
+            os.system('sudo rm ' + default_config_path)
+            click.echo("Default NGINX configuration removed.")
+        else:
+            click.echo("No default NGINX configuration found to remove.")
 
     if start_on_success:
         os.system('sudo nginx -t && sudo systemctl restart nginx')
