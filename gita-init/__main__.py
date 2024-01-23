@@ -135,7 +135,8 @@ def change_ownership(path, user, group):
 @click.option('--working-directory', default=os.getcwd(), help='Working directory for the systemd service')
 @click.option('--environment-path', default=os.path.join(os.getcwd(),'venv','bin'), help='Path for the environment')
 @click.option('--gunicorn-config', default=os.path.join(os.getcwd(),'gunicorn.conf.py'), help='Gunicorn configuration file')
-def init_systemd_command(user, group, environment, working_directory, environment_path, gunicorn_config):
+@click.option('--start-on-success', is_flag=True, help='Start and enable NGINX configuration on success')
+def init_systemd_command(user, group, environment, working_directory, environment_path, gunicorn_config, start_on_success):
 
     systemd_unit = f"""
 [Unit]
@@ -170,10 +171,18 @@ WantedBy=multi-user.target
     create_user_and_group(user, group)
     change_ownership(working_directory, user, group)
 
+    if start_on_success:
+        os.system(f'sudo systemctl start {environment}-git-api.service')
+        os.system(f'sudo systemctl enable {environment}-git-api.service')
+
     click.echo("Systemd unit file for git-api has been created and daemon reloaded.")
     click.echo("Use the following commands to start and enable the service:")
     click.echo(f"sudo systemctl start {environment}-git-api.service")
     click.echo(f"sudo systemctl enable {environment}-git-api.service")
+    if start_on_success:
+        click.echo(f"{environment}-git-api.service has been started and enabled.")
+
+
 
 if __name__ == "__main__":
     cli()
