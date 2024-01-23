@@ -20,13 +20,15 @@ from flask_login import (
     current_user, 
     login_required, 
     UserMixin,
+    login_user, 
+    logout_user,
 )
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
 from app.config import DevelopmentConfig, ProductionConfig
-
+from app.smtp import Mailer
 
 
 __version__ = "1.0.0"
@@ -43,6 +45,16 @@ else:
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 db = SQLAlchemy()
 
+
+# Instantiate the Mailer object
+mailer = Mailer(
+    enabled = app.config['SMTP_ENABLED'],
+    mail_server = app.config['SMTP_MAIL_SERVER'],
+    port = app.config['SMTP_PORT'],
+    username = app.config['SMTP_USERNAME'],
+    password = app.config['SMTP_PASSWORD'],
+    from_address = app.config['SMTP_FROM_ADDRESS'],
+)
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -248,10 +260,10 @@ def login():
 
         if error is None:
 
-            login_user(user, remember=remember)
+            login_user(user, remember=False)
 
             # Update last_login time
-            user.last_login = datetime.datetime.now()
+            user.last_login = datetime.now()
             db.session.commit()
 
             flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
@@ -278,6 +290,7 @@ def create_user():
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
+        # Placeholder for https://github.com/signebedi/gita-api/issues/15
         # reenter_password = request.form['reenter_password']
 
         if app.config["HCAPTCHA_ENABLED"]:
@@ -310,18 +323,28 @@ def create_user():
                             email=email, 
                             username=username.lower(), 
                             password=generate_password_hash(password),
-                            active=app.config["REQUIRE_EMAIL_VERIFICATION"],
+                            #  This needs to be implemented after adding Flask-Signing
+                            # active=app.config["REQUIRE_EMAIL_VERIFICATION"],
+                            active=True,
                         ) 
                 db.session.add(new_user)
                 db.session.commit()
 
+                # Email notification
+                subject='Gita User Registered'
+
                 if app.config["REQUIRE_EMAIL_VERIFICATION"]:
-                #     key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
-                #     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
-                    flash(f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link. ', "success")
+                    # key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
+                    key = "PLACEHOLDER"
+                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at the Gita API at {app.config['DOMAIN']}. Please verify your email by clicking the following link: {app.config['DOMAIN']}/auth/verify_email/{key}. Please note this link will expire after 48 hours."
+                    flash_msg = f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link.'
+
                 else:
-                #     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email, logfile=log)
-                    flash(f'Successfully created user \'{username.lower()}\'.', "success")
+                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}."
+                    flash_msg = f'Successfully created user \'{username.lower()}\'.'
+            
+                mailer.send_mail(subject=subject, content=content, to_address=email)
+                flash(flash_msg, "success")
 
             except Exception as e: 
                 error = f"There was an issue registering the user.{' '+str(e) if env != 'production' else ''}"
