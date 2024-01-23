@@ -182,6 +182,98 @@ WantedBy=multi-user.target
     if start_on_success:
         click.echo(f"{environment}-git-api.service has been started and enabled.")
 
+def request_certificates(domain):
+    cert_path = f'/etc/letsencrypt/live/{domain}/fullchain.pem'
+    key_path = f'/etc/letsencrypt/live/{domain}/privkey.pem'
+
+    # Check if the certificate already exists and is valid
+    cert_exists = os.path.isfile(cert_path) and os.path.isfile(key_path)
+    if cert_exists:
+        # Optionally, you can add more checks here to validate the existing certificate
+        print("Certificate already exists.")
+        return cert_path, key_path
+
+    # Running certbot to obtain the certificates
+    try:
+        subprocess.run(['sudo', 'certbot', 'certonly', '--standalone', '-d', domain], check=True)
+        return cert_path, key_path
+    except subprocess.CalledProcessError as e:
+        # Handle errors here
+        print(f"Error obtaining certificates: {e}")
+        return None, None
+
+@cli.command('nginx')
+@click.option('--server-name', prompt='Server name', help='Server name for NGINX')
+@click.option('--ssl-enabled', is_flag=True, help='Enable SSL configuration')
+@click.option('--request-certbot-certs', is_flag=True, help='Request SSL certificates from Let\'s Encrypt')
+@click.option('--ssl-cert-path', default='/etc/ssl/certs/nginx-selfsigned.crt', help='Path to the SSL certificate (ignored if --request-certbot-certs is set)')
+@click.option('--ssl-cert-key-path', default='/etc/ssl/private/nginx-selfsigned.key', help='Path to the SSL certificate key (ignored if --request-certbot-certs is set)')
+@click.option('--http-port', default=80, help='HTTP port for NGINX (default: 80)')
+@click.option('--https-port', default=443, help='HTTPS port for NGINX (default: 443)')
+@click.option('--app-port', default=8000, help='Port where the app is running (default: 8000)')
+@click.option('--app-ip', default='0.0.0.0', help='IP address of the app (default: 0.0.0.0)')
+@click.option('--start-on-success', is_flag=True, help='Start and enable NGINX configuration on success')
+def init_nginx_command(server_name, ssl_enabled, request_certbot_certs, ssl_cert_path, ssl_cert_key_path, http_port, https_port, app_port, app_ip, start_on_success):
+    """
+    Note that you will need certbot installed if installing SSL/TLS certificates at runtime.
+    """
+
+    if request_certbot_certs:
+        ssl_cert_path = f'/etc/letsencrypt/live/{server_name}/fullchain.pem'
+        ssl_cert_key_path = f'/etc/letsencrypt/live/{server_name}/privkey.pem'
+        subprocess.run(['sudo', 'certbot', 'certonly', '--standalone', '-d', server_name])
+
+    nginx_config = f"""
+upstream app_server {{
+    server {app_ip}:{app_port};
+}}
+server {{
+    listen                      {http_port};
+    listen                      [::]:{http_port};
+    server_name                 {server_name};
+    {'return 301 https://$server_name$request_uri;' if ssl_enabled else ''}
+}}
+"""
+
+    if ssl_enabled:
+        nginx_config += f"""
+server {{
+    listen                      {https_port} ssl;
+    listen                      [::]:{https_port} ssl;
+    server_name                 {server_name};
+
+    ssl_certificate             {ssl_cert_path};
+    ssl_certificate_key         {ssl_cert_key_path};
+
+    location / {{
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Server $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_redirect off;
+        proxy_pass http://app_server;
+    }}
+}}
+"""
+
+    # Write the NGINX configuration to a temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.conf') as tmp_file:
+        tmp_file.write(nginx_config.encode())
+        temp_path = tmp_file.name
+
+    # Move the temporary file to the NGINX configuration directory
+    nginx_conf_path = f'/etc/nginx/sites-available/{server_name}'
+    os.system(f'sudo mv {temp_path} {nginx_conf_path}')
+    os.system(f'sudo ln -s {nginx_conf_path} /etc/nginx/sites-enabled/')
+
+    if start_on_success:
+        os.system('sudo nginx -t && sudo systemctl restart nginx')
+        os.system('sudo systemctl enable nginx')
+
+    click.echo("NGINX configuration file has been created.")
+    click.echo(f"Configuration file path: {nginx_conf_path}")
+    if start_on_success:
+        click.echo("NGINX has been restarted and enabled.")
+
 
 
 if __name__ == "__main__":
