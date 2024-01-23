@@ -38,3 +38,17 @@ input, select, textarea {
     color: #ffffff;
     border: 1px solid #555;
 }
+
+
+.copy-hover-effect {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding-left: 8px;
+    transition: transform 0.3s ease;
+    z-index: 999;
+}
+
+.copy-hover-effect:hover {
+    transform: scale(1.05); /* Scales the SVG to 110% of its original size on hover */
+}

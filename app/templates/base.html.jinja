@@ -67,7 +67,7 @@
                 <div class="navbar-nav ms-auto mb-2 mb-lg-0">
 
                     {% if current_user.is_authenticated %}
-                    <li style="padding: 10px;">Currently logged in as <small class="text-muted">{{ current_user.username }}</small>.</li>
+                    <li style="padding: 10px;">Currently logged in as <small><a class="text-muted" href="{{ url_for('profile') }}">{{ current_user.username }}</a></small>.</li>
                     {% endif %}
 
                     <button id="theme-toggle" class="theme-button">
