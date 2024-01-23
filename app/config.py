@@ -21,7 +21,7 @@ def default_get_max_login_attempts(default):
 
 class Config(object):
     CONFIG_FILE_PATH = env_file_path
-    DOMAIN = os.getenv('DOMAIN', "http://localhost:5000")
+    DOMAIN = os.getenv('DOMAIN', 'http://127.0.0.1:5000')
     DEBUG = os.getenv('DEBUG', 'False') == 'True'
     SECRET_KEY = os.getenv('SECRET_KEY', 'supersecret_dev_key')
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', f'sqlite:///{os.path.join(os.getcwd(), "instance", "app.sqlite")}')
