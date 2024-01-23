@@ -301,7 +301,7 @@ def login():
 @login_required
 def logout():
     session.clear()
-    flash("You have successfully logged out.", "sucdess")
+    flash("You have successfully logged out.", "success")
     return redirect(url_for('home'))
 
 @app.route('/profile')
