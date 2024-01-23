@@ -445,6 +445,15 @@ def home():
 @limiter.limit("50/hour")
 @limiter.limit("200/day")
 def get_gita_section():
+    signature = request.headers.get('X-API-KEY', None)
+    if not signature:
+        return jsonify({'error': 'No API key provided'}), 401
+
+    valid = signatures.verify_key(signature, scope=["api_key"])
+    if not valid:
+        return jsonify({'error': 'Invalid API key'}), 401
+
+
     reference = request.args.get('reference')
     author_id = int(request.args.get('author_id', default='16'))
 

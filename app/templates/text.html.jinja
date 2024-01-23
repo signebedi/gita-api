@@ -47,7 +47,12 @@ Gita API
         const reference = document.getElementById('reference').value;
         const container = document.getElementById('resultContainer');
 
-        fetch(`/api/gita?reference=${reference}&author_id=${authorId}`)
+        // Add headers to the fetch request
+        const headers = new Headers({
+            'X-API-KEY': '{{ current_user.api_key }}'
+        });
+
+        fetch(`/api/gita?reference=${reference}&author_id=${authorId}`, { headers: headers })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
