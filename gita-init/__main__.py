@@ -1,6 +1,8 @@
 import os
 import click
 import secrets
+import subprocess
+import tempfile
 from typing import Union
 from dotenv import set_key
 
@@ -24,7 +26,7 @@ def prompt_bool(message, default=None):
         else:
             click.echo("Please enter 'y' for yes or 'n' for no.")
 
-@cli.command('init')
+@cli.command('config')
 @click.argument('env_type', type=click.Choice(['prod', 'dev'], case_sensitive=False))
 @click.option('--domain', default=None, help='Domain of the application')
 # @click.option('--debug', default=None, type=bool, help='Enable or disable debug mode')
@@ -107,6 +109,71 @@ def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcap
         set_key(env_file, key, str(value))
 
     click.echo(f"Configurations have been set. You can find them at {env_file}.")
+
+
+def create_user_and_group(user, group):
+    try:
+        subprocess.run(['sudo', 'groupadd', group], check=True)
+    except subprocess.CalledProcessError:
+        click.echo(f"Group '{group}' already exists or could not be created.")
+
+    try:
+        subprocess.run(['sudo', 'useradd', '-m', '-g', group, user], check=True)
+    except subprocess.CalledProcessError:
+        click.echo(f"User '{user}' already exists or could not be created.")
+
+def change_ownership(path, user, group):
+    try:
+        subprocess.run(['sudo', 'chown', '-R', f'{user}:{group}', path], check=True)
+    except subprocess.CalledProcessError:
+        click.echo(f"Failed to change ownership of {path}.")
+
+@cli.command('gunicorn')
+@click.option('--user', default='gitapi', help='User for the systemd service')
+@click.option('--group', default='gitapi', help='Group for the systemd service')
+@click.option('--environment', default='production', type=click.Choice(['production', 'development', 'testing']), help='Environment for the systemd service')
+@click.option('--working-directory', default=os.getcwd(), help='Working directory for the systemd service')
+@click.option('--environment-path', default=os.path.join(os.getcwd(),'venv','bin'), help='Path for the environment')
+@click.option('--gunicorn-config', default=os.path.join(os.getcwd(),'gunicorn.conf.py'), help='Gunicorn configuration file')
+def init_systemd_command(user, group, environment, working_directory, environment_path, gunicorn_config):
+
+    systemd_unit = f"""
+[Unit]
+Description={environment} git-api gunicorn daemon
+After=network.target
+
+[Service]
+User={user}
+Group={group}
+WorkingDirectory={working_directory}
+Environment='FLASK_ENV={environment}'
+Environment='PATH={environment_path}'
+ExecStart={environment_path}/gunicorn 'app:app' --config {gunicorn_config}
+
+[Install]
+WantedBy=multi-user.target
+"""
+    # click.echo(systemd_unit)
+    unit_file_path = f'/etc/systemd/system/{environment}-git-api.service'
+    # click.echo(unit_file_path)
+
+    # Write the systemd unit content to a temporary file
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        tmp_file.write(systemd_unit.encode())
+        temp_path = tmp_file.name
+
+    # Move the temporary file to the systemd directory
+    os.system(f"sudo mv {temp_path} {unit_file_path}")
+
+    os.system('sudo systemctl daemon-reload')
+
+    create_user_and_group(user, group)
+    change_ownership(working_directory, user, group)
+
+    click.echo("Systemd unit file for git-api has been created and daemon reloaded.")
+    click.echo("Use the following commands to start and enable the service:")
+    click.echo(f"sudo systemctl start {environment}-git-api.service")
+    click.echo(f"sudo systemctl enable {environment}-git-api.service")
 
 if __name__ == "__main__":
     cli()
