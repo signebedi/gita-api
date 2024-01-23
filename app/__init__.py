@@ -303,6 +303,13 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html.jinja', 
+                            **standard_view_kwargs()
+                            )
+
 
 @app.route('/create', methods=['GET', 'POST'])
 def create_user():

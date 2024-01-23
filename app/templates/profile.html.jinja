@@ -1,0 +1,83 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}
+User Profile
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>User Profile</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Email</td>
+                    <td>{{ current_user.email }}</td>
+                </tr>
+                <tr>
+                    <td>Username</td>
+                    <td>{{ current_user.username }}</td>
+                </tr>
+                <tr>
+                    <td>Account Status</td>
+                    <td>{{ 'Active' if current_user.active else 'Inactive' }}</td>
+                </tr>
+                <tr>
+                    <td>Account Created</td>
+                    <td>{{ current_user.created_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                <tr>
+                    <td>Last Login</td>
+                    <td>{{ current_user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                <tr>
+                    <td>Last Password Change</td>
+                    <td>{{ current_user.last_password_change.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                <tr>
+                    <td>API Key</td>
+                    <td>
+                        {{ current_user.api_key }}
+                        <span style="padding-left:10px" style="cursor: pointer;" onclick="copyToClipboard('{{ current_user.api_key }}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                            </svg>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function copyToClipboard(apiKey) {
+        navigator.clipboard.writeText(apiKey).then(function() {
+            // Create and display the success message
+            createAlert('API Key copied to clipboard!', 'success');
+        }).catch(function(error) {
+            // Create and display the error message
+            createAlert('Failed to copy API Key: ' + error, 'danger');
+        });
+    }
+
+    function createAlert(message, category) {
+        const container = document.querySelector('.alerts-container');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-dismissible alert-${category}`;
+        alert.innerHTML = `
+            <button type="button" class="btn-close" data-bs-dismiss="alert" title="dismiss-alert"></button>
+            <strong>${message}</strong>
+        `;
+        container.appendChild(alert);
+    }
+</script>
+{% endblock %}
