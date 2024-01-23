@@ -79,7 +79,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(1000))
     password = db.Column(db.String(1000))
     username = db.Column(db.String(1000), unique=True)
-    active = db.Column(db.Integer)
+    active = db.Column(db.Boolean)
     created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
@@ -269,7 +269,7 @@ def login():
             if app.config["MAX_LOGIN_ATTEMPTS"]:
                 user.failed_login_attempts += 1
                 if user.failed_login_attempts >= app.config["MAX_LOGIN_ATTEMPTS"]:
-                    user.active = 0
+                    user.active = False
                     flash('Account is locked due to too many failed login attempts.', 'danger')
                 db.session.commit()
             error = 'Incorrect password. '
@@ -412,7 +412,7 @@ def verify_email(signature):
 
         try:
             user = User.query.filter_by(email=str(email)).first() 
-            user.active=1
+            user.active = True
             db.session.commit()
 
             signatures.expire_key(signature)
