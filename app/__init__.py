@@ -52,11 +52,11 @@ else:
 # print(app.config)
 
 # Assert that app.config['DOMAIN'] is not None
-assert app.config['DOMAIN'] is not None, "The 'DOMAIN' configuration must be set. Did you run 'gita-cli init'?"
+assert app.config['DOMAIN'] is not None, "The 'DOMAIN' configuration must be set. Did you run 'gita-init config'?"
 
 # Assert that if app.config['REQUIRE_EMAIL_VERIFICATION'] is True, then app.config['SMTP_ENABLED'] must also be True
 assert not app.config['REQUIRE_EMAIL_VERIFICATION'] or app.config['SMTP_ENABLED'], \
-    "SMTP must be enabled ('SMTP_ENABLED' = True) when email verification is required ('REQUIRE_EMAIL_VERIFICATION' = True). Did you run 'gita-cli init'?"
+    "SMTP must be enabled ('SMTP_ENABLED' = True) when email verification is required ('REQUIRE_EMAIL_VERIFICATION' = True). Did you run 'gita-init config'?"
 
 # Allow us to get access to the end user's source IP
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
@@ -92,8 +92,9 @@ class User(UserMixin, db.Model):
 
 
 db.init_app(app=app)
-with app.app_context():
-    db.create_all()
+if app.config['DOMAIN']:
+    with app.app_context():
+        db.create_all()
 
 # Arrange standard data to pass to jinja templates
 def standard_view_kwargs():

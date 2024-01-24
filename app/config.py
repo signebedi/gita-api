@@ -11,7 +11,7 @@ if os.path.exists(env_file_path):
     load_dotenv(env_file_path)
 
 else:
-    print("Error: env file not found. Did you run 'gita-cli init'?")
+    print("Error: env file not found. Did you run 'gita-init config'?")
     exit(1)
 
 def default_get_max_login_attempts(default):
