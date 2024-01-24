@@ -56,12 +56,12 @@ Gita API
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    container.innerHTML = `<p>Error: ${data.error}</p>`;
+                    container.innerHTML = `<p class="text-danger mb-3">${data.error}</p>`;
                 } else if (data.content && data.content.text) {
-                    const textHtml = data.content.text.map(text => `<p>${text}</p>`).join('');
+                    const textHtml = data.content.text.map(text => `<p class="lead mb-3">${text}</p>`).join('');
                     container.innerHTML = textHtml;
                 } else {
-                    container.innerHTML = `<p>No content available.</p>`;
+                    container.innerHTML = `<p class="text-muted mb-3">No content available.</p>`;
                 }
             })
             .catch(error => {

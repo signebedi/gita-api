@@ -58,3 +58,9 @@ input, select, textarea {
     height: 200px;     /* Adjust the height as needed */
     overflow: auto;    /* This makes the div scrollable */
 }
+
+#resultContainer p {
+    font-family: 'Arial', sans-serif; /* Example font */
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+}
