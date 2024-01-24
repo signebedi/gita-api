@@ -42,13 +42,8 @@ User Profile
                 </tr>
                 <tr>
                     <td>API Key</td>
-                    <td>
-                        <button  onclick="copyToClipboard('{{ current_user.api_key }}')" class="copy-hover-effect">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                            </svg>
-                        </button>
-                        {{ current_user.api_key }}
+                    <td onclick="copyToClipboard(this)">
+                        <span id="apiKey">{{ current_user.api_key }}</span>
                     </td>
                 </tr>
             </tbody>
@@ -59,25 +54,30 @@ User Profile
 
 {% block scripts %}
 <script>
-    function copyToClipboard(apiKey) {
-        navigator.clipboard.writeText(apiKey).then(function() {
-            // Create and display the success message
-            createAlert('API Key copied to clipboard!', 'success');
-        }).catch(function(error) {
-            // Create and display the error message
-            createAlert('Failed to copy API Key: ' + error, 'danger');
-        });
-    }
+    // Function to copy to clipboard and show tooltip
+    function copyToClipboard(element) {
+        // Copying to clipboard
+        var text = element.querySelector('#apiKey').innerText;
+        var elem = document.createElement("textarea");
+        document.body.appendChild(elem);
+        elem.value = text;
+        elem.select();
+        document.execCommand("copy");
+        document.body.removeChild(elem);
 
-    function createAlert(message, category) {
-        const container = document.querySelector('.alerts-container');
-        const alert = document.createElement('div');
-        alert.className = `alert alert-dismissible alert-${category}`;
-        alert.innerHTML = `
-            <button type="button" class="btn-close" data-bs-dismiss="alert" title="dismiss-alert"></button>
-            <strong>${message}</strong>
-        `;
-        container.appendChild(alert);
+        // Tooltip activation
+        var tooltip = new bootstrap.Tooltip(element, {
+            title: "Copied!",
+            trigger: "manual" // Manually trigger the tooltip
+        });
+        
+        tooltip.show(); // Show the tooltip
+
+        // Hide tooltip after 2 seconds
+        setTimeout(function() {
+            tooltip.hide();
+        }, 2000);
     }
 </script>
+
 {% endblock %}

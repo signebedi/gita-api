@@ -169,24 +169,28 @@
         function updateCaptchaTheme(theme) {
             // Find the existing hCaptcha container and its parent
             let captchaContainer = document.querySelector('.h-captcha');
-            let parentElement = captchaContainer.parentNode;
+            if (captchaContainer) {
 
-            // Remove the existing hCaptcha container
-            parentElement.removeChild(captchaContainer);
+                let parentElement = captchaContainer.parentNode;
 
-            // Create a new hCaptcha container with the updated theme
-            let newCaptchaContainer = document.createElement('div');
-            newCaptchaContainer.className = 'h-captcha';
-            newCaptchaContainer.setAttribute('data-theme', theme);
-            newCaptchaContainer.setAttribute('data-sitekey', '{{ config['HCAPTCHA_SITE_KEY'] }}'); 
+                // Remove the existing hCaptcha container
+                parentElement.removeChild(captchaContainer);
 
-            // Append the new container to the parent element
-            parentElement.appendChild(newCaptchaContainer);
+                // Create a new hCaptcha container with the updated theme
+                let newCaptchaContainer = document.createElement('div');
+                newCaptchaContainer.className = 'h-captcha';
+                newCaptchaContainer.setAttribute('data-theme', theme);
+                newCaptchaContainer.setAttribute('data-sitekey', '{{ config['HCAPTCHA_SITE_KEY'] }}'); 
 
-            // Reinitialize hCaptcha on the new container
-            if (window.hcaptcha) {
-                hcaptcha.render(newCaptchaContainer);
+                // Append the new container to the parent element
+                parentElement.appendChild(newCaptchaContainer);
+
+                // Reinitialize hCaptcha on the new container
+                if (window.hcaptcha) {
+                    hcaptcha.render(newCaptchaContainer);
+                }
             }
+
         }
 
 

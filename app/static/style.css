@@ -40,7 +40,7 @@ input, select, textarea {
 }
 
 
-.copy-hover-effect {
+/* .copy-hover-effect {
     background-color: transparent;
     border: none;
     cursor: pointer;
@@ -50,8 +50,8 @@ input, select, textarea {
 }
 
 .copy-hover-effect:hover {
-    transform: scale(1.05); /* Scales the SVG to 110% of its original size on hover */
-}
+    transform: scale(1.05);
+} */
 
 .results-div {
     width: 300px;      /* Adjust the width as needed */
