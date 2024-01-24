@@ -34,7 +34,7 @@ Create User
         
         {% if config['HCAPTCHA_ENABLED'] %}
         <fieldset style="padding-top: 10px;" class="form-group" title="captcha">
-            <div class="h-captcha" data-theme="dark" data-sitekey="{{ config['HCAPTCHA_SITE_KEY'] }}"></div>
+            <div class="h-captcha" data-theme="dark" id="captcha" data-sitekey="{{ config['HCAPTCHA_SITE_KEY'] }}"></div>
         </fieldset>
         {% endif %}
 
