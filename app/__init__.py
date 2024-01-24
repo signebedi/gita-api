@@ -37,7 +37,7 @@ from app.config import DevelopmentConfig, ProductionConfig, TestingConfig
 from app.smtp import Mailer
 
 
-__version__ = "2.0.0"
+__version__ = "3.0.0"
 
 app = Flask(__name__)
 
