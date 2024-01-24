@@ -92,7 +92,7 @@ class User(UserMixin, db.Model):
 
 
 db.init_app(app=app)
-if app.config['DOMAIN']:
+if app.config['DEBUG']:
     with app.app_context():
         db.create_all()
 
