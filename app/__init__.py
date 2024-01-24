@@ -36,7 +36,6 @@ from flask_sqlalchemy import SQLAlchemy
 from app.config import DevelopmentConfig, ProductionConfig, TestingConfig
 from app.smtp import Mailer
 
-
 __version__ = "3.0.0"
 
 app = Flask(__name__)
@@ -123,6 +122,12 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
+# Set flask session length. Session lifetime pulled
+# from the PERMANENT_SESSION_LIFETIME config.
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 # Load the JSON file into a DataFrame
 df = pd.read_json('data/translation.json')

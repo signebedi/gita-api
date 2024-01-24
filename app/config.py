@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-
+from datetime import timedelta
 
 # Determine environment
 env = os.getenv('FLASK_ENV', 'development')
@@ -51,6 +51,7 @@ class Config(object):
     RATE_LIMITS_ENABLED = os.getenv('RATE_LIMITS_ENABLED', 'False') == 'True'
     MAX_LOGIN_ATTEMPTS = lambda: default_get_max_login_attempts("False")
     REQUIRE_EMAIL_VERIFICATION = os.getenv('REQUIRE_EMAIL_VERIFICATION', 'False') == 'True'
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=int(os.getenv('PERMANENT_SESSION_LIFETIME', 6)))
 
 class ProductionConfig(Config):
     # The DOMAIN is meant to fail in production if you have not set it
