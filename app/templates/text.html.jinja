@@ -62,7 +62,7 @@ Gita API
                     if (data.content.text.length === data.content.ref_list.length) {
                         const combinedHtml = data.content.text.map((text, index) => {
                             const ref = data.content.ref_list[index];
-                            return `<p class="lead mb-3"><span class="badge bg-secondary">${ref}</span> ${text}</p>`;
+                            return `<p class="lead mb-3"><span class="badge bg-secondary" onclick="copyToClipboard(this.parentNode)">${ref}</span> ${text}</p>`;
                         }).join('');
                         container.innerHTML = combinedHtml;
                     } else {
@@ -109,6 +109,34 @@ Gita API
             submit.classList.add("disabled")
         }
     }
+
+    function copyToClipboard(element) {
+        // Copying to clipboard
+        var text = element.innerText; // Get the text of the entire paragraph
+        var elem = document.createElement("textarea");
+        document.body.appendChild(elem);
+        elem.value = text;
+        elem.select();
+        document.execCommand("copy");
+        document.body.removeChild(elem);
+
+        // Find the badge element (reference ID) within the paragraph
+        var badge = element.querySelector('.badge');
+
+        // Tooltip activation
+        var tooltip = new bootstrap.Tooltip(badge, {
+            title: "Copied!",
+            trigger: "manual" 
+        });
+
+        tooltip.show(); // Show the tooltip
+
+        // Hide tooltip after 2 seconds
+        setTimeout(function() {
+            tooltip.hide();
+        }, 2000);
+    }
+
 
 </script>
 {% endblock %}
