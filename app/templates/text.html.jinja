@@ -57,9 +57,17 @@ Gita API
             .then(data => {
                 if (data.error) {
                     container.innerHTML = `<p class="text-danger mb-3">${data.error}</p>`;
-                } else if (data.content && data.content.text) {
-                    const textHtml = data.content.text.map(text => `<p class="lead mb-3">${text}</p>`).join('');
-                    container.innerHTML = textHtml;
+                } else if (data.content && data.content.text && data.content.ref_list) {
+                    // Check if ref_list and text are of the same length
+                    if (data.content.text.length === data.content.ref_list.length) {
+                        const combinedHtml = data.content.text.map((text, index) => {
+                            const ref = data.content.ref_list[index];
+                            return `<p class="lead mb-3"><span class="badge bg-secondary">${ref}</span> ${text}</p>`;
+                        }).join('');
+                        container.innerHTML = combinedHtml;
+                    } else {
+                        container.innerHTML = `<p class="text-muted mb-3">Mismatch in text and reference data.</p>`;
+                    }
                 } else {
                     container.innerHTML = `<p class="text-muted mb-3">No content available.</p>`;
                 }
