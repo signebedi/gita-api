@@ -57,7 +57,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Install postgres if you'd like:
+Install postgres on the localhost if you'd like. You can of course also connect to a remote postgres instance so long as it is configured to receive remote connections. Currently, this application only supports the default sqlite3 and postgres.
+
 ```bash
 # Install the postgres packages
 apt install postgresql postgresql-contrib
@@ -76,8 +77,9 @@ psql -c "GRANT ALL PRIVILEGES ON DATABASE gita_api_db TO gita_api;"
 
 # Exit from postgres user
 exit
-
 ```
+
+You should now be able to set postgres using the connection string `postgresql://gita_api:your_password@localhost/gita_api_db` in the config setup below. Please make sure to replace the your_password to a strong password.
 
 Next we start with configuration. You need to be in your virtualenv for these scripts to work. If you are getting errors when running the scripts below, consider running `source /opt/gita-api/venv/bin/activate` as root. If you are implementing in **development**, follow the following steps.
 
@@ -111,3 +113,21 @@ python gita-init nginx --start-on-success --server-name gita.atreeus.com --ssl-e
 ```
 
 All of the gita-init commands above can be run headlessly by passing params as options. If you experience a bug with any of these commands, please open an [issue](https://github.com/signebedi/gita-api/issues/new) and provide the commands you ran and outputs you received.  
+
+If you are running in production, always a good call to set up fail2ban, as root.
+
+```bash
+# Install the package
+apt install -y fail2ban
+
+# Create and configure /etc/fail2ban/jail.local
+bash -c 'cat > /etc/fail2ban/jail.local << EOF
+[sshd]
+enabled = true
+bantime = 3600  # Ban IPs for 60 minutes
+maxretry = 5  # Ban IPs after 5 failed attempts
+EOF'
+
+# Restart Fail2Ban
+systemctl restart fail2ban
+```
