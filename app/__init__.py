@@ -14,9 +14,12 @@ from flask import (
     abort,
     session,
 )
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from flask_signing import Signatures
+from flask_signing import (
+    Signatures,
+    RateLimitExceeded, 
+    KeyDoesNotExist, 
+    KeyExpired
+)
 from markupsafe import escape
 from flask_login import (
     LoginManager, 
@@ -71,7 +74,7 @@ mailer = Mailer(
 )
 
 with app.app_context():
-    signatures = Signatures(app, db=db, byte_len=32, rate_limiting=True)
+    signatures = Signatures(app, db=db, byte_len=32, rate_limiting=app.config['RATE_LIMITS_ENABLED'])
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -89,8 +92,8 @@ class User(UserMixin, db.Model):
 
 
 db.init_app(app=app)
-# with app.app_context():
-#     db.create_all()
+with app.app_context():
+    db.create_all()
 
 # Arrange standard data to pass to jinja templates
 def standard_view_kwargs():
@@ -104,12 +107,6 @@ def standard_view_kwargs():
 
     return kwargs
 
-
-# Add rate limits
-limiter = Limiter(get_remote_address, app=app, 
-    # default_limits=["1000 per day", "50 per hour"],
-)
-limiter.enabled = app.config['RATE_LIMITS_ENABLED']
 
 # Create hCaptcha object if enabled
 if app.config['HCAPTCHA_ENABLED']:
@@ -371,14 +368,14 @@ def create_user():
                 subject='Gita User Registered'
 
                 if app.config["REQUIRE_EMAIL_VERIFICATION"]:
-                    # key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
+
                     key = signatures.write_key(scope=['email_verification'], expiration=48, active=True, email=email)
                     content=f"This email serves to notify you that the user {username} has just been registered for this email address at the Gita API at {app.config['DOMAIN']}. Please verify your email by clicking the following link: {app.config['DOMAIN']}/verify/{key}. Please note this link will expire after 48 hours."
-                    flash_msg = f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link.'
+                    flash_msg = f'Successfully created user \'{username}\'. Please check your email for an activation link.'
 
                 else:
-                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}."
-                    flash_msg = f'Successfully created user \'{username.lower()}\'.'
+                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at {app.config['DOMAIN']}."
+                    flash_msg = f'Successfully created user \'{username}\'.'
             
                 mailer.send_mail(subject=subject, content=content, to_address=email)
                 flash(flash_msg, "success")
@@ -443,17 +440,22 @@ def home():
 
 
 @app.route('/api/gita', methods=['GET'])
-@limiter.limit("50/hour")
-@limiter.limit("200/day")
 def get_gita_section():
     signature = request.headers.get('X-API-KEY', None)
     if not signature:
         return jsonify({'error': 'No API key provided'}), 401
 
-    valid = signatures.verify_key(signature, scope=["api_key"])
-    if not valid:
+    try:
+        valid = signatures.verify_key(signature, scope=["api_key"])
+
+    except RateLimitExceeded:
+        return jsonify({'error': 'Rate limit exceeded'}), 429
+
+    except KeyDoesNotExist:
         return jsonify({'error': 'Invalid API key'}), 401
 
+    except KeyExpired:
+        return jsonify({'error': 'API key expired'}), 401
 
     reference = request.args.get('reference')
     author_id = int(request.args.get('author_id', default='16'))
@@ -477,7 +479,4 @@ def get_gita_section():
     return jsonify({'content': gita_content}), 200
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-
     app.run(debug=True)

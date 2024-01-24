@@ -1,6 +1,5 @@
 Flask<4.0.0
 flask-hcaptcha<1.0.0
-Flask-Limiter<4.0.0
 Flask-Login<1.0.0
 flask-signing<1.0.0
 gunicorn<22.0.0
