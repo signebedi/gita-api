@@ -185,29 +185,31 @@ def validate_reference():
 
 def get_reference(ref_type, chapter, verse, range_end, author_id):
     """
-    Fetch the Gita content along with metadata based on the reference type and details.
+    Fetch the Gita content along with metadata based on the reference type and details, including a list of pin citations.
 
     :param ref_type: str - The type of reference ('chapter', 'verse', or 'range').
     :param chapter: int - The chapter number.
     :param verse: int - The verse number (if applicable).
     :param range_end: int - The end verse number (if applicable).
     :param author_id: int - The author ID.
-    :return: dict - A dictionary containing the text and metadata.
+    :return: dict - A dictionary containing the text and metadata, including pin citations.
     """
     # Filter df2 based on the reference type to get the verse IDs
     if ref_type == 'chapter':
         verse_ids = df2[df2['chapter_number'] == chapter]['id'].tolist()
         full_reference = str(chapter)
+        ref_list = [f"{chapter}.{v}" for v in df2[df2['chapter_number'] == chapter]['verse_number'].tolist()]
     elif ref_type == 'verse':
         verse_ids = df2[(df2['chapter_number'] == chapter) & (df2['verse_number'] == verse)]['id'].tolist()
         full_reference = f"{chapter}.{verse}"
+        ref_list = [full_reference]
     elif ref_type == 'range':
-
         if not range_end:
             raise ValueError('Invalid reference type')
 
         verse_ids = df2[(df2['chapter_number'] == chapter) & (df2['verse_number'].between(verse, range_end))]['id'].tolist()
         full_reference = f"{chapter}.{verse}-{range_end}"
+        ref_list = [f"{chapter}.{v}" for v in range(verse, range_end + 1)]
     else:
         raise ValueError('Invalid reference type')
 
@@ -219,17 +221,17 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
     if filtered_df.empty:
         raise ValueError('No records found for the author and verses')
 
-    # Prepare the output with metadata
+    # Prepare the output with metadata and ref_list
     output = {
         "author": filtered_df.iloc[0]['authorName'],
         "text": filtered_df['description'].tolist(),
-        "chapter": chapter,
-        "verses": verse if ref_type == 'verse' else f"{verse}-{range_end}" if ref_type == 'range' else 'All',
-        "reference": full_reference
+        "chapter": str(chapter),
+        "verses": str(verse) if ref_type == 'verse' else f"{verse}-{range_end}" if ref_type == 'range' else 'All',
+        "reference": full_reference,
+        "ref_list": ref_list
     }
 
     return output
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
