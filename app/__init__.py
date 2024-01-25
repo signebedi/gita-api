@@ -582,7 +582,7 @@ def fuzzy_search():
         return jsonify({'error': 'No API key provided'}), 401
 
     try:
-        valid = signatures.verify_key(signature, scope=["api_key"])
+        valid = signatures.verify_key(signature, scope=["api_key"]) # if not app.config['TESTING'] else True
 
     except RateLimitExceeded:
         return jsonify({'error': 'Rate limit exceeded'}), 429

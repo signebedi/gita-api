@@ -85,7 +85,7 @@ class TestingConfig(Config):
     TESTING = True
     DOMAIN = 'http://127.0.0.1:5000'
     SECRET_KEY = 'supersecret_test_key'
-    SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(os.getcwd(), "instance", "TEST_app.sqlite")}'
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     HCAPTCHA_ENABLED = False
