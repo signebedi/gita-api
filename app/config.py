@@ -4,15 +4,19 @@ from datetime import timedelta
 
 # Determine environment
 env = os.getenv('FLASK_ENV', 'development')
-env_file = 'prod.env' if env == 'production' else 'dev.env'
-env_file_path = os.path.join(os.getcwd(), 'instance', env_file)
 
-if os.path.exists(env_file_path):
-    load_dotenv(env_file_path)
+if not env == 'testing':
+    env_file = 'prod.env' if env == 'production' else 'dev.env'
+    env_file_path = os.path.join(os.getcwd(), 'instance', env_file)
 
-else:
-    print("Error: env file not found. Did you run 'gita-init config'?")
-    exit(1)
+    if os.path.exists(env_file_path):
+        load_dotenv(env_file_path)
+
+    else:
+        print("Error: env file not found. Did you run 'gita-init config'?")
+        exit(1)
+
+else: env_file_path=""
 
 def default_get_max_login_attempts(default):
     x = os.getenv('MAX_LOGIN_ATTEMPTS', default)
@@ -75,6 +79,23 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(os.getcwd(), "instance", "DEV_app.sqlite")}'
 
 class TestingConfig(Config):
     TESTING = True
+    DOMAIN = 'http://127.0.0.1:5000'
+    SECRET_KEY = 'supersecret_test_key'
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(os.getcwd(), "instance", "TEST_app.sqlite")}'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    HCAPTCHA_ENABLED = False
+    SMTP_ENABLED = False
+
+    CELERY_ENABLED = False
+
+    RATE_LIMITS_ENABLED = True
+    MAX_LOGIN_ATTEMPTS = False
+    REQUIRE_EMAIL_VERIFICATION = False
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=int(os.getenv('PERMANENT_SESSION_LIFETIME', 6)))
+
+
