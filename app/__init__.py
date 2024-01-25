@@ -137,7 +137,7 @@ def make_session_permanent():
 
 df = pd.read_json('data/cleaned_data.json')
 # df = pd.read_json('data/translation.json')
-df2 = pd.read_json('data/verse.json')
+# df2 = pd.read_json('data/verse.json')
 df3 = pd.read_json('data/authors.json')
 authors = list(df3[['id', 'name']].itertuples(index=False, name=None))
 
@@ -413,10 +413,11 @@ def validate_reference():
 
 
 
-def get_reference(ref_type, chapter, verse, range_end, author_id):
+def get_reference(ref_type, chapter, verse, range_end, author_id, df=df):
     """
     Fetch the Gita content along with metadata based on the reference type and details, including a list of pin citations.
 
+    :param df: DataFrame - The single dataset containing all the necessary information.
     :param ref_type: str - The type of reference ('chapter', 'verse', or 'range').
     :param chapter: int - The chapter number.
     :param verse: int - The verse number (if applicable).
@@ -424,32 +425,26 @@ def get_reference(ref_type, chapter, verse, range_end, author_id):
     :param author_id: int - The author ID.
     :return: dict - A dictionary containing the text and metadata, including pin citations.
     """
-    # Filter df2 based on the reference type to get the verse IDs
+    # Filter based on the reference type
     if ref_type == 'chapter':
-        verse_ids = df2[df2['chapter_number'] == chapter]['id'].tolist()
+        filtered_df = df[(df['chapter_number'] == chapter) & (df['author_id'] == author_id)]
+        ref_list = [f"{chapter}.{v}" for v in filtered_df['verse_number'].unique()]
         full_reference = str(chapter)
-        ref_list = [f"{chapter}.{v}" for v in df2[df2['chapter_number'] == chapter]['verse_number'].tolist()]
     elif ref_type == 'verse':
-        verse_ids = df2[(df2['chapter_number'] == chapter) & (df2['verse_number'] == verse)]['id'].tolist()
+        filtered_df = df[(df['chapter_number'] == chapter) & (df['verse_number'] == verse) & (df['author_id'] == author_id)]
+        ref_list = [f"{chapter}.{verse}"]
         full_reference = f"{chapter}.{verse}"
-        ref_list = [full_reference]
     elif ref_type == 'range':
         if not range_end:
             raise ValueError('Invalid reference type')
-
-        verse_ids = df2[(df2['chapter_number'] == chapter) & (df2['verse_number'].between(verse, range_end))]['id'].tolist()
-        full_reference = f"{chapter}.{verse}-{range_end}"
+        filtered_df = df[(df['chapter_number'] == chapter) & (df['verse_number'].between(verse, range_end)) & (df['author_id'] == author_id)]
         ref_list = [f"{chapter}.{v}" for v in range(verse, range_end + 1)]
+        full_reference = f"{chapter}.{verse}-{range_end}"
     else:
         raise ValueError('Invalid reference type')
 
-    if not verse_ids:
-        raise ValueError('No verses found for the given reference')
-
-    # Use verse_ids to filter df and get descriptions for the specified author
-    filtered_df = df[(df['verse_id'].isin(verse_ids)) & (df['author_id'] == author_id)]
     if filtered_df.empty:
-        raise ValueError('No records found for the author and verses')
+        raise ValueError('No records found for the given reference and author')
 
     # Prepare the output with metadata and ref_list
     output = {
