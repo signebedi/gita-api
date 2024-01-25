@@ -1,6 +1,7 @@
 import re, os
 import pandas as pd
 from datetime import datetime
+from fuzzywuzzy import process 
 
 from flask import (
     Flask, 
@@ -130,7 +131,9 @@ def make_session_permanent():
     session.permanent = True
 
 # Load the JSON file into a DataFrame
-df = pd.read_json('data/translation.json')
+
+df = pd.read_json('data/cleaned_data.json')
+# df = pd.read_json('data/translation.json')
 df2 = pd.read_json('data/verse.json')
 df3 = pd.read_json('data/authors.json')
 authors = list(df3[['id', 'name']].itertuples(index=False, name=None))
@@ -486,6 +489,98 @@ def get_gita_section():
         return jsonify({'error': str(e)}), 400
 
     return jsonify({'content': gita_content}), 200
+
+
+
+
+
+def get_highest_match_score(row, search_query):
+    words = row['description'].split()
+    match = process.extractOne(search_query, words)
+    return match[1] if match else 0
+
+
+def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=80):
+    """
+    Perform a fuzzy search on segmented text descriptions in the dataframe for a specific author_id.
+
+    :param search_query: str - The search query string.
+    :param dataframe: DataFrame - The pandas dataframe to search in.
+    :param author_id: int - The author ID for filtering the dataframe.
+    :param threshold: int - The threshold for fuzzy matching.
+    :return: dict - A dictionary containing the text and metadata.
+    """
+    # Filter dataframe for the specific author_id
+    df = df[df['author_id'] == author_id]
+
+
+    # Apply the function to compute match scores
+    df['match_score'] = df.apply(lambda row: get_highest_match_score(row, search_query), axis=1)
+
+    # Sort the DataFrame by match score
+    df_sorted = df.sort_values(by='match_score', ascending=False)
+
+    df_sorted = df_sorted.loc[df_sorted['match_score'] >= threshold]
+    
+    if df_sorted.empty:
+        raise ValueError('No records found that match your query')
+
+    # Limit length to the top 15 records
+    if len(df_sorted) > 15:
+        results = df_sorted[:15]
+    else:
+        results = df_sorted
+
+    ref_list = results['full_ref'].tolist()
+    author = results['authorName'].iloc[0]
+    text = results['description'].tolist()
+
+    # Prepare the output with metadata and ref_list
+    output = {
+        "author": author,
+        "text": text,
+        "ref_list": ref_list
+    }
+
+    return output
+
+
+@app.route('/api/search', methods=['GET'])
+def fuzzy_search():
+    signature = request.headers.get('X-API-KEY', None)
+    if not signature:
+        return jsonify({'error': 'No API key provided'}), 401
+
+    try:
+        valid = signatures.verify_key(signature, scope=["api_key"])
+
+    except RateLimitExceeded:
+        return jsonify({'error': 'Rate limit exceeded'}), 429
+
+    except KeyDoesNotExist:
+        return jsonify({'error': 'Invalid API key'}), 401
+
+    except KeyExpired:
+        return jsonify({'error': 'API key expired'}), 401
+
+
+    search_query = request.args.get('query')
+    author_id = request.args.get('author_id') or 16
+
+
+    if not search_query:
+        return jsonify({'error': 'No search query provided'}), 400
+
+    search_query = escape(search_query.strip())
+    
+    # Limit length of the search string
+    if len(search_query) > 15:
+        return jsonify({'error': 'Query too long. Please keep length at or below 15 chars.'}), 400
+
+    # Call the fuzzy search function
+    search_results = perform_fuzzy_search(search_query)
+
+    return jsonify({'content': search_results}), 200
 
 
 
