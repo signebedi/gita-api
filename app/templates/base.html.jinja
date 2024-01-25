@@ -44,8 +44,13 @@
                     {% if current_user.is_authenticated %}
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('text') }}">Text Search</a>
+                        <a class="nav-link" href="{{ url_for('reference') }}">Reference Search</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('fuzzy') }}">Fuzzy Search</a>
+                    </li>
+
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                     </li>

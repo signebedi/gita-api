@@ -301,7 +301,7 @@ def create_user():
             except Exception as e: 
                 error = f"There was an issue registering the user.{' '+str(e) if env != 'production' else ''}"
             else:
-                return redirect(url_for("login"))
+                return redirect(url_for('login'))
 
         flash(f"There was an error in processing your request. {error}", 'warning')
 
@@ -342,13 +342,23 @@ def verify_email(signature):
 
 
 
-@app.route('/text', methods=['GET'])
+@app.route('/reference', methods=['GET'])
 @login_required
-def text():
-    return render_template('text.html.jinja', 
+def reference():
+    return render_template('reference.html.jinja', 
                             authors=authors,
                             **standard_view_kwargs()
                             )
+
+@app.route('/fuzzy', methods=['GET'])
+@login_required
+def fuzzy():
+    return render_template('fuzzy.html.jinja', 
+                            authors=authors,
+                            **standard_view_kwargs()
+                            )
+
+
 
 @app.route('/', methods=['GET'])
 def home():
@@ -597,8 +607,8 @@ def fuzzy_search():
     search_query = escape(search_query.strip())
     
     # Limit length of the search string
-    if len(search_query) > 200:
-        return jsonify({'error': 'Query too long. Please keep length at or below 200 chars.'}), 400
+    if len(search_query) > 100:
+        return jsonify({'error': 'Query too long. Please keep length at or below 100 chars.'}), 400
 
     author_id = int(request.args.get('author_id', default='16'))
 
