@@ -62,7 +62,7 @@ Gita API
                     if (data.content.text.length === data.content.ref_list.length) {
                         const combinedHtml = data.content.text.map((text, index) => {
                             const ref = data.content.ref_list[index];
-                            return `<p class="lead mb-3"><span class="badge bg-secondary" onclick="copyToClipboard(this.parentNode)">${ref}</span> ${text}</p>`;
+                            return `<p class="lead mb-3"><span class="badge bg-secondary" id="text-entry" onclick="copyToClipboard(this.parentNode)">${ref}</span> ${text}</p>`;
                         }).join('');
                         container.innerHTML = combinedHtml;
                     } else {

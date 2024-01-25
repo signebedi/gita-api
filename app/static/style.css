@@ -64,3 +64,26 @@ input, select, textarea {
     line-height: 1.6;
     letter-spacing: 0.5px;
 }
+
+
+#text-entry {
+    transition: filter 0.3s ease;
+}
+
+#text-entry:hover {
+    filter: brightness(125%);
+}
+
+
+/* .copy-hover-effect {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding-left: 8px;
+    transition: transform 0.3s ease;
+    z-index: 999;
+}
+
+.copy-hover-effect:hover {
+    transform: scale(1.05);
+} */
