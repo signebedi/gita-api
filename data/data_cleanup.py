@@ -18,7 +18,10 @@ df['authorName'] = df['author_id'].apply(get_author_name)
 merged_df = pd.merge(df, df2, left_on='verse_id', right_on='verse_number')
 
 # Update the 'verseNumber' and 'chapter_id' fields in df
-df['verseNumber'] = merged_df['verse_number']
-df['chapter'] = merged_df['chapter_number']
+df['verse_number'] = merged_df['verse_number']
+df['chapter_number'] = merged_df['chapter_number']
+df['full_ref'] = df.apply(lambda row: f"{row['chapter_number']}.{row['verse_number']}", axis=1)
+
+
 
 df.to_json('data/cleaned_data.json')
