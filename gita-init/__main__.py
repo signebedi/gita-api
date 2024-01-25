@@ -36,7 +36,7 @@ def prompt_bool(message, default=None):
 @click.option('--smtp-enabled', default=None, type=bool, help='Enable SMTP')
 @click.option('--celery-enabled', default=None, type=bool, help='Enable Celery')
 @click.option('--rate-limits-enabled', default=None, type=bool, help='Enable rate limits')
-@click.option('--max-login-attempts', default=None, type=bool, help='Enable maximum login attempts')
+@click.option('--max-login-attempts', default=None, type=None, help='Enable maximum login attempts (0 will disable)')
 @click.option('--require-email-verification', default=None, type=bool, help='Require email verification')
 @click.option('--smtp-mail-server', default=None, help='SMTP Mail Server')
 @click.option('--smtp-port', default=None, type=int, help='SMTP Port')
@@ -84,9 +84,9 @@ def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcap
     }
 
     if max_login_attempts is None:
-        max_login_attempts = prompt_bool('Is MAX LOGIN ATTEMPTS enabled?', default=False)
+        enable_max_login_attempts = prompt_bool('Is MAX LOGIN ATTEMPTS enabled?', default=False)
 
-    if max_login_attempts:
+    if enable_max_login_attempts:
         max_login_attempts = click.prompt('How many MAX LOGIN ATTEMPTS?', default=3)
     
     config['MAX_LOGIN_ATTEMPTS'] = max_login_attempts

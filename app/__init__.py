@@ -49,7 +49,8 @@ elif env == 'testing':
 else:
     app.config.from_object(DevelopmentConfig)
 
-# print(app.config)
+if app.config['DEBUG']:
+    print(app.config)
 
 # Assert that app.config['DOMAIN'] is not None
 assert app.config['DOMAIN'] is not None, "The 'DOMAIN' configuration must be set. Did you run 'gita-init config'?"
