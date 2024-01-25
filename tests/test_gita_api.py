@@ -46,14 +46,14 @@ class TestGitaAPI(unittest.TestCase):
         result = get_reference("verse", 1, 1, None, 16)
         self.assertIn("author", result)
         self.assertIn("text", result)
-        self.assertEqual(result["chapter"], 1)
-        self.assertEqual(result["verses"], 1)
+        self.assertEqual(result["chapter"], "1")
+        self.assertEqual(result["verses"], "1")
 
     def test_get_reference_valid_range(self):
         result = get_reference("range", 1, 1, 3, 16)
         self.assertIn("author", result)
         self.assertIn("text", result)
-        self.assertEqual(result["chapter"], 1)
+        self.assertEqual(result["chapter"], "1")
         self.assertEqual(result["verses"], "1-3")
 
     def test_get_reference_range_no_verses_found(self):
@@ -80,7 +80,7 @@ class TestGitaAPI(unittest.TestCase):
         result = get_reference("chapter", 1, None, None, 16)
         self.assertIn("author", result)
         self.assertIn("text", result)
-        self.assertEqual(result["chapter"], 1)
+        self.assertEqual(result["chapter"], "1")
         self.assertEqual(result["verses"], "All")
 
 
