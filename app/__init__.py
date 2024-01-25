@@ -1,7 +1,7 @@
 import re, os
 import pandas as pd
 from datetime import datetime
-from fuzzywuzzy import process 
+from fuzzywuzzy import process, fuzz
 
 from flask import (
     Flask, 
@@ -62,6 +62,9 @@ assert not app.config['REQUIRE_EMAIL_VERIFICATION'] or app.config['SMTP_ENABLED'
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 db = SQLAlchemy()
 
+# turn off warnings to avoid a rather silly one being dropped in the terminal,
+# see https://stackoverflow.com/a/20627316/13301284. 
+pd.options.mode.chained_assignment = None
 
 # Instantiate the Mailer object
 mailer = Mailer(
@@ -493,14 +496,29 @@ def get_gita_section():
 
 
 
+def preprocess(text):
+    # Example preprocessing steps
+    text = text.lower()  # Lowercase
+    text = re.sub(r'\W+', ' ', text)  # Remove non-alphanumeric characters
+    return text
 
 def get_highest_match_score(row, search_query):
-    words = row['description'].split()
-    match = process.extractOne(search_query, words)
-    return match[1] if match else 0
+    description = preprocess(row['description'])
+    words = description.split()  # Consider a more advanced tokenizer
+    search_query = preprocess(search_query)
+    matches = process.extract(search_query, words, scorer=fuzz.WRatio)
+    # You can aggregate or select from matches here
+    return max(matches, key=lambda x: x[1])[1] if matches else 0
+
+def get_match_score(row, search_query):
+    description = preprocess(row['description'])
+    search_query = preprocess(search_query)
+    match_score = fuzz.token_sort_ratio(search_query, description)
+    # print(match_score)
+    return match_score
 
 
-def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=90):
+def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=10):
     """
     Perform a fuzzy search on segmented text descriptions in the dataframe for a specific author_id.
 
@@ -510,14 +528,15 @@ def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=90):
     :param threshold: int - The threshold for fuzzy matching.
     :return: dict - A dictionary containing the text and metadata.
     """
-    print(type(df), type(author_id))
+    # print(type(df), type(author_id))
 
     # Filter dataframe for the specific author_id
     df = df[df['author_id'] == author_id]
 
 
     # Apply the function to compute match scores
-    df['match_score'] = df.apply(lambda row: get_highest_match_score(row, search_query), axis=1)
+    # df['match_score'] = df.apply(lambda row: get_highest_match_score(row, search_query), axis=1)
+    df['match_score'] = df.apply(lambda row: get_match_score(row, search_query), axis=1)
 
     # Sort the DataFrame by match score
     df_sorted = df.sort_values(by='match_score', ascending=False)
@@ -534,14 +553,18 @@ def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=90):
         results = df_sorted
 
     ref_list = results['full_ref'].tolist()
+    match_scores = results['match_score'].tolist()
     author = results['authorName'].iloc[0]
     text = results['description'].tolist()
+    # print(results['match_score'].tolist())
+
 
     # Prepare the output with metadata and ref_list
     output = {
         "author": author,
         "text": text,
-        "ref_list": ref_list
+        "ref_list": ref_list,
+        "match_scores": match_scores,
     }
 
     return output
@@ -574,8 +597,8 @@ def fuzzy_search():
     search_query = escape(search_query.strip())
     
     # Limit length of the search string
-    if len(search_query) > 15:
-        return jsonify({'error': 'Query too long. Please keep length at or below 15 chars.'}), 400
+    if len(search_query) > 200:
+        return jsonify({'error': 'Query too long. Please keep length at or below 200 chars.'}), 400
 
     author_id = int(request.args.get('author_id', default='16'))
 

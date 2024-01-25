@@ -14,14 +14,14 @@ def get_author_name(author_id):
 # Apply the function to df2
 df['authorName'] = df['author_id'].apply(get_author_name)
 
+df2 = df2[['verse_number', 'id', 'chapter_number']]
+
 # Merge df with df2 on the matching verse_id and verse_number
-merged_df = pd.merge(df, df2, left_on='verse_id', right_on='verse_number')
+merged_df = pd.merge(df, df2, left_on='verse_id', right_on='id')
 
 # Update the 'verseNumber' and 'chapter_id' fields in df
 df['verse_number'] = merged_df['verse_number']
 df['chapter_number'] = merged_df['chapter_number']
 df['full_ref'] = df.apply(lambda row: f"{row['chapter_number']}.{row['verse_number']}", axis=1)
-
-
 
 df.to_json('data/cleaned_data.json')
