@@ -500,7 +500,7 @@ def get_highest_match_score(row, search_query):
     return match[1] if match else 0
 
 
-def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=80):
+def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=90):
     """
     Perform a fuzzy search on segmented text descriptions in the dataframe for a specific author_id.
 
@@ -510,6 +510,8 @@ def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=80):
     :param threshold: int - The threshold for fuzzy matching.
     :return: dict - A dictionary containing the text and metadata.
     """
+    print(type(df), type(author_id))
+
     # Filter dataframe for the specific author_id
     df = df[df['author_id'] == author_id]
 
@@ -565,8 +567,6 @@ def fuzzy_search():
 
 
     search_query = request.args.get('query')
-    author_id = request.args.get('author_id') or 16
-
 
     if not search_query:
         return jsonify({'error': 'No search query provided'}), 400
@@ -577,8 +577,10 @@ def fuzzy_search():
     if len(search_query) > 15:
         return jsonify({'error': 'Query too long. Please keep length at or below 15 chars.'}), 400
 
+    author_id = int(request.args.get('author_id', default='16'))
+
     # Call the fuzzy search function
-    search_results = perform_fuzzy_search(search_query)
+    search_results = perform_fuzzy_search(search_query, author_id=author_id)
 
     return jsonify({'content': search_results}), 200
 
