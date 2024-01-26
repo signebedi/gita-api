@@ -1,3 +1,4 @@
+celery
 Flask
 flask-hcaptcha
 Flask-Login
