@@ -12,7 +12,7 @@ Create User
         <fieldset class="form-group">
             <label for="username" class="form-label">Username</label>
             <input type="text" id="username" name="username" class="form-control" 
-                    onchange="validateField('username', /^[a-z0-9_]{5,15}$/, 'Invalid username. Username should be 3-15 characters long and contain only letters, numbers, and underscores.')" required>
+                    onchange="validateField('username', /^[a-z0-9_]{5,15}$/, 'Invalid username. Username should be 5-15 characters long and contain only letters, numbers, and underscores.')" required>
             {# Username should be 3-15 characters long and contain only lowercase letters, numbers, and underscores. #}
             <div class="valid-feedback" id="username-is-valid" style="display: none;">This field is valid!</div>
             <div class="invalid-feedback" id="username-is-invalid" style="display: none;"></div>
@@ -26,12 +26,19 @@ Create User
         <fieldset class="form-group">
             <label for="password" class="form-label">Password</label>
             <input type="password" id="password" name="password" class="form-control" 
-                    onchange="validateField('password', /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Invalid password. Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.')" required>
+                    onchange="validateField('password', /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Invalid password. Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, one symbol, and one number.')" required>
             {# Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number. #}
             <div class="valid-feedback" id="password-is-valid" style="display: none;">This field is valid!</div>
             <div class="invalid-feedback" id="password-is-invalid" style="display: none;"></div>
         </fieldset>
-        
+
+        <fieldset class="form-group">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <input type="password" id="confirmPassword" class="form-control" onchange="validateConfirmPassword()" required>
+            <div class="valid-feedback">Passwords match!</div>
+            <div class="invalid-feedback" id="confirmPassword-is-invalid">Passwords do not match.</div>
+        </fieldset>
+
         {% if config['HCAPTCHA_ENABLED'] %}
         <fieldset style="padding-top: 10px;" class="form-group" title="captcha">
             <div class="h-captcha" data-theme="dark" id="captcha" data-sitekey="{{ config['HCAPTCHA_SITE_KEY'] }}"></div>
@@ -55,6 +62,7 @@ Create User
 
 {% block scripts %}
 <script>
+
 $(document).ready(function() {
     var submitBtn = $('#registrationForm button[type="submit"]');
     submitBtn.prop('disabled', true); // Initially disable the submit button
@@ -76,17 +84,36 @@ $(document).ready(function() {
         updateSubmitButton();
     };
 
+    window.validateConfirmPassword = function() {
+        var password = $('#password').val();
+        var confirmPassword = $('#confirmPassword').val();
+
+        var isMatch = password === confirmPassword;
+        $('#confirmPassword').removeClass(isMatch ? 'is-invalid' : 'is-valid');
+        $('#confirmPassword').addClass(isMatch ? 'is-valid' : 'is-invalid');
+        $('#confirmPassword-is-invalid').toggle(!isMatch);
+
+        updateSubmitButton();
+    };
+
     function updateSubmitButton() {
         var isUsernameValid = /^[a-z0-9_]{5,15}$/.test($('#username').val());
         var isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test($('#password').val());
-        submitBtn.prop('disabled', !(isUsernameValid && isPasswordValid));
+        var arePasswordsMatching = $('#password').val() === $('#confirmPassword').val();
+
+        submitBtn.prop('disabled', !(isUsernameValid && isPasswordValid && arePasswordsMatching));
     }
 
     $('#registrationForm').on('submit', function(event) {
-        if (!( /^[a-z0-9_]{5,15}$/.test($('#username').val()) && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test($('#password').val()) )) {
+        var isUsernameValid = /^[a-z0-9_]{5,15}$/.test($('#username').val());
+        var isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test($('#password').val());
+        var arePasswordsMatching = $('#password').val() === $('#confirmPassword').val();
+
+        if (!(isUsernameValid && isPasswordValid && arePasswordsMatching)) {
             event.preventDefault();
         }
     });
+
 });
 </script>
 
