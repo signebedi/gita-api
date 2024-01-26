@@ -55,7 +55,7 @@ Gita API
             'X-API-KEY': '{{ current_user.api_key }}'
         });
 
-        fetch(`/api/gita?reference=${reference}&author_id=${authorId}`, { headers: headers })
+        fetch(`/api/reference?reference=${reference}&author_id=${authorId}`, { headers: headers })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {

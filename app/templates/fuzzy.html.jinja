@@ -50,7 +50,7 @@ Gita API
             'X-API-KEY': '{{ current_user.api_key }}'
         });
 
-        fetch(`/api/search?query=${query}&author_id=${authorId}`, { headers: headers })
+        fetch(`/api/fuzzy?query=${query}&author_id=${authorId}`, { headers: headers })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {

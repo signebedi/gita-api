@@ -3,7 +3,7 @@ a RESTful Bhagavad Gita API
 
 
 #### Overview
-This API allows users to fetch specific sections from the Bhagavad Gita based on chapter and verse references. It supports fetching an entire chapter (eg. `7`), a specific verse (eg. `7.2`), or a range of verses (eg. `7.2-8`). Based on https://bible-api.com/, using https://github.com/gita/gita. 
+This API allows users to fetch specific sections from the Bhagavad Gita based on chapter and verse references. It supports fetching an entire chapter (eg. `7`), a specific verse (eg. `7.2`), or a range of verses (eg. `7.2-8`). Based on https://bible-api.com/, using https://github.com/gita/gita. It requires the use of an API key (generated with the creation of a user account) and also features a fuzzy search route.
 
 #### GET /api/gita
 Retrieves content from the Bhagavad Gita based on a given reference and author ID.

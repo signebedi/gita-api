@@ -461,7 +461,7 @@ def get_reference(ref_type, chapter, verse, range_end, author_id, df=df):
     return output
 
 
-@app.route('/api/gita', methods=['GET'])
+@app.route('/api/reference', methods=['GET'])
 def get_gita_section():
     signature = request.headers.get('X-API-KEY', None)
     if not signature:
@@ -528,10 +528,11 @@ def get_basic_match_score(row, search_query):
 def get_match_score(row, search_query):
     description = preprocess(row['description'])
     search_query = preprocess(search_query)
-    if search_query in description:  # Check for exact match
-        return 100  # Assign a high score for exact matches
-    else:
-        match_score = fuzz.token_sort_ratio(search_query, description)
+    bonus = 0
+    if search_query in description:  
+        # Check for exact match
+        bonus = 25    
+    match_score = min(fuzz.token_sort_ratio(search_query, description) + bonus, 100)
     return match_score
 
 
@@ -587,7 +588,7 @@ def perform_fuzzy_search(search_query, df=df, author_id=16, threshold=10):
     return output
 
 
-@app.route('/api/search', methods=['GET'])
+@app.route('/api/fuzzy', methods=['GET'])
 def fuzzy_search():
     signature = request.headers.get('X-API-KEY', None)
     if not signature:
