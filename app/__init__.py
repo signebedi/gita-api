@@ -186,6 +186,7 @@ def login():
                 user.failed_login_attempts += 1
                 if user.failed_login_attempts >= app.config["MAX_LOGIN_ATTEMPTS"]:
                     user.active = False
+                    user.failed_login_attempts = 0
                     flash('Account is locked due to too many failed login attempts.', 'danger')
                 db.session.commit()
             error = 'Incorrect password. '
@@ -516,11 +517,21 @@ def get_highest_match_score(row, search_query):
     # You can aggregate or select from matches here
     return max(matches, key=lambda x: x[1])[1] if matches else 0
 
-def get_match_score(row, search_query):
+def get_basic_match_score(row, search_query):
     description = preprocess(row['description'])
     search_query = preprocess(search_query)
     match_score = fuzz.token_sort_ratio(search_query, description)
     # print(match_score)
+    return match_score
+
+
+def get_match_score(row, search_query):
+    description = preprocess(row['description'])
+    search_query = preprocess(search_query)
+    if search_query in description:  # Check for exact match
+        return 100  # Assign a high score for exact matches
+    else:
+        match_score = fuzz.token_sort_ratio(search_query, description)
     return match_score
 
 
