@@ -131,3 +131,5 @@ EOF'
 # Restart Fail2Ban
 systemctl restart fail2ban
 ```
+
+If you want to set up celery to run some tasks asynchronously

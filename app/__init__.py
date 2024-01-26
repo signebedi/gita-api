@@ -34,7 +34,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
 from app.config import DevelopmentConfig, ProductionConfig, TestingConfig
-from app.smtp import Mailer
+from app.utils.smtp import Mailer
+from app.utils.celery import make_celery
 from gita import (
     validate_ref_type,
     get_reference,
@@ -63,6 +64,7 @@ assert app.config['DOMAIN'] is not None, "The 'DOMAIN' configuration must be set
 # Assert that if app.config['REQUIRE_EMAIL_VERIFICATION'] is True, then app.config['SMTP_ENABLED'] must also be True
 assert not app.config['REQUIRE_EMAIL_VERIFICATION'] or app.config['SMTP_ENABLED'], \
     "SMTP must be enabled ('SMTP_ENABLED' = True) when email verification is required ('REQUIRE_EMAIL_VERIFICATION' = True). Did you run 'gita-init config'?"
+
 
 # Allow us to get access to the end user's source IP
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
@@ -147,6 +149,15 @@ df = pd.read_json('data/cleaned_data.json')
 df2 = pd.read_json('data/authors.json')
 authors = list(df2[['id', 'name']].itertuples(index=False, name=None))
 
+
+
+if app.config['CELERY_ENABLED']:
+
+    celery = make_celery(app)
+
+    @celery.task
+    def send_email_async(subject=None, content=None, to_address=None, cc_address_list=[]):
+        return mailer.send_mail(subject=subject, content=content, to_address=to_address, cc_address_list=cc_address_list)
 
 
 
@@ -326,7 +337,13 @@ def create_user():
                     content=f"This email serves to notify you that the user {username} has just been registered for this email address at {app.config['DOMAIN']}."
                     flash_msg = f'Successfully created user \'{username}\'.'
             
-                mailer.send_mail(subject=subject, content=content, to_address=email)
+                # Send email, asynchronously only if celery is enabled
+                if app.config['SMTP_ENABLED']:
+                    if app.config['CELERY_ENABLED']:
+                        send_email_async.delay(subject=subject, content=content, to_address=email)
+                    else:
+                        mailer.send_mail(subject=subject, content=content, to_address=email)
+
                 flash(flash_msg, "success")
 
             except Exception as e: 

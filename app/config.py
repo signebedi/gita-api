@@ -18,11 +18,6 @@ if not env == 'testing':
 
 else: env_file_path=""
 
-# def default_get_max_login_attempts(default):
-#     x = os.getenv('MAX_LOGIN_ATTEMPTS', default)
-#     return False if x == "False" else x
-
-
 class Config(object):
     CONFIG_FILE_PATH = env_file_path
     DOMAIN = os.getenv('DOMAIN', 'http://127.0.0.1:5000')
