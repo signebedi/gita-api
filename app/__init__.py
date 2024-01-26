@@ -1,6 +1,6 @@
 import re, os
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from fuzzywuzzy import process, fuzz
 
 from flask import (
@@ -89,6 +89,7 @@ class User(UserMixin, db.Model):
     active = db.Column(db.Boolean)
     created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+    locked_until = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     failed_login_attempts = db.Column(db.Integer, default=0)
     # api_key_id = db.Column(db.Integer, db.ForeignKey('signing.id'), nullable=True)
@@ -185,22 +186,50 @@ def login():
             if app.config["MAX_LOGIN_ATTEMPTS"]:
                 user.failed_login_attempts += 1
                 if user.failed_login_attempts >= app.config["MAX_LOGIN_ATTEMPTS"]:
-                    user.active = False
-                    user.failed_login_attempts = 0
-                    flash('Account is locked due to too many failed login attempts.', 'danger')
+                    # user.active = False
+                    user.locked_until = datetime.utcnow() + timedelta(hours=1)
+
+                    # Calculate the time difference
+                    time_diff = user.locked_until - datetime.utcnow()
+
+                    # Extract hours and minutes
+                    hours, remainder = divmod(time_diff.seconds, 3600)
+                    minutes = remainder // 60
+
+                    # Create a string representing the time delta in hours and minutes
+                    time_delta_str = f"{hours} hours, {minutes} minutes" if hours else f"{minutes} minutes"
+
+                    flash(f'Account is locked due to too many failed login attempts. Please try again in {time_delta_str}.', 'danger') 
                 db.session.commit()
             error = 'Incorrect password. '
 
         elif not user.active:
-            flash('Your user is currently inactive. If you recently registered, please check your email for a verification link.', "warning")
+            flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. If you believe this may be a mistake, please contact your system administrator.', "warning")
+            return redirect(url_for('login'))
+
+
+        elif user.locked_until > datetime.utcnow():
+
+            # Calculate the time difference
+            time_diff = user.locked_until - datetime.utcnow()
+
+            # Extract hours and minutes
+            hours, remainder = divmod(time_diff.seconds, 3600)
+            minutes = remainder // 60
+
+            # Create a string representing the time delta in hours and minutes
+            time_delta_str = f"{hours} hours, {minutes} minutes" if hours else f"{minutes} minutes"
+
+            flash(f'User is locked. Please try again in {time_delta_str}.', 'danger')
             return redirect(url_for('login'))
 
         if error is None:
 
             login_user(user, remember=False)
 
-            # Update last_login time
+            # Update last_login time and reset the failed login attempts
             user.last_login = datetime.now()
+            user.failed_login_attempts = 0
             db.session.commit()
 
             flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
