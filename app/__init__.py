@@ -108,23 +108,21 @@ class User(UserMixin, db.Model):
     last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     failed_login_attempts = db.Column(db.Integer, default=0)
     # api_key_id = db.Column(db.Integer, db.ForeignKey('signing.id'), nullable=True)
-    api_key = db.Column(db.String(1000), nullable=True)
+    api_key = db.Column(db.String(1000), nullable=True, unique=True)
 
-    usage_log = relationship("UsageLog", order_by=UsageLog.id, back_populates="user")
-
-
+    
 # Many to one relationship with User table
 class UsageLog(db.Model):
     __tablename__ = 'usage_log'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     endpoint = db.Column(db.String(1000))
-    query_params = db.Column(db.String(2000))  # JSON string or similar format
+    query_params = db.Column(db.String(1000), nullable=True)  # Can we find a way to make this a JSON string or similar format
 
-    user = relationship("User", back_populates="usage_log")
+    user = db.relationship("User", back_populates="usage_log")
 
-
+usage_log = db.relationship("UsageLog", order_by=UsageLog.id, back_populates="user")
 
 db.init_app(app=app)
 if app.config['DEBUG'] or app.config['TESTING']:
@@ -181,6 +179,22 @@ if app.config['CELERY_ENABLED']:
         return mailer.send_mail(subject=subject, content=content, to_address=to_address, cc_address_list=cc_address_list)
 
 
+    @celery.task
+    def log_api_call(api_key, endpoint, query_params):
+        user = User.query.filter_by(api_key=api_key).first()
+        if user:
+            new_log = UsageLog(
+                user_id=user.id,
+                timestamp=datetime.utcnow(),
+                endpoint=endpoint,
+                query_params=str(query_params) 
+            )
+            db.session.add(new_log)
+            try:
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                # Placeholder for logging logic
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -485,6 +499,10 @@ def get_gita_section():
         # Fetch the relevant content
         gita_content = get_reference(ref_type, chapter, verse, range_end, author_id, df)
 
+        if app.config['COLLECT_USAGE_STATISTICS']:
+            # Call the Celery task
+            log_api_call.delay(signature, 'reference/', query_params={"reference": reference, "author_id": author_id})
+
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
@@ -526,6 +544,11 @@ def fuzzy_search():
 
     # Call the fuzzy search function
     search_results = perform_fuzzy_search(search_query, df=df, author_id=author_id)
+
+    if app.config['COLLECT_USAGE_STATISTICS']:
+        # Call the Celery task
+        log_api_call.delay(signature, 'fuzzy/', query_params={"query": search_query, "author_id": author_id})
+
 
     return jsonify({'content': search_results}), 200
 
