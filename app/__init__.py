@@ -110,6 +110,21 @@ class User(UserMixin, db.Model):
     # api_key_id = db.Column(db.Integer, db.ForeignKey('signing.id'), nullable=True)
     api_key = db.Column(db.String(1000), nullable=True)
 
+    usage_log = relationship("UsageLog", order_by=UsageLog.id, back_populates="user")
+
+
+# Many to one relationship with User table
+class UsageLog(db.Model):
+    __tablename__ = 'usage_log'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, ForeignKey('user.id'))
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    endpoint = db.Column(db.String(1000))
+    query_params = db.Column(db.String(2000))  # JSON string or similar format
+
+    user = relationship("User", back_populates="usage_log")
+
+
 
 db.init_app(app=app)
 if app.config['DEBUG'] or app.config['TESTING']:
