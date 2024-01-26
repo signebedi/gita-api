@@ -132,4 +132,14 @@ EOF'
 systemctl restart fail2ban
 ```
 
-If you want to set up celery to run some tasks asynchronously
+If you want to set up celery to run some tasks asynchronously, you should set the CELERY_ENABLED app config to True. Additionally, you should probably install rabbitmq.
+
+```bash
+apt install rabbitmq-server
+```
+
+And you can run celery as follows from within /opt/gita-api. If you are getting errors when running the scripts below, consider running `source /opt/gita-api/venv/bin/activate` as root.
+
+```bash
+celery -A app.celery worker --loglevel=info
+```
