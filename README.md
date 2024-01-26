@@ -141,5 +141,11 @@ apt install rabbitmq-server
 And you can run celery as follows from within /opt/gita-api. If you are getting errors when running the scripts below, consider running `source /opt/gita-api/venv/bin/activate` as root.
 
 ```bash
-celery -A app.celery worker --loglevel=info
+celery -A app.celery worker --loglevel=info --logfile $(pwd)/instance/log/celery.log
+```
+
+And you can run celerybeat as follows.
+
+```bash
+celery -A app.celery beat --loglevel=info --logfile $(pwd)/instance/log/beat.log
 ```

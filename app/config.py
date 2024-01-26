@@ -45,6 +45,17 @@ class Config(object):
         'accept_content': ['json'],
         'result_serializer': 'json',
         'enable_utc': True,
+        'broker_connection_retry_on_startup': False,
+        # Schedule for periodic tasks
+        'beat_schedule':{
+            "run-key-check-daily": {
+                "task": "app.check_key_rotation",
+                'schedule': 45.0,  # For rapid testing
+                # 'schedule': 3600.0,  # Hourly
+                # 'schedule': 86400.0,  # Daily
+            }
+        },
+
     }
 
     RATE_LIMITS_ENABLED = os.getenv('RATE_LIMITS_ENABLED', 'False') == 'True'

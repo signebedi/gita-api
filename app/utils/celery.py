@@ -9,5 +9,6 @@ def make_celery(app):
             with app.app_context():
                 return self.run(*args, **kwargs)
 
+
     celery.Task = ContextTask
     return celery

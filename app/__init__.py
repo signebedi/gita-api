@@ -197,6 +197,25 @@ if app.config['CELERY_ENABLED']:
                 db.session.rollback()
                 # Placeholder for logging logic
 
+    @celery.task()
+    def check_key_rotation():
+
+        # Query for signatures with scope 'api_key'
+        keypairs = signatures.rotate_keys(time_until=1, scope="api_key")
+
+        if len(keypairs) == 0:
+            return
+            
+        # For each key that has just been rotated, update the user model with the new key
+        for tup in keypairs:
+            old_key, new_key = tup
+            user = User.query.filter_by(api_key=old_key).first()
+
+            if user:
+                user.api_key = new_key
+                db.session.commit()
+
+
     # If debug mode is set, we'll let the world pull API key usage statistics
     if app.config['DEBUG']:
 
@@ -374,10 +393,11 @@ def create_user():
                             active=app.config["REQUIRE_EMAIL_VERIFICATION"] == False,
                         ) 
 
-                # Create the users API key
-                api_key = signatures.write_key(scope=['api_key'], expiration=365*24, active=True, email=email)
+                # Create the users API key. If Celery disabled, never expire keys 
+                # expiration = 365*24 app.config['CELERY_ENABLED'] else 0
+                # api_key = signatures.write_key(scope=['api_key'], expiration=expiration, active=True, email=email)
+                api_key = signatures.write_key(scope=['api_key'], expiration=365, active=True, email=email)
                 new_user.api_key = api_key
-                # *** But what do we do when it expires?
 
                 db.session.add(new_user)
                 db.session.commit()
