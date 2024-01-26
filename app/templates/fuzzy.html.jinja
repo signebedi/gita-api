@@ -62,7 +62,7 @@ Gita API
                             const ref = data.content.ref_list[index];
                             const score = data.content.match_scores[index];
                             const color = getScoreColor(score);
-                            return `<p class="lead mb-3"><span class="badge bg-secondary" id="text-entry" onclick="copyToClipboard(this.parentNode)">${ref}</span> ${text}<sup title="${score}" style="color: ${color};">${score}</sup></p>`;
+                            return `<p class="lead mb-3"><span class="badge bg-secondary" id="text-entry" onclick="copyToClipboard(this.parentNode)">${ref}</span> ${text} <sup><span title="${score}/100 similarity score" class="badge badge-outline" style="color: ${color};">${score}</span></sup></p>`;
                         }).join('');
                         container.innerHTML = combinedHtml;
                     } else {
@@ -79,28 +79,19 @@ Gita API
     });
 
 
-    //function getScoreColor(score) {
-    //    // This function returns a color depending on the score
-    //    if (score < 50) {
-    //        return `rgb(255, ${Math.floor(255 * (score / 50))}, 0)`; // Red to yellow
-    //    } else {
-    //        return `rgb(${255 - Math.floor(255 * ((score - 50) / 50))}, 255, 0)`; // Yellow to green
-    //    }
-    //}
-
-    function getScoreColor(score) {
-        if (score <= 35) {
-            // Transition from red to yellow
-            return `rgb(255, ${Math.floor(255 * (score / 35))}, 0)`; // Red to yellow
-        } else if (score <= 70) {
-            // Transition from yellow to green
-            let normalizedScore = (score - 35) / 35; // Normalize score between 35 and 70
-            return `rgb(${255 - Math.floor(255 * normalizedScore)}, 255, 0)`; // Yellow to green
-        } else {
-            // Scores above 70 are green
-            return 'rgb(0, 255, 0)'; // Solid green
-        }
+function getScoreColor(score) {
+    if (score <= 35) {
+        // Transition from red to orange
+        return `rgb(255, ${Math.floor(165 * (score / 35))}, 0)`; // Red to orange
+    } else if (score <= 70) {
+        // Transition from orange to green
+        let normalizedScore = (score - 35) / 35; // Normalize score between 35 and 70
+        return `rgb(${255 - Math.floor(255 * normalizedScore)}, ${165 + Math.floor(90 * normalizedScore)}, 0)`; // Orange to green
+    } else {
+        // Scores above 70 are green
+        return 'rgb(0, 255, 0)'; // Solid green
     }
+}
 
 
 

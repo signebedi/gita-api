@@ -101,3 +101,11 @@ input, select, textarea {
 .score-circle:hover {
     filter: brightness(125%);
 }
+
+
+
+.badge-outline {
+    color: black;
+    border: 1px solid #999;
+    background-color: transparent;
+}
