@@ -394,7 +394,7 @@ def create_user():
                         ) 
 
                 # Create the users API key. If Celery disabled, never expire keys 
-                expiration = 365*24 app.config['CELERY_ENABLED'] else 0
+                expiration = 365*24 if app.config['CELERY_ENABLED'] else 0
                 api_key = signatures.write_key(scope=['api_key'], expiration=expiration, active=True, email=email)
                 new_user.api_key = api_key
 
