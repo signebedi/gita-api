@@ -1,0 +1,10 @@
+Flask
+flask-hcaptcha
+Flask-Login
+flask-signing
+fuzzywuzzy
+gunicorn
+pandas
+psycopg2-binary
+python-dotenv
+python-Levenshtein

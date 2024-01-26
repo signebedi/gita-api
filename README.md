@@ -54,7 +54,7 @@ git clone https://github.com/signebedi/gita-api
 cd gita-api/
 python3 -m venv venv 
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements/base.txt
 ```
 
 Install postgres on the localhost if you'd like. You can of course also connect to a remote postgres instance so long as it is configured to receive remote connections. Currently, this application only supports the default sqlite3 and postgres.
