@@ -52,6 +52,7 @@ class Config(object):
     MAX_LOGIN_ATTEMPTS = int(os.getenv('MAX_LOGIN_ATTEMPTS', "0"))
     REQUIRE_EMAIL_VERIFICATION = os.getenv('REQUIRE_EMAIL_VERIFICATION', 'False') == 'True'
     PERMANENT_SESSION_LIFETIME = timedelta(hours=int(os.getenv('PERMANENT_SESSION_LIFETIME', 6)))
+    COLLECT_USAGE_STATISTICS = os.getenv('COLLECT_USAGE_STATISTICS', 'False') == 'True'
 
 class ProductionConfig(Config):
     # The DOMAIN is meant to fail in production if you have not set it

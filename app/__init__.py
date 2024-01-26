@@ -66,6 +66,12 @@ assert not app.config['REQUIRE_EMAIL_VERIFICATION'] or app.config['SMTP_ENABLED'
     "SMTP must be enabled ('SMTP_ENABLED' = True) when email verification is required ('REQUIRE_EMAIL_VERIFICATION' = True). Did you run 'gita-init config'?"
 
 
+# Assert that if app.config['COLLECT_USAGE_STATISTICS'] is True, then app.config['CELERY_ENABLED'] must also be True
+assert not app.config['COLLECT_USAGE_STATISTICS'] or app.config['CELERY_ENABLED'], \
+    "Celery must be enabled ('CELERY_ENABLED' = True) when collecting usage statistics ('COLLECT_USAGE_STATISTICS' = True). Did you run 'gita-init config'?"
+
+
+
 # Allow us to get access to the end user's source IP
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 
