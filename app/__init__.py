@@ -109,6 +109,8 @@ class User(UserMixin, db.Model):
     failed_login_attempts = db.Column(db.Integer, default=0)
     # api_key_id = db.Column(db.Integer, db.ForeignKey('signing.id'), nullable=True)
     api_key = db.Column(db.String(1000), nullable=True, unique=True)
+    
+    usage_log = db.relationship("UsageLog", order_by="UsageLog.id", back_populates="user")
 
     
 # Many to one relationship with User table
@@ -122,7 +124,6 @@ class UsageLog(db.Model):
 
     user = db.relationship("User", back_populates="usage_log")
 
-usage_log = db.relationship("UsageLog", order_by=UsageLog.id, back_populates="user")
 
 db.init_app(app=app)
 if app.config['DEBUG'] or app.config['TESTING']:
