@@ -109,7 +109,7 @@ class User(UserMixin, db.Model):
     failed_login_attempts = db.Column(db.Integer, default=0)
     # api_key_id = db.Column(db.Integer, db.ForeignKey('signing.id'), nullable=True)
     api_key = db.Column(db.String(1000), nullable=True, unique=True)
-    
+
     usage_log = db.relationship("UsageLog", order_by="UsageLog.id", back_populates="user")
 
     
@@ -196,6 +196,28 @@ if app.config['CELERY_ENABLED']:
             except Exception as e:
                 db.session.rollback()
                 # Placeholder for logging logic
+
+    # If debug mode is set, we'll let the world pull API key usage statistics
+    if app.config['DEBUG']:
+
+        from sqlalchemy import create_engine
+
+        @app.route('/stats', methods=['GET'])
+        def stats():
+           
+            # Create an engine to your database
+            engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+
+            # SQL query or table name
+            query = 'SELECT * FROM usage_log'
+
+            # Read data into a Pandas DataFrame
+            df = pd.read_sql(query, engine)
+            
+            # Convert DataFrame to a list of dictionaries
+            data = df.to_dict(orient='records')
+
+            return jsonify(data), 200
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
