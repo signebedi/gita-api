@@ -109,3 +109,13 @@ input, select, textarea {
     border: 1px solid #999;
     background-color: transparent;
 }
+
+
+.copy-icon{
+    padding-bottom: 5px;
+}
+
+
+.copy-icon:hover {
+    filter: brightness(125%);
+}

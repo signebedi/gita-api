@@ -341,7 +341,15 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
+
+       
+    # Let's get the expiry of the current user's key
+    s = current_user.api_key
+    get_key = signatures.get_key(s)
+    key_expiry=get_key['expiration']
+
     return render_template('profile.html.jinja', 
+                            key_expiry=key_expiry,
                             **standard_view_kwargs()
                             )
 
