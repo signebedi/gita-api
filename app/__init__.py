@@ -166,9 +166,8 @@ def make_session_permanent():
 
 # Load the JSON file into a DataFrame
 df = pd.read_json('data/cleaned_data.json')
-df2 = pd.read_json('data/authors.json')
+df2 = pd.read_json('data/cleaned_authors.json')
 authors = list(df2[['id', 'name']].itertuples(index=False, name=None))
-
 
 
 if app.config['CELERY_ENABLED']:
