@@ -27,6 +27,12 @@ User Profile
                 <td>Account Status</td>
                 <td>{{ 'Active' if current_user.active else 'Inactive' }}</td>
             </tr>
+            {% if config["COLLECT_USAGE_STATISTICS"] %}
+            <tr>
+                <td>Opted out of detailed usage statistics</td>
+                <td>{{ 'Yes' if current_user.opt_out else 'No' }}</td>
+            </tr>
+            {% endif %}
             <tr>
                 <td>Account Created</td>
                 <td>{{ current_user.created_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>

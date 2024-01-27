@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import re, os
+import re, os, json
 import pandas as pd
 from datetime import datetime, timedelta
 
@@ -24,6 +24,7 @@ from flask import (
     Flask, 
     request, 
     jsonify, 
+    Response,
     render_template, 
     url_for,
     current_app,
@@ -137,6 +138,9 @@ class User(UserMixin, db.Model):
     failed_login_attempts = db.Column(db.Integer, default=0)
     # api_key_id = db.Column(db.Integer, db.ForeignKey('signing.id'), nullable=True)
     api_key = db.Column(db.String(1000), nullable=True, unique=True)
+    # This opt out, if true, will exclude this user's ID and IP from the statistics
+    # gathered from their usage, see https://github.com/signebedi/gita-api/issues/59.
+    opt_out = db.Column(db.Boolean, nullable=False, default=True)
 
     usage_log = db.relationship("UsageLog", order_by="UsageLog.id", back_populates="user")
 
@@ -169,6 +173,7 @@ def standard_view_kwargs():
         'DISABLE_NEW_USERS': app.config['DISABLE_NEW_USERS'],
         "SITE_NAME": app.config['SITE_NAME'],
         "HOMEPAGE_CONTENT": app.config['HOMEPAGE_CONTENT'],
+        "COLLECT_USAGE_STATISTICS": app.config["COLLECT_USAGE_STATISTICS"],
     }
     kwargs['current_user'] = current_user
     kwargs['current_year'] = datetime.now().year
@@ -214,15 +219,15 @@ if app.config['CELERY_ENABLED']:
 
 
     @celery.task
-    def log_api_call(api_key, endpoint, remote_addr, query_params):
+    def log_api_call(api_key, endpoint, remote_addr=None, query_params={}):
         user = User.query.filter_by(api_key=api_key).first()
         if user:
             new_log = UsageLog(
-                user_id=user.id,
+                user_id=user.id if not user.opt_out else None,
                 timestamp=datetime.utcnow(),
                 endpoint=endpoint,
-                query_params=str(query_params),
-                remote_addr=remote_addr,
+                query_params=json.dumps(query_params),
+                remote_addr=remote_addr if not user.opt_out else None,
             )
             db.session.add(new_log)
             try:
@@ -270,7 +275,12 @@ if app.config['CELERY_ENABLED']:
             # Convert DataFrame to a list of dictionaries
             data = df.to_dict(orient='records')
 
-            return jsonify(data), 200
+            # print(data)
+            # print(df.to_json(orient='records'))
+
+            json_str = df.to_json(orient='records')
+
+            return Response(json_str, mimetype='application/json'), 200
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -282,8 +292,8 @@ def login():
 
     if request.method == 'POST':
 
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username', None)
+        password = request.form.get('password', None)
 
 
         error = None
@@ -419,11 +429,15 @@ def create_user():
         return redirect(url_for('home'))
 
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
+        # print(request.form)
+        username = request.form.get('username', None)
+        password = request.form.get('password', None)
+        email = request.form.get('email', None)
+        opt_out = 'optOut' in request.form
+
+
         # Placeholder for https://github.com/signebedi/gita-api/issues/15
-        # reenter_password = request.form['reenter_password']
+        # reenter_password = request.form.get['reenter_password']
 
         if app.config["HCAPTCHA_ENABLED"]:
             if not hcaptcha.verify():
@@ -456,7 +470,9 @@ def create_user():
                             username=username.lower(), 
                             password=generate_password_hash(password),
                             active=app.config["REQUIRE_EMAIL_VERIFICATION"] == False,
+                            opt_out=opt_out if app.config["COLLECT_USAGE_STATISTICS"] else True,
                         ) 
+                # print(new_user.opt_out)
 
                 # Create the users API key. If Celery disabled, never expire keys 
                 expiration = 365*24 if app.config['CELERY_ENABLED'] else 0
