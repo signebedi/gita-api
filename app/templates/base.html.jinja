@@ -113,8 +113,25 @@
             {% endif %}
         {% endwith %}
     </div>
-
+    
+    <div class="container mt-5 content">
     {% block content %}{% endblock %}
+    </div>
+
+
+    <footer class="bg-dark text-light">
+        <div class="container py-1">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; {{ current_year }} Sig Janoska-Bedi</p>
+                </div>
+                <div class="col-md-6 text-md-right">
+                    <a href="https://github.com/signebedi/gita-api" class="text-light fixed-source">Source</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
 
 
     <!-- Bootstrap 5 JS  -->

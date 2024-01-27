@@ -5,55 +5,53 @@ Create User
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1>Create User</h1>
-    <form id="registrationForm" method="POST" action="{{ url_for('create_user') }}">
+<h1>Create User</h1>
+<form id="registrationForm" method="POST" action="{{ url_for('create_user') }}">
 
-        <fieldset class="form-group">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" id="username" name="username" class="form-control" 
-                    onchange="validateField('username', /^[a-z0-9_]{5,15}$/, 'Invalid username. Username should be 5-15 characters long and contain only letters, numbers, and underscores.')" required>
-            {# Username should be 3-15 characters long and contain only lowercase letters, numbers, and underscores. #}
-            <div class="valid-feedback" id="username-is-valid" style="display: none;">This field is valid!</div>
-            <div class="invalid-feedback" id="username-is-invalid" style="display: none;"></div>
-        </fieldset>
-        
-        <fieldset class="form-group">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-        </fieldset>
+    <fieldset class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" id="username" name="username" class="form-control" 
+                onchange="validateField('username', /^[a-z0-9_]{5,15}$/, 'Invalid username. Username should be 5-15 characters long and contain only letters, numbers, and underscores.')" required>
+        {# Username should be 3-15 characters long and contain only lowercase letters, numbers, and underscores. #}
+        <div class="valid-feedback" id="username-is-valid" style="display: none;">This field is valid!</div>
+        <div class="invalid-feedback" id="username-is-invalid" style="display: none;"></div>
+    </fieldset>
+    
+    <fieldset class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </fieldset>
 
-        <fieldset class="form-group">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" id="password" name="password" class="form-control" 
-                    onchange="validateField('password', /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Invalid password. Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, one symbol, and one number.')" required>
-            {# Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number. #}
-            <div class="valid-feedback" id="password-is-valid" style="display: none;">This field is valid!</div>
-            <div class="invalid-feedback" id="password-is-invalid" style="display: none;"></div>
-        </fieldset>
+    <fieldset class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" name="password" class="form-control" 
+                onchange="validateField('password', /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Invalid password. Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, one symbol, and one number.')" required>
+        {# Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number. #}
+        <div class="valid-feedback" id="password-is-valid" style="display: none;">This field is valid!</div>
+        <div class="invalid-feedback" id="password-is-invalid" style="display: none;"></div>
+    </fieldset>
 
-        <fieldset class="form-group">
-            <label for="confirmPassword" class="form-label">Confirm Password</label>
-            <input type="password" id="confirmPassword" class="form-control" onchange="validateConfirmPassword()" required>
-            <div class="valid-feedback">Passwords match!</div>
-            <div class="invalid-feedback" id="confirmPassword-is-invalid">Passwords do not match.</div>
-        </fieldset>
+    <fieldset class="form-group">
+        <label for="confirmPassword" class="form-label">Confirm Password</label>
+        <input type="password" id="confirmPassword" class="form-control" onchange="validateConfirmPassword()" required>
+        <div class="valid-feedback">Passwords match!</div>
+        <div class="invalid-feedback" id="confirmPassword-is-invalid">Passwords do not match.</div>
+    </fieldset>
 
-        {% if config['HCAPTCHA_ENABLED'] %}
-        <fieldset style="padding-top: 10px;" class="form-group" title="captcha">
-            <div class="h-captcha" data-theme="dark" id="captcha" data-sitekey="{{ config['HCAPTCHA_SITE_KEY'] }}"></div>
-        </fieldset>
-        {% endif %}
+    {% if config['HCAPTCHA_ENABLED'] %}
+    <fieldset style="padding-top: 10px;" class="form-group" title="captcha">
+        <div class="h-captcha" data-theme="dark" id="captcha" data-sitekey="{{ config['HCAPTCHA_SITE_KEY'] }}"></div>
+    </fieldset>
+    {% endif %}
 
 
-        <fieldset style="padding-top: 10px;" class="form-group">
-            <button type="submit" class="btn btn-primary" onClick="this.form.submit(); this.disabled=true; this.value='Creating...';">Create</button>
-        </fieldset>
+    <fieldset style="padding-top: 10px;" class="form-group">
+        <button type="submit" class="btn btn-primary" onClick="this.form.submit(); this.disabled=true; this.value='Creating...';">Create</button>
+    </fieldset>
 
-        <p style="padding-top: 10px;">Already have an account? Login <a href="{{url_for('login')}}">here</a>.</p>
+    <p style="padding-top: 10px;">Already have an account? Login <a href="{{url_for('login')}}">here</a>.</p>
 
-    </form>
-</div>
+</form>
 {% endblock %}
 
 

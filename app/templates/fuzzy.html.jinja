@@ -6,29 +6,27 @@ Gita API
 
 
 {% block content %}
-<div class="container mt-5">
-    <h1>Fuzzy Search</h1>
-    <p>Select an author below and search for a string under 100 characters in length. This will return references that best match your query, with a reference number to the left that, when clicked, will copy the text to your clipboard. To the right of each row, you will find a color-coded number (ranging from 0 to 100) designating the match score - the higher the score, the better your query matched the verse. Generally, longer search strings will yield better results.</p>
-    <form id="gitaForm">
-        <fieldset class="form-group">
-            <label for="author" class="form-label mt-5">Select Author:</label>
-            <select name="author" id="author" class="form-select">
-                {% for id, name in authors %}
-                    <option value="{{ id }}" {% if id == 16 %}selected='yes'{% endif %}>{{ name }}</option>
-                {% endfor %}
-            </select>
-        </fieldset>
+<h1>Fuzzy Search</h1>
+<p>Select an author below and search for a string under 100 characters in length. This will return references that best match your query, with a reference number to the left that, when clicked, will copy the text to your clipboard. To the right of each row, you will find a color-coded number (ranging from 0 to 100) designating the match score - the higher the score, the better your query matched the verse. Generally, longer search strings will yield better results.</p>
+<form id="gitaForm">
+    <fieldset class="form-group">
+        <label for="author" class="form-label mt-5">Select Author:</label>
+        <select name="author" id="author" class="form-select">
+            {% for id, name in authors %}
+                <option value="{{ id }}" {% if id == 16 %}selected='yes'{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
 
-        <fieldset class="form-group">
-            <label for="query" class="form-label mt-5">Query:</label>
-            <input type="text" id="query" maxlength="100" name="query" class="form-control" placeholder="Sword Sever Knowledge Doubt Self Yoga Arise" required>
-        </fieldset>
+    <fieldset class="form-group">
+        <label for="query" class="form-label mt-5">Query:</label>
+        <input type="text" id="query" maxlength="100" name="query" class="form-control" placeholder="Sword Sever Knowledge Doubt Self Yoga Arise" required>
+    </fieldset>
 
-        <fieldset style="padding-top: 10px;" class="form-group">
-            <button type="submit" class="btn btn-primary" id="form-button-submit">Submit</button>
-        </fieldset>
-    </form>
-</div>
+    <fieldset style="padding-top: 10px;" class="form-group">
+        <button type="submit" class="btn btn-primary" id="form-button-submit">Submit</button>
+    </fieldset>
+</form>
 
 <div id="resultContainer" class="container mt-5 results-div"></div>
 

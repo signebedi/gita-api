@@ -6,34 +6,32 @@ Gita API
 
 
 {% block content %}
-<div class="container mt-5">
 
-    <h1>Reference Search</h1>
-    <p>Select an author below and search for a specific reference. Valid references might include full chapters (1), individual verses (1.1), or continuous verse ranges within a single chapter (1.1-4). This will return references that match your query, with a reference number to the left that, when clicked, will copy the text to your clipboard.</p>
+<h1>Reference Search</h1>
+<p>Select an author below and search for a specific reference. Valid references might include full chapters (1), individual verses (1.1), or continuous verse ranges within a single chapter (1.1-4). This will return references that match your query, with a reference number to the left that, when clicked, will copy the text to your clipboard.</p>
 
-    <form id="gitaForm">
-        <fieldset class="form-group">
-            <label for="author" class="form-label mt-5">Select Author:</label>
-            <select name="author" id="author" class="form-select">
-                {% for id, name in authors %}
-                    <option value="{{ id }}" {% if id == 16 %}selected='yes'{% endif %}>{{ name }}</option>
-                {% endfor %}
-            </select>
-        </fieldset>
+<form id="gitaForm">
+    <fieldset class="form-group">
+        <label for="author" class="form-label mt-5">Select Author:</label>
+        <select name="author" id="author" class="form-select">
+            {% for id, name in authors %}
+                <option value="{{ id }}" {% if id == 16 %}selected='yes'{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
 
-        <fieldset class="form-group">
-            <label for="reference" class="form-label mt-5">Reference (Chapter.Verse):</label>
-            <input type="text" onchange="validateReference(this.value);" id="reference" name="reference" class="form-control" placeholder="e.g., 1.5" required>
-			<div class="valid-feedback" id="reference-is-valid">This field is valid!</div>
-			<div class="invalid-feedback" id="reference-is-invalid">This field is invalid!</div>    
+    <fieldset class="form-group">
+        <label for="reference" class="form-label mt-5">Reference (Chapter.Verse):</label>
+        <input type="text" onchange="validateReference(this.value);" id="reference" name="reference" class="form-control" placeholder="e.g., 1.5" required>
+        <div class="valid-feedback" id="reference-is-valid">This field is valid!</div>
+        <div class="invalid-feedback" id="reference-is-invalid">This field is invalid!</div>    
 
-        </fieldset>
+    </fieldset>
 
-        <fieldset style="padding-top: 10px;" class="form-group">
-            <button type="submit" class="btn btn-primary" id="form-button-submit">Submit</button>
-        </fieldset>
-    </form>
-</div>
+    <fieldset style="padding-top: 10px;" class="form-group">
+        <button type="submit" class="btn btn-primary" id="form-button-submit">Submit</button>
+    </fieldset>
+</form>
 
 <div id="resultContainer" class="container mt-5 results-div"></div>
 

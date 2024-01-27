@@ -114,3 +114,23 @@ input, select, textarea {
 .copy-icon{
     padding-bottom: 5px;
 }
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1;
+}
+
+
+.fixed-source {
+    position: fixed;
+    right: 20%; /* Adjust as needed */
+}

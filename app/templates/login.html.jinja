@@ -5,35 +5,33 @@ Login
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1>Login</h1>
-    <form method="POST" action="{{ url_for('login') }}">
+<h1>Login</h1>
+<form method="POST" action="{{ url_for('login') }}">
 
 
-        <fieldset class="form-group">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" name="username" required>
-        </fieldset>
+    <fieldset class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+    </fieldset>
 
 
-        <fieldset class="form-group">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </fieldset>
+    <fieldset class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </fieldset>
 
 
-        {% if config['HCAPTCHA_ENABLED'] %}
-        <fieldset style="padding-top: 10px;" class="form-group" title="captcha">
-            <div class="h-captcha" data-theme="dark" id="captcha" data-error-callback="onError" data-sitekey="{{ config['HCAPTCHA_SITE_KEY'] }}"></div>
-        </fieldset>
-        {% endif %}
+    {% if config['HCAPTCHA_ENABLED'] %}
+    <fieldset style="padding-top: 10px;" class="form-group" title="captcha">
+        <div class="h-captcha" data-theme="dark" id="captcha" data-error-callback="onError" data-sitekey="{{ config['HCAPTCHA_SITE_KEY'] }}"></div>
+    </fieldset>
+    {% endif %}
 
-        <fieldset style="padding-top: 10px;" class="form-group">
-            <button type="submit" class="btn btn-primary" onClick="this.form.submit(); this.disabled=true; this.value='Loading...';">Login</button>
-        </fieldset>
+    <fieldset style="padding-top: 10px;" class="form-group">
+        <button type="submit" class="btn btn-primary" onClick="this.form.submit(); this.disabled=true; this.value='Loading...';">Login</button>
+    </fieldset>
 
-        <p style="padding-top: 10px;">Don't have an account? Create one <a href="{{url_for('create_user')}}">here</a>.</p>
+    <p style="padding-top: 10px;">Don't have an account? Create one <a href="{{url_for('create_user')}}">here</a>.</p>
 
-    </form>
-</div>
+</form>
 {% endblock %}

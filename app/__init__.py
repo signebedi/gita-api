@@ -162,6 +162,8 @@ def standard_view_kwargs():
         "HCAPTCHA_SITE_KEY": app.config["HCAPTCHA_SITE_KEY"] if app.config["HCAPTCHA_ENABLED"] else None,
     }
     kwargs['current_user'] = current_user
+    kwargs['current_year'] = datetime.now().year
+    
 
     return kwargs
 
