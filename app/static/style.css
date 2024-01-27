@@ -111,8 +111,9 @@ input, select, textarea {
 }
 
 
-.copy-icon{
+.profile-icon{
     padding-bottom: 5px;
+    padding-left:5px;
 }
 
 html, body {

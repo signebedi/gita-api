@@ -356,6 +356,26 @@ def login():
                             **standard_view_kwargs()
                             )
 
+@app.route('/rotate', methods=['GET'])
+@login_required
+def rotate():
+
+    old_key = current_user.api_key
+
+    # Rotate the current user's API key 
+    new_key = signatures.rotate_key(old_key)
+
+    user = User.query.filter_by(api_key=old_key).first()
+
+    if user:
+        user.api_key = new_key
+        db.session.commit()
+
+    flash("You have generated a new API key.", "success")
+    return redirect(url_for('profile'))
+
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -578,7 +598,7 @@ def get_gita_section():
         gita_content = get_reference(ref_type, chapter, verse, range_end, author_id, df)
 
         if app.config['COLLECT_USAGE_STATISTICS']:
-            # Call the Celery task
+            # Call our Celery task
             log_api_call.delay(signature, 'reference/', query_params={"reference": reference, "author_id": author_id})
 
     except ValueError as e:
@@ -624,7 +644,7 @@ def fuzzy_search():
     search_results = perform_fuzzy_search(search_query, df=df, author_id=author_id)
 
     if app.config['COLLECT_USAGE_STATISTICS']:
-        # Call the Celery task
+        # Call our Celery task
         log_api_call.delay(signature, 'fuzzy/', query_params={"query": search_query, "author_id": author_id})
 
 
