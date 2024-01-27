@@ -116,7 +116,12 @@ mailer = Mailer(
 )
 
 with app.app_context():
-    signatures = Signatures(app, db=db, byte_len=32, rate_limiting=app.config['RATE_LIMITS_ENABLED'])
+    signatures = Signatures(app, db=db, byte_len=32, 
+        # Pass the rate limiting settings from the app config
+        rate_limiting=app.config['RATE_LIMITS_ENABLED'], 
+        rate_limiting_period=app.config['RATE_LIMITS_PERIOD'], 
+        rate_limiting_max_requests=app.config['RATE_LIMITS_MAX_REQUESTS']
+    )
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
