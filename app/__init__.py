@@ -1,3 +1,21 @@
+"""
+gita-api/__init__.py: a RESTful Bhagavad Gita API 
+Copyright (C) 2024 Sig Janoska-Bedi
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import re, os
 import pandas as pd
 from datetime import datetime, timedelta
@@ -42,8 +60,13 @@ from gita import (
     perform_fuzzy_search,
 )
 
-
 __version__ = "4.0.0"
+__name__ = "app"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
 
 app = Flask(__name__)
 
