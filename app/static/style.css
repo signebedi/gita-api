@@ -114,11 +114,3 @@ input, select, textarea {
 .copy-icon{
     padding-bottom: 5px;
 }
-
-.clipboard-icon {
-    transition: transform 0.3s ease;
-}
-
-.clipboard-icon:active {
-    transform: scale(1.1);
-}
