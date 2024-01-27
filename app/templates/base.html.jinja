@@ -35,7 +35,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('home') }}">Gita API<small> v.{{ version }}</small></a>
+            <a class="navbar-brand" href="{{ url_for('home') }}">{{config['SITE_NAME']}}<small> v.{{ version }}</small></a>
 
             <div class="collapse navbar-collapse" id="navbarNav">
 
@@ -111,7 +111,7 @@
 
                 {# This sets the flask-login "message" category to something that plays nicely with Bootstrap
                 See https://flask.palletsprojects.com/en/latest/api/#flask.flash and  
-                https://github.com/maxcountryman/flask-login/blob/main/src/flask_login/config.py#}
+                https://github.com/maxcountryman/flask-login/blob/main/src/flask_login/config.py #}
                 {% if category == "message" %}
                     {% set category = "warning" %}
                 {% endif %}
