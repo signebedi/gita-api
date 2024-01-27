@@ -470,7 +470,7 @@ def create_user():
                 if app.config["REQUIRE_EMAIL_VERIFICATION"]:
 
                     key = signatures.write_key(scope=['email_verification'], expiration=48, active=True, email=email)
-                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at {app.config['DOMAIN']}. Please verify your email by clicking the following link: {app.config['DOMAIN']}/verify/{key}. Please note this link will expire after 48 hours."
+                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at            {app.config['DOMAIN']}. Please verify your email by clicking the following link: {app.config['DOMAIN']}/verify/{key}. Please note this link will expire after 48 hours."
                     flash_msg = f'Successfully created user \'{username}\'. Please check your email for an activation link.'
 
                 else:
