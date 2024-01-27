@@ -118,7 +118,7 @@ def create_user_and_group(user, group):
         click.echo(f"Group '{group}' already exists or could not be created.")
 
     try:
-        subprocess.run(['sudo', 'useradd', '-m', '-g', group, user], check=True)
+        subprocess.run(['sudo', 'useradd', '--no-create-home', '--system', '-m', '-g', group, user], check=True)
     except subprocess.CalledProcessError:
         click.echo(f"User '{user}' already exists or could not be created.")
 
