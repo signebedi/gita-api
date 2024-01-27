@@ -160,6 +160,7 @@ def standard_view_kwargs():
     kwargs['config'] = {
         "HCAPTCHA_ENABLED": app.config["HCAPTCHA_ENABLED"],
         "HCAPTCHA_SITE_KEY": app.config["HCAPTCHA_SITE_KEY"] if app.config["HCAPTCHA_ENABLED"] else None,
+        'DISABLE_NEW_USERS': app.config['DISABLE_NEW_USERS']
     }
     kwargs['current_user'] = current_user
     kwargs['current_year'] = datetime.now().year
@@ -380,6 +381,9 @@ def profile():
 
 @app.route('/create', methods=['GET', 'POST'])
 def create_user():
+
+    if app.config['DISABLE_NEW_USERS']:
+        return abort(404)
 
     # we only make this view visible if the user isn't logged in
     if current_user.is_authenticated:

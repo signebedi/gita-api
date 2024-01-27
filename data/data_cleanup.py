@@ -24,4 +24,8 @@ df['verse_number'] = merged_df['verse_number']
 df['chapter_number'] = merged_df['chapter_number']
 df['full_ref'] = df.apply(lambda row: f"{row['chapter_number']}.{row['verse_number']}", axis=1)
 
+# Add book name and id
+df['book'] = "Bhagavad Gita"
+df['book_id'] = '1'
+
 df.to_json('data/cleaned_data.json')

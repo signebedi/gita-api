@@ -61,9 +61,12 @@
                         <a class="nav-link" href="{{ url_for('login') }}">Login</a>
                     </li>
 
+
+                    {% if not config['DISABLE_NEW_USERS'] %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('create_user') }}">Create Account</a>
                     </li>
+                    {% endif %}
 
                     {% endif %}
                 </ul>
