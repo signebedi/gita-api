@@ -76,11 +76,13 @@ def prompt_bool(message, default=None):
 @click.option('--smtp-from-address', default=None, help='SMTP From Address')
 @click.option('--hcaptcha-site-key', default=None, help='hCaptcha Site Key')
 @click.option('--hcaptcha-secret-key', default=None, help='hCaptcha Secret Key')
+@click.option('--permanent-session-lifetime', default=360, type=int, help='Length of user sessions in minutes')
 def init_app_command(env_type, domain, site_name, secret_key, sqlalchemy_database_uri, 
                         hcaptcha_enabled, smtp_enabled, celery_enabled, rate_limits_enabled, 
                         rate_limits_period, rate_limits_max_requests, max_login_attempts, 
                         require_email_verification, smtp_mail_server, smtp_port, smtp_username, 
-                        smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key):
+                        smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key,
+                        permanent_session_lifetime):
 
     if env_type.lower() == 'prod':
         env_file = os.path.join(os.getcwd(), 'instance', 'prod.env')
@@ -119,6 +121,7 @@ def init_app_command(env_type, domain, site_name, secret_key, sqlalchemy_databas
         'RATE_LIMITS_PERIOD': rate_limits_period,
         'RATE_LIMITS_MAX_REQUESTS': rate_limits_max_requests,
         'REQUIRE_EMAIL_VERIFICATION': require_email_verification if require_email_verification is not None else prompt_bool('Is REQUIRE EMAIL VERIFICATION enabled?', default=False),
+        'PERMANENT_SESSION_LIFETIME': permanent_session_lifetime,
     }
 
     if max_login_attempts is None:
