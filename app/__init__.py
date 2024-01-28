@@ -142,6 +142,7 @@ class User(UserMixin, db.Model):
     # This opt out, if true, will exclude this user's ID and IP from the statistics
     # gathered from their usage, see https://github.com/signebedi/gita-api/issues/59.
     opt_out = db.Column(db.Boolean, nullable=False, default=True)
+    site_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     usage_log = db.relationship("UsageLog", order_by="UsageLog.id", back_populates="user")
 
