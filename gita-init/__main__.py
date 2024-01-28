@@ -64,6 +64,8 @@ def prompt_bool(message, default=None):
 @click.option('--smtp-enabled', default=None, type=bool, help='Enable SMTP')
 @click.option('--celery-enabled', default=None, type=bool, help='Enable Celery')
 @click.option('--rate-limits-enabled', default=None, type=bool, help='Enable rate limits')
+@click.option('--rate-limits-max-requests', default=100, type=int, help='Enable rate limits')
+@click.option('--rate-limits-period', default=60, type=int, help='Enable rate limits')
 @click.option('--max-login-attempts', default=None, type=None, help='Enable maximum login attempts (0 will disable)')
 @click.option('--require-email-verification', default=None, type=bool, help='Require email verification')
 @click.option('--smtp-mail-server', default=None, help='SMTP Mail Server')
@@ -73,7 +75,11 @@ def prompt_bool(message, default=None):
 @click.option('--smtp-from-address', default=None, help='SMTP From Address')
 @click.option('--hcaptcha-site-key', default=None, help='hCaptcha Site Key')
 @click.option('--hcaptcha-secret-key', default=None, help='hCaptcha Secret Key')
-def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcaptcha_enabled, smtp_enabled, celery_enabled, rate_limits_enabled, max_login_attempts, require_email_verification, smtp_mail_server, smtp_port, smtp_username, smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key):
+def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcaptcha_enabled, 
+                        smtp_enabled, celery_enabled, rate_limits_enabled, 
+                        rate_limits_period, rate_limits_max_requests, max_login_attempts, 
+                        require_email_verification, smtp_mail_server, smtp_port, smtp_username, 
+                        smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key):
 
     if env_type.lower() == 'prod':
         env_file = os.path.join(os.getcwd(), 'instance', 'prod.env')
@@ -108,7 +114,9 @@ def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcap
         'SMTP_ENABLED': smtp_enabled if smtp_enabled is not None else prompt_bool('Is SMTP enabled?', default=False),
         'CELERY_ENABLED': celery_enabled if celery_enabled is not None else prompt_bool('Is CELERY enabled?', default=False),
         'RATE_LIMITS_ENABLED': rate_limits_enabled if rate_limits_enabled is not None else prompt_bool('Is RATE LIMITS enabled?', default=False),
-        'REQUIRE_EMAIL_VERIFICATION': require_email_verification if require_email_verification is not None else prompt_bool('Is REQUIRE EMAIL VERIFICATION enabled?', default=False)
+        'RATE_LIMITS_PERIOD': rate_limits_period,
+        'RATE_LIMITS_MAX_REQUESTS': rate_limits_max_requests,
+        'REQUIRE_EMAIL_VERIFICATION': require_email_verification if require_email_verification is not None else prompt_bool('Is REQUIRE EMAIL VERIFICATION enabled?', default=False),
     }
 
     if max_login_attempts is None:
@@ -118,7 +126,6 @@ def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcap
         max_login_attempts = click.prompt('How many MAX LOGIN ATTEMPTS?', default=3)
     
     config['MAX_LOGIN_ATTEMPTS'] = max_login_attempts
-
 
     # Additional configurations based on enabled features
     if config['HCAPTCHA_ENABLED']:

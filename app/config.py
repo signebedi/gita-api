@@ -51,10 +51,10 @@ class Config(object):
         'broker_connection_retry_on_startup': False,
         # Schedule for periodic tasks
         'beat_schedule':{
-            "run-key-check-daily": {
+            "run-key-check": {
                 "task": "app.check_key_rotation",
-                'schedule': 45.0,  # For rapid testing
-                # 'schedule': 3600.0,  # Hourly
+                # 'schedule': 45.0,  # For rapid testing
+                'schedule': 3600.0,  # Hourly
                 # 'schedule': 86400.0,  # Daily
             }
         },

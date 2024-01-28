@@ -146,13 +146,17 @@ The recommended method for initializing celery is to run the gita-init command:
 python gita-init celery --start-on-success
 ```
 
-And, if you'd like to restart the entire application, you would run the following systemctl commands.
+And, if you'd like to administer the entire application, you could run the following shorthand at runtime.
 
+Stop:
+```bash
+systemctl stop production-gita-api-gunicorn && systemctl stop production-gita-api-celery && systemctl stop production-gita-api-celerybeat
+```
+
+Restart:
 ```bash
 systemctl restart production-gita-api-gunicorn && systemctl restart production-gita-api-celery && systemctl restart production-gita-api-celerybeat
 ```
-
-systemctl stop production-gita-api-gunicorn && systemctl restart production-gita-api-celery && systemctl restart production-gita-api-celerybeat
 
 
 If you'd like to run the commands manually, navigate as root to the working directory and run the following.
