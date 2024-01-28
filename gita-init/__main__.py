@@ -186,7 +186,7 @@ def change_ownership(path, user, group):
 @cli.command('gunicorn')
 @click.option('--user', default='gitapi', help='User for the systemd service')
 @click.option('--group', default='gitapi', help='Group for the systemd service')
-@click.option('--environment', default='production', type=click.Choice(['production', 'development', 'testing']), help='Environment for the systemd service')
+@click.option('--environment', default='production', type=click.Choice(['production', 'development']), help='Environment for the systemd service')
 @click.option('--working-directory', default=os.getcwd(), help='Working directory for the systemd service')
 @click.option('--environment-path', default=os.path.join(os.getcwd(),'venv','bin'), help='Path for the environment')
 @click.option('--gunicorn-config', default=os.path.join(os.getcwd(),'gunicorn.conf.py'), help='Gunicorn configuration file')
@@ -461,7 +461,7 @@ server {{
 @click.option('--email', prompt=True, help='Email of the new user')
 @click.option('--opt-out', is_flag=True, help='Opt out of usage statistics')
 @click.option('--site-admin', is_flag=True, help='Set this user as a site admin')
-@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='development', help='Set the environment (important if you use different databases for dev and prod).')
+@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='production', help='Set the environment (important if you use different databases for dev and prod).')
 def add_user_command(username, password, email, opt_out, site_admin, environment):
     """Add a new user to the application."""
 
@@ -512,7 +512,7 @@ def add_user_command(username, password, email, opt_out, site_admin, environment
 @click.option('--opt-out', type=bool, help='Change opt-out of usage statistics', default=None)
 @click.option('--site-admin', type=bool, help='Change site admin status', default=None)
 @click.option('--headless', is_flag=True, help='Run this command headlessly')
-@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='development', help='Set the environment (important if you use different databases for dev and prod).')
+@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='production', help='Set the environment (important if you use different databases for dev and prod).')
 def modify_user_command(username, password, new_email, opt_out, site_admin, headless, environment):
     """Modify an existing user in the application."""
 
@@ -567,7 +567,7 @@ def modify_user_command(username, password, new_email, opt_out, site_admin, head
 
 @cli.command('id')
 @click.argument('username')
-@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='development', help='Set the environment (important if you use different databases for dev and prod).')
+@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='production', help='Set the environment (important if you use different databases for dev and prod).')
 def id_command(username, environment):
     """Display user details for a given username."""
 
