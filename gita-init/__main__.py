@@ -454,7 +454,6 @@ server {{
         click.echo("NGINX has been restarted and enabled.")
 
 
-
 @cli.command('useradd')
 @click.option('--username', prompt=True, help='Username of the new user')
 @click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True, help='Password for the new user')
@@ -465,6 +464,7 @@ def add_user_command(username, password, email, opt_out, site_admin):
     """Add a new user to the application."""
 
     from app import app, db, User, signatures
+    # We need to pass a FLASK_ENV I think
 
     with app.app_context():
         # Check if user or email already exists
@@ -502,7 +502,63 @@ def add_user_command(username, password, email, opt_out, site_admin):
             click.echo(f"Error adding user: {e}")
 
 
+@cli.command('usermod')
+@click.argument('username')
+@click.option('--password', help='New password for the user', default=None)
+@click.option('--new-email', help='New email for the user', default=None)
+@click.option('--opt-out', type=bool, help='Change opt-out of usage statistics', default=None)
+@click.option('--site-admin', type=bool, help='Change site admin status', default=None)
+@click.option('--headless', is_flag=True, help='Run this command headlessly')
+def modify_user_command(username, password, new_email, opt_out, site_admin, headless):
+    """Modify an existing user in the application."""
 
+    from app import app, db, User, signatures
+    # We need to pass a FLASK_ENV I think
+
+    with app.app_context():
+        user = User.query.filter(User.username.ilike(username)).first()
+        if not user:
+            click.echo(f"Username {username} does not exist.")
+            return
+
+        # Interactively ask for changes if not in headless mode
+        if not headless:
+            if password is None and click.confirm('Do you want to change the password?'):
+                password = click.prompt('Enter new password', hide_input=True, confirmation_prompt=True)
+
+            if new_email is None and click.confirm('Do you want to change the email?'):
+                new_email = click.prompt('Enter new email', default=user.email)
+
+            if opt_out is None and click.confirm('Do you want to change the opt-out setting?'):
+                opt_out = click.confirm('Opt out of usage statistics')
+
+            if site_admin is None and click.confirm('Do you want to change the site admin status?'):
+                site_admin = click.confirm('Set as site admin')
+
+        # Check if new email is already registered
+        if new_email and new_email != user.email:
+            existing_email = User.query.filter(User.email.ilike(new_email)).first()
+            if existing_email:
+                click.echo(f"Email {new_email} is already registered.")
+                return
+            user.email = new_email
+
+        # Update other fields if provided
+        if password:
+            user.password = generate_password_hash(password)
+        
+        if opt_out is not None:
+            user.opt_out = opt_out
+
+        if site_admin is not None:
+            user.site_admin = site_admin
+
+        # Save changes to database
+        try:
+            db.session.commit()
+            click.echo(f"User '{username}' successfully modified.")
+        except Exception as e:
+            click.echo(f"Error modifying user: {e}")
 
 if __name__ == "__main__":
     cli()

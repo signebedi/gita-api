@@ -558,6 +558,18 @@ def verify_email(signature):
 
 
 
+
+@app.route('/admin/stats', methods=['GET'])
+@login_required
+def admin_stats():
+
+  if not current_user.site_admin:
+    return abort(404)
+
+    return 200
+
+
+
 @app.route('/reference', methods=['GET'])
 @login_required
 def reference():
