@@ -34,11 +34,11 @@ class Config(object):
     HCAPTCHA_SECRET_KEY = os.getenv('HCAPTCHA_SECRET_KEY', None)
 
     SMTP_ENABLED = os.getenv('SMTP_ENABLED', 'False') == 'True'
-    SMTP_MAIL_SERVER = os.getenv('SMTP_MAIL_SERVER')
+    SMTP_MAIL_SERVER = os.getenv('SMTP_MAIL_SERVER', None)
     SMTP_PORT = int(os.getenv('SMTP_PORT', 25))    
-    SMTP_USERNAME = os.getenv('SMTP_USERNAME')
-    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
-    SMTP_FROM_ADDRESS = os.getenv('SMTP_FROM_ADDRESS')
+    SMTP_USERNAME = os.getenv('SMTP_USERNAME', None)
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', None)
+    SMTP_FROM_ADDRESS = os.getenv('SMTP_FROM_ADDRESS', None)
 
     CELERY_ENABLED = os.getenv('CELERY_ENABLED', 'False') == 'True'
     CELERY_CONFIG = {
