@@ -460,7 +460,8 @@ server {{
 @click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True, help='Password for the new user')
 @click.option('--email', prompt=True, help='Email of the new user')
 @click.option('--opt-out', is_flag=True, help='Opt out of usage statistics')
-def add_user_command(username, password, email, opt_out):
+@click.option('--site-admin', is_flag=True, help='Set this user as a site admin')
+def add_user_command(username, password, email, opt_out, site_admin):
     """Add a new user to the application."""
 
     from app import app, db, User, signatures
@@ -484,6 +485,7 @@ def add_user_command(username, password, email, opt_out):
             password=generate_password_hash(password),
             active=app.config["REQUIRE_EMAIL_VERIFICATION"] == False,
             opt_out=opt_out if app.config["COLLECT_USAGE_STATISTICS"] else True,
+            site_admin=site_admin,
         )
 
         # Create the user's API key
