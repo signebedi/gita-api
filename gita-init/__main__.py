@@ -154,6 +154,10 @@ def init_app_command(env_type, domain, site_name, secret_key, sqlalchemy_databas
         config['SMTP_PASSWORD'] = smtp_password if smtp_password is not None else click.prompt('Enter SMTP password', hide_input=True)
         config['SMTP_FROM_ADDRESS'] = smtp_from_address if smtp_from_address is not None else click.prompt('Enter SMTP from address')
 
+    # Run an assumptions check against the information passed and quit if assumptions are broken
+    from utils.scripts import check_configuration_assumptions
+    assert check_configuration_assumptions(config=config)
+
     # Write configurations to .env
     for key, value in config.items():
         set_key(env_file, key, str(value))

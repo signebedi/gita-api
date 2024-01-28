@@ -53,8 +53,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
 from app.config import DevelopmentConfig, ProductionConfig, TestingConfig
-from app.utils.smtp import Mailer
-from app.utils.celery import make_celery
+
+from utils.smtp import Mailer
+from utils.celery import make_celery
+from utils.scripts import check_configuration_assumptions
 from gita import (
     validate_ref_type,
     get_reference,
@@ -82,18 +84,17 @@ else:
 if app.config['DEBUG']:
     print(app.config)
 
-# Assert that app.config['DOMAIN'] is not None
-assert app.config['DOMAIN'] is not None, "The 'DOMAIN' configuration must be set. Did you run 'gita-init config'?"
+# Run our assumptions check
+assert check_configuration_assumptions(config=app.config)
 
-# Assert that if app.config['REQUIRE_EMAIL_VERIFICATION'] is True, then app.config['SMTP_ENABLED'] must also be True
-assert not app.config['REQUIRE_EMAIL_VERIFICATION'] or app.config['SMTP_ENABLED'], \
-    "SMTP must be enabled ('SMTP_ENABLED' = True) when email verification is required ('REQUIRE_EMAIL_VERIFICATION' = True). Did you run 'gita-init config'?"
-
-
-# Assert that if app.config['COLLECT_USAGE_STATISTICS'] is True, then app.config['CELERY_ENABLED'] must also be True
-assert not app.config['COLLECT_USAGE_STATISTICS'] or app.config['CELERY_ENABLED'], \
-    "Celery must be enabled ('CELERY_ENABLED' = True) when collecting usage statistics ('COLLECT_USAGE_STATISTICS' = True). Did you run 'gita-init config'?"
-
+# The following may be a more graceful way to handle exit in the future,
+# but I would like to ensure that the error message makes it to the system
+# administrator directly instead of being buried in eg. log files.
+# try:
+#     assert check_configuration_assumptions(config=app.config)
+# except ConfigurationError as e:
+#     # Some logger logic here
+#     os._exit(1)
 
 
 # Allow us to get access to the end user's source IP
@@ -253,12 +254,13 @@ if app.config['CELERY_ENABLED']:
             if user:
                 user.api_key = new_key
                 db.session.commit()
+
                 if app.config['SMTP_ENABLED']:
 
                     subject=f"{app.config['SITE_NAME']} API Key Rotated"
                     content=f"This email serves to notify you that an API key for user {username} has just rotated at {app.config['DOMAIN']}. Please note that your past API key will no longer work if you are employing it in applications. Your new key will be active for 365 days. You can see your new key by visiting {app.config['DOMAIN']}/profile."
                     email = user.email
-                    
+
                     send_email_async.delay(subject=subject, content=content, to_address=email)
 
 

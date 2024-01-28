@@ -2,7 +2,6 @@ import ssl
 import smtplib 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask import current_app
 
 class Mailer():
     def __init__(self, mail_server=None, port=None, 
