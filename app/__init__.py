@@ -18,6 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import re, os, json
 import pandas as pd
+import plotly
+import plotly.express as px
 from datetime import datetime, timedelta
 
 from flask import (
@@ -279,7 +281,7 @@ if app.config['CELERY_ENABLED']:
             # SQL query or table name
             query = 'SELECT * FROM usage_log'
 
-            # Read data into a Pandas DataFrame
+            # Read data into a pandas df
             df = pd.read_sql(query, engine)
             
             # Convert DataFrame to a list of dictionaries
@@ -563,10 +565,51 @@ def verify_email(signature):
 @login_required
 def admin_stats():
 
-  if not current_user.site_admin:
-    return abort(404)
+    if not current_user.site_admin:
+        return abort(404)
 
-    return 200
+    if not app.config["COLLECT_USAGE_STATISTICS"]:
+        flash("User statistics not enabled on this server.", 'warning')
+        return redirect(url_for('home'))
+
+    # Create an engine to your database
+    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+
+    # SQL query
+    query = 'SELECT * FROM usage_log'
+    df = pd.read_sql(query, engine)
+
+    # Aggregate data by day for endpoint after casting timestamp as a datetime object
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['date'] = df['timestamp'].dt.date
+    daily_stats = df.groupby(['date', 'endpoint']).size().reset_index(name='count')
+
+    # print(daily_stats)
+
+    # Convert to json .... ?
+    # daily_stats_json = daily_stats.to_json(orient='records')
+
+    # Basic figure
+    fig = px.bar(daily_stats, x='date', y='count', color='endpoint',title='Day-over-day activity by endpoint')
+
+    # Format the x-axis to display dates only
+    fig.update_xaxes(
+        tickformat='%Y-%m-%d',  # Formats date as 'Year-Month-Day'
+        tickangle=-45  # Optional: Tilts the date labels for better readability
+    )
+
+    # Set the default range for the x-axis to the last 5 days
+    # end_date = datetime.now().date()
+    # start_date = end_date - timedelta(days=5)
+    # fig.update_xaxes(range=[start_date, end_date])
+    fig.update_layout(bargap=.85)
+    # Convert the figure to JSON
+    graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('admin_stats.html.jinja',
+                            graph_json=graph_json,
+                            **standard_view_kwargs()
+                            )
 
 
 
