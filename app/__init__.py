@@ -572,6 +572,8 @@ def admin_stats():
         flash("User statistics not enabled on this server.", 'warning')
         return redirect(url_for('home'))
 
+    from sqlalchemy import create_engine
+
     # Create an engine to your database
     engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
