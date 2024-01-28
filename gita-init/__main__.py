@@ -183,7 +183,8 @@ ExecStart={environment_path}/gunicorn 'wsgi:app' --config {gunicorn_config}
 WantedBy=multi-user.target
 """
     # click.echo(systemd_unit)
-    unit_file_path = f'/etc/systemd/system/{environment}-gita-api.service'
+    service_name = "{environment}-gita-api-gunicorn.service"
+    unit_file_path = f'/etc/systemd/system/{service_name}'
     # click.echo(unit_file_path)
 
     # Write the systemd unit content to a temporary file
@@ -200,15 +201,93 @@ WantedBy=multi-user.target
     change_ownership(working_directory, user, group)
 
     if start_on_success:
-        os.system(f'sudo systemctl start {environment}-gita-api.service')
-        os.system(f'sudo systemctl enable {environment}-gita-api.service')
+        os.system(f'sudo systemctl start {service_name}')
+        os.system(f'sudo systemctl enable {service_name}')
 
     click.echo("Systemd unit file for gita-api has been created and daemon reloaded.")
     click.echo("Use the following commands to start and enable the service:")
-    click.echo(f"sudo systemctl start {environment}-gita-api.service")
-    click.echo(f"sudo systemctl enable {environment}-gita-api.service")
+    click.echo(f"sudo systemctl start {service_name}")
+    click.echo(f"sudo systemctl enable {service_name}")
     if start_on_success:
-        click.echo(f"{environment}-gita-api.service has been started and enabled.")
+        click.echo(f"{service_name} has been started and enabled.")
+
+
+@cli.command('celery')
+@click.option('--user', default='gitapi', help='User for the systemd service')
+@click.option('--group', default='gitapi', help='Group for the systemd service')
+@click.option('--environment', default='production', type=click.Choice(['production', 'development', 'testing']), help='Environment for the systemd service')
+@click.option('--working-directory', default=os.getcwd(), help='Working directory for the systemd service')
+@click.option('--environment-path', default=os.path.join(os.getcwd(), 'venv', 'bin'), help='Path for the environment')
+@click.option('--start-on-success', is_flag=True, help='Start and enable Celery configuration on success')
+def init_celery_command(user, group, environment, working_directory, environment_path, start_on_success):
+    # Celery worker unit content
+    celery_worker_unit = f"""
+[Unit]
+Description={environment} gita-api celery daemon
+After=network.target
+
+[Service]
+Type=simple
+User={user}
+Group={group}
+WorkingDirectory={working_directory}
+ExecStart={environment_path}/celery -A app.celery worker --loglevel=info --logfile {working_directory}/instance/log/celery.log
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+    # Celery beat unit content
+    celery_beat_unit = f"""
+[Unit]
+Description={environment} gita-api celerybeat daemon
+After=network.target
+
+[Service]
+Type=simple
+User={user}
+Group={group}
+WorkingDirectory={working_directory}
+ExecStart={environment_path}/celery -A app.celery beat --loglevel=info --logfile {working_directory}/instance/log/beat.log
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+    # Write the unit files
+    worker_service_name = f"{environment}-gita-api-celery.service"
+    worker_file_path = f'/etc/systemd/system/{worker_service_name}'
+    
+    beat_service_name = f"{environment}-gita-api-celerybeat.service"
+    beat_file_path = f'/etc/systemd/system/{beat_service_name}'
+
+    with open(worker_file_path, 'w') as worker_file:
+        worker_file.write(celery_worker_unit)
+
+    with open(beat_file_path, 'w') as beat_file:
+        beat_file.write(celery_beat_unit)
+
+    click.echo("Celery worker and beat systemd unit files have been created.")
+
+    # Reload systemd daemons
+    os.system('sudo systemctl daemon-reload')
+    click.echo("Systemd daemon reloaded.")
+
+    if start_on_success:
+        # Start and enable the Celery worker service
+        os.system(f'sudo systemctl start {worker_service_name}')
+        os.system(f'sudo systemctl enable {worker_service_name}')
+        click.echo(f"Celery worker service for {environment} environment started and enabled.")
+
+        # Start and enable the Celery beat service
+        os.system(f'sudo systemctl start {beat_service_name}')
+        os.system(f'sudo systemctl enable {beat_service_name}')
+        click.echo(f"Celery beat service for {environment} environment started and enabled.")
+
+
+
 
 def request_certificates(domain):
     cert_path = f'/etc/letsencrypt/live/{domain}/fullchain.pem'
