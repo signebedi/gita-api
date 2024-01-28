@@ -167,15 +167,21 @@ def init_app_command(env_type, domain, site_name, secret_key, sqlalchemy_databas
 
 
 def create_user_and_group(user, group):
-    try:
-        subprocess.run(['sudo', 'groupadd', group], check=True)
-    except subprocess.CalledProcessError:
-        click.echo(f"Group '{group}' already exists or could not be created.")
+    # Check if group exists
+    if subprocess.run(['getent', 'group', group]).returncode != 0:
+        try:
+            subprocess.run(['sudo', 'groupadd', group], check=True)
+        except subprocess.CalledProcessError:
+            click.echo(f"Group '{group}' already exists or could not be created.")
 
-    try:
-        subprocess.run(['sudo', 'useradd', '--no-create-home', '--system', '-m', '-g', group, user], check=True)
-    except subprocess.CalledProcessError:
-        click.echo(f"User '{user}' already exists or could not be created.")
+    # Check if user exists
+    if subprocess.run(['id', user]).returncode != 0:
+        try:
+            # Use either -m or --no-create-home based on your requirement
+            subprocess.run(['sudo', 'useradd', '--no-create-home', '--system', '-g', group, user], check=True)
+        except subprocess.CalledProcessError:
+            click.echo(f"User '{user}' already exists or could not be created.")
+
 
 def change_ownership(path, user, group):
     try:
