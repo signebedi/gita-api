@@ -26,7 +26,7 @@ from dotenv import set_key
 
 
 __version__ = "4.0.0"
-__name__ = "gita-init"
+# __name__ = "gita-init"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __license__ = "AGPL-3.0"
@@ -164,7 +164,7 @@ def change_ownership(path, user, group):
 @click.option('--environment-path', default=os.path.join(os.getcwd(),'venv','bin'), help='Path for the environment')
 @click.option('--gunicorn-config', default=os.path.join(os.getcwd(),'gunicorn.conf.py'), help='Gunicorn configuration file')
 @click.option('--start-on-success', is_flag=True, help='Start and enable NGINX configuration on success')
-def init_systemd_command(user, group, environment, working_directory, environment_path, gunicorn_config, start_on_success):
+def init_gunicorn_command(user, group, environment, working_directory, environment_path, gunicorn_config, start_on_success):
 
     systemd_unit = f"""
 [Unit]
