@@ -106,10 +106,10 @@ python gita-init gunicorn --start-on-success
 If you would like to use a local Nginx installation as a reverse proxy, you can use one of the following commands depending on whether you want to set of TLS/SSL.
 ```bash
 # Setup NGINX without TSL/SSL
-python gita-init nginx --start-on-success --server-name gita.atreeus.com
+python gita-init nginx --start-on-success --server-name gita.example.com
 
 # Setup NGINX with TLS/SSL and Let's Encrypt Certificates
-python gita-init nginx --start-on-success --server-name gita.atreeus.com --ssl-enabled --request-certbot-certs
+python gita-init nginx --start-on-success --server-name gita.example.com --ssl-enabled --request-certbot-certs
 ```
 
 All of the gita-init commands above can be run headlessly by passing params as options. If you experience a bug with any of these commands, please open an [issue](https://github.com/signebedi/gita-api/issues/new) and provide the commands you ran and outputs you received.  
