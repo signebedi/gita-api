@@ -253,6 +253,13 @@ if app.config['CELERY_ENABLED']:
             if user:
                 user.api_key = new_key
                 db.session.commit()
+                if app.config['SMTP_ENABLED']:
+
+                    subject=f"{app.config['SITE_NAME']} API Key Rotated"
+                    content=f"This email serves to notify you that an API key for user {username} has just rotated at {app.config['DOMAIN']}. Please note that your past API key will no longer work if you are employing it in applications. Your new key will be active for 365 days. You can see your new key by visiting {app.config['DOMAIN']}/profile."
+                    email = user.email
+                    
+                    send_email_async.delay(subject=subject, content=content, to_address=email)
 
 
     # If debug mode is set, we'll let the world pull API key usage statistics
@@ -483,12 +490,12 @@ def create_user():
                 db.session.commit()
 
                 # Email notification
-                subject='Gita User Registered'
+                subject=f"{app.config['SITE_NAME']} User Registered"
 
                 if app.config["REQUIRE_EMAIL_VERIFICATION"]:
 
                     key = signatures.write_key(scope=['email_verification'], expiration=48, active=True, email=email)
-                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at            {app.config['DOMAIN']}. Please verify your email by clicking the following link: {app.config['DOMAIN']}/verify/{key}. Please note this link will expire after 48 hours."
+                    content=f"This email serves to notify you that the user {username} has just been registered for this email address at {app.config['DOMAIN']}. Please verify your email by clicking the following link: {app.config['DOMAIN']}/verify/{key}. Please note this link will expire after 48 hours."
                     flash_msg = f'Successfully created user \'{username}\'. Please check your email for an activation link.'
 
                 else:
