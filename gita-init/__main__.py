@@ -21,6 +21,7 @@ import click
 import secrets
 import subprocess
 import tempfile
+from datetime import datetime
 from typing import Union
 from dotenv import set_key
 from werkzeug.security import generate_password_hash
@@ -559,6 +560,39 @@ def modify_user_command(username, password, new_email, opt_out, site_admin, head
             click.echo(f"User '{username}' successfully modified.")
         except Exception as e:
             click.echo(f"Error modifying user: {e}")
+
+@cli.command('id')
+@click.argument('username')
+def id_command(username):
+    """Display user details for a given username."""
+
+    from app import app, db, User, signatures
+    # We need to pass a FLASK_ENV I think
+
+
+    with app.app_context():
+        user = User.query.filter(User.username.ilike(username)).first()
+        if not user:
+            click.echo(f"User with username '{username}' not found.")
+            return
+
+        # Formatting the user details
+        user_details = (
+            f"ID: {user.id}\n"
+            f"Username: {user.username}\n"
+            f"Email: {user.email}\n"
+            f"Active: {user.active}\n"
+            f"Created Date: {user.created_date.strftime('%Y-%m-%d %H:%M:%S')}\n"
+            f"Last Login: {user.last_login.strftime('%Y-%m-%d %H:%M:%S') if user.last_login else 'Never'}\n"
+            f"Last Password Change: {user.last_password_change.strftime('%Y-%m-%d %H:%M:%S') if user.last_password_change else 'Never'}\n"
+            f"Opt Out: {user.opt_out}\n"
+            f"Site Admin: {user.site_admin}"
+        )
+
+        click.echo(user_details)
+
+
+
 
 if __name__ == "__main__":
     cli()
