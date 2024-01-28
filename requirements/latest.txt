@@ -6,6 +6,7 @@ flask-signing
 fuzzywuzzy
 gunicorn
 pandas
+plotly
 psycopg2-binary
 python-dotenv
 python-Levenshtein
