@@ -140,6 +140,24 @@ apt install rabbitmq-server
 
 And you can run celery as follows from within /opt/gita-api. If you are getting errors when running the scripts below, consider running `source /opt/gita-api/venv/bin/activate` as root.
 
+The recommended method for initializing celery is to run the gita-init command:
+
+```bash
+python gita-init celery --start-on-success
+```
+
+And, if you'd like to restart the entire application, you would run the following systemctl commands.
+
+```bash
+systemctl restart production-gita-api-gunicorn && systemctl restart production-gita-api-celery && systemctl restart production-gita-api-celerybeat
+```
+
+systemctl stop production-gita-api-gunicorn && systemctl restart production-gita-api-celery && systemctl restart production-gita-api-celerybeat
+
+
+If you'd like to run the commands manually, navigate as root to the working directory and run the following.
+
+
 ```bash
 celery -A app.celery worker --loglevel=info --logfile $(pwd)/instance/log/celery.log
 ```

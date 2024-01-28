@@ -231,6 +231,8 @@ Type=simple
 User={user}
 Group={group}
 WorkingDirectory={working_directory}
+Environment='FLASK_ENV={environment}'
+Environment='PATH={environment_path}'
 ExecStart={environment_path}/celery -A app.celery worker --loglevel=info --logfile {working_directory}/instance/log/celery.log
 Restart=always
 
@@ -249,6 +251,8 @@ Type=simple
 User={user}
 Group={group}
 WorkingDirectory={working_directory}
+Environment='FLASK_ENV={environment}'
+Environment='PATH={environment_path}'
 ExecStart={environment_path}/celery -A app.celery beat --loglevel=info --logfile {working_directory}/instance/log/beat.log
 Restart=always
 
