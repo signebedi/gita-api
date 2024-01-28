@@ -210,7 +210,7 @@ ExecStart={environment_path}/gunicorn 'wsgi:app' --config {gunicorn_config}
 WantedBy=multi-user.target
 """
     # click.echo(systemd_unit)
-    service_name = "{environment}-gita-api-gunicorn.service"
+    service_name = f"{environment}-gita-api-gunicorn.service"
     unit_file_path = f'/etc/systemd/system/{service_name}'
     # click.echo(unit_file_path)
 
