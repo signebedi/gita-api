@@ -57,6 +57,7 @@ def prompt_bool(message, default=None):
 @cli.command('config')
 @click.argument('env_type', type=click.Choice(['prod', 'dev'], case_sensitive=False))
 @click.option('--domain', default=None, help='Domain of the application')
+@click.option('--site-name', default=None, help='Site name of the application')
 # @click.option('--debug', default=None, type=bool, help='Enable or disable debug mode')
 @click.option('--secret-key', default=None, help='Secret key for the application')
 @click.option('--sqlalchemy-database-uri', default=None, help='Database URI for SQLAlchemy')
@@ -64,8 +65,8 @@ def prompt_bool(message, default=None):
 @click.option('--smtp-enabled', default=None, type=bool, help='Enable SMTP')
 @click.option('--celery-enabled', default=None, type=bool, help='Enable Celery')
 @click.option('--rate-limits-enabled', default=None, type=bool, help='Enable rate limits')
-@click.option('--rate-limits-max-requests', default=100, type=int, help='Enable rate limits')
-@click.option('--rate-limits-period', default=60, type=int, help='Enable rate limits')
+@click.option('--rate-limits-max-requests', default=100, type=int, help='Maximum requests allowed in the rate limit period')
+@click.option('--rate-limits-period', default=60, type=int, help='Time frame (in minutes) for rate limiting')
 @click.option('--max-login-attempts', default=None, type=None, help='Enable maximum login attempts (0 will disable)')
 @click.option('--require-email-verification', default=None, type=bool, help='Require email verification')
 @click.option('--smtp-mail-server', default=None, help='SMTP Mail Server')
@@ -75,8 +76,8 @@ def prompt_bool(message, default=None):
 @click.option('--smtp-from-address', default=None, help='SMTP From Address')
 @click.option('--hcaptcha-site-key', default=None, help='hCaptcha Site Key')
 @click.option('--hcaptcha-secret-key', default=None, help='hCaptcha Secret Key')
-def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcaptcha_enabled, 
-                        smtp_enabled, celery_enabled, rate_limits_enabled, 
+def init_app_command(env_type, domain, site_name, secret_key, sqlalchemy_database_uri, 
+                        hcaptcha_enabled, smtp_enabled, celery_enabled, rate_limits_enabled, 
                         rate_limits_period, rate_limits_max_requests, max_login_attempts, 
                         require_email_verification, smtp_mail_server, smtp_port, smtp_username, 
                         smtp_password, smtp_from_address, hcaptcha_site_key, hcaptcha_secret_key):
@@ -107,6 +108,7 @@ def init_app_command(env_type, domain, secret_key, sqlalchemy_database_uri, hcap
     # Basic configurations
     config = {
         'DOMAIN': domain if domain is not None else click.prompt('Enter DOMAIN', default='http://127.0.0.1:5000'),
+        'SITE_NAME': site_name if site_name is not None else click.prompt('Enter SITE_NAME', default='Gita API'),
         'SECRET_KEY': secret_key,
         'SQLALCHEMY_DATABASE_URI': sqlalchemy_database_uri if sqlalchemy_database_uri is not None else click.prompt('What is your database connection string?', default=f"sqlite:///{os.path.join(os.getcwd(), 'instance', 'app.sqlite')}"),
         'SQLALCHEMY_TRACK_MODIFICATIONS': False,
