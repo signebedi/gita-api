@@ -16,14 +16,18 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import os
+import os, sys
 import click
 import secrets
 import subprocess
 import tempfile
 from typing import Union
 from dotenv import set_key
+from werkzeug.security import generate_password_hash
 
+# Add the project root to the python path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
 
 __version__ = "4.0.0"
 # __name__ = "gita-init"
@@ -131,6 +135,8 @@ def init_app_command(env_type, domain, site_name, secret_key, sqlalchemy_databas
 
     if enable_max_login_attempts:
         max_login_attempts = click.prompt('How many MAX LOGIN ATTEMPTS?', default=3)
+    else:
+        max_login_attempts = 0
     
     config['MAX_LOGIN_ATTEMPTS'] = max_login_attempts
 
@@ -440,6 +446,53 @@ server {{
     click.echo(f"Configuration file path: {nginx_conf_path}")
     if start_on_success:
         click.echo("NGINX has been restarted and enabled.")
+
+
+
+@cli.command('useradd')
+@click.option('--username', prompt=True, help='Username of the new user')
+@click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True, help='Password for the new user')
+@click.option('--email', prompt=True, help='Email of the new user')
+@click.option('--opt-out', is_flag=True, help='Opt out of usage statistics')
+def add_user_command(username, password, email, opt_out):
+    """Add a new user to the application."""
+
+    from app import app, db, User, signatures
+
+    with app.app_context():
+        # Check if user or email already exists
+        existing_user = User.query.filter(User.username.ilike(username)).first()
+        if existing_user:
+            click.echo(f"Username {username} is already registered.")
+            return
+
+        existing_email = User.query.filter(User.email.ilike(email)).first()
+        if existing_email:
+            click.echo(f"Email {email} is already registered.")
+            return
+
+        # Create new user
+        new_user = User(
+            email=email, 
+            username=username.lower(), 
+            password=generate_password_hash(password),
+            active=app.config["REQUIRE_EMAIL_VERIFICATION"] == False,
+            opt_out=opt_out if app.config["COLLECT_USAGE_STATISTICS"] else True,
+        )
+
+        # Create the user's API key
+        expiration = 365*24 if app.config['CELERY_ENABLED'] else 0
+        api_key = signatures.write_key(scope=['api_key'], expiration=expiration, active=True, email=email)
+        new_user.api_key = api_key
+
+        # Add user to database
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            click.echo(f"User '{username}' successfully added.")
+        except Exception as e:
+            click.echo(f"Error adding user: {e}")
+
 
 
 
