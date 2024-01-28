@@ -461,11 +461,13 @@ server {{
 @click.option('--email', prompt=True, help='Email of the new user')
 @click.option('--opt-out', is_flag=True, help='Opt out of usage statistics')
 @click.option('--site-admin', is_flag=True, help='Set this user as a site admin')
-def add_user_command(username, password, email, opt_out, site_admin):
+@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='development', help='Set the environment (important if you use different databases for dev and prod).')
+def add_user_command(username, password, email, opt_out, site_admin, environment):
     """Add a new user to the application."""
 
+    # Set FLASK_ENV
+    os.environ['FLASK_ENV'] = environment
     from app import app, db, User, signatures
-    # We need to pass a FLASK_ENV I think
 
     with app.app_context():
         # Check if user or email already exists
@@ -510,11 +512,13 @@ def add_user_command(username, password, email, opt_out, site_admin):
 @click.option('--opt-out', type=bool, help='Change opt-out of usage statistics', default=None)
 @click.option('--site-admin', type=bool, help='Change site admin status', default=None)
 @click.option('--headless', is_flag=True, help='Run this command headlessly')
-def modify_user_command(username, password, new_email, opt_out, site_admin, headless):
+@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='development', help='Set the environment (important if you use different databases for dev and prod).')
+def modify_user_command(username, password, new_email, opt_out, site_admin, headless, environment):
     """Modify an existing user in the application."""
 
+    # Set FLASK_ENV
+    os.environ['FLASK_ENV'] = environment
     from app import app, db, User, signatures
-    # We need to pass a FLASK_ENV I think
 
     with app.app_context():
         user = User.query.filter(User.username.ilike(username)).first()
@@ -563,11 +567,13 @@ def modify_user_command(username, password, new_email, opt_out, site_admin, head
 
 @cli.command('id')
 @click.argument('username')
-def id_command(username):
+@click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='development', help='Set the environment (important if you use different databases for dev and prod).')
+def id_command(username, environment):
     """Display user details for a given username."""
 
+    # Set FLASK_ENV
+    os.environ['FLASK_ENV'] = environment
     from app import app, db, User, signatures
-    # We need to pass a FLASK_ENV I think
 
 
     with app.app_context():

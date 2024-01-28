@@ -48,7 +48,7 @@ Start with initial setup, as root.
 
 ```bash
 apt update && apt upgrade -y
-apt install git vim python3 python3-venv certbox nginx
+apt install git vim python3 python3-venv certbot nginx
 cd /opt
 git clone https://github.com/signebedi/gita-api
 cd gita-api/
