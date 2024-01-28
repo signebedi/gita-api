@@ -29,7 +29,7 @@ from werkzeug.security import generate_password_hash
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
-__version__ = "4.0.0"
+__version__ = "5.0.0"
 # __name__ = "gita-init"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
