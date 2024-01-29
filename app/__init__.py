@@ -155,7 +155,7 @@ class UsageLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    date = db.Column(db.Date, nullable=False, default=lambda: datetime.utcnow().date())
+    # date = db.Column(db.Date, nullable=False, default=lambda: datetime.utcnow().date())
     endpoint = db.Column(db.String(1000))
     remote_addr = db.Column(db.String(50), nullable=True)
     query_params = db.Column(db.String(1000), nullable=True)  # Can we find a way to make this a JSON string or similar format?
@@ -584,7 +584,7 @@ def admin_stats():
 
     # Aggregate data by day for endpoint after casting timestamp as a datetime object
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-    # df['date'] = df['date'].dt.date
+    df['date'] = df['timestamp'].dt.date
     daily_stats = df.groupby(['date', 'endpoint']).size().reset_index(name='count')
 
     # print(daily_stats)
