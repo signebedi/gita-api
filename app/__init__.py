@@ -596,15 +596,20 @@ def admin_stats():
 
     # Format the x-axis to display dates only
     fig.update_xaxes(
-        tickformat='%Y-%m-%d',  # Formats date as 'Year-Month-Day'
-        tickangle=-45  # Optional: Tilts the date labels for better readability
+        tickformat='%Y-%m-%d',
+        tickangle=-45,
+        tickvals=daily_stats['date'].unique(),
     )
 
     # Set the default range for the x-axis to the last 5 days
-    # end_date = datetime.now().date()
+    # today = datetime.now().date()
+    # end_date = today + timedelta(days=1)
     # start_date = end_date - timedelta(days=5)
     # fig.update_xaxes(range=[start_date, end_date])
+
+    # Set a gap between days
     fig.update_layout(bargap=.85)
+
     # Convert the figure to JSON
     graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
