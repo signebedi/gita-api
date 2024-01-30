@@ -20,6 +20,7 @@ if not env == 'testing':
 else: env_file_path=""
 
 class Config(object):
+    ENVIRONMENT = env
     CONFIG_FILE_PATH = env_file_path
     SITE_NAME = os.getenv('SITE_NAME', 'Gita API')
     HOMEPAGE_CONTENT = Markup(os.getenv('HOMEPAGE_CONTENT', '<p>The Gita API seeks provide granular programmatic access to the text of the Bhagavad Gita ("The Song of God"), one of Hinduism\'s foundational religious texts with a significant following by non-Hindu peoples, especially academics. We ask you to register an account to help us understand usage trends, prevent abuse of the API, and meet generally-accepted best practices for API design. Beyond your email, we will not ask you for any personal information, nor provide any of this information to commercial third parties. For more information about the application, see the source code at <a href="https://github.com/signebedi/gita-api">https://github.com/signebedi/gita-api</a>.</p>'))
