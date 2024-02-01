@@ -14,9 +14,9 @@ Reference Search
 
     <fieldset class="form-group">
         <label for="corpus" class="form-label mt-5">Select Corpus:</label>
-        <select name="corpus" id="corpus" class="form-select">
+        <select onchange="fetchAuthors(this)" name="corpus" id="corpus" class="form-select">
             {% for name, shorthand in corpora %}
-                <option value="{{ shorthand }}">{{ name }}</option>
+                <option value="{{ shorthand }}"{% if shorthand == 'gita' %} selected=""{% endif %}>{{ name }}</option>
             {% endfor %}
         </select>
     </fieldset>
@@ -24,9 +24,7 @@ Reference Search
     <fieldset class="form-group">
         <label for="author" class="form-label mt-5">Select Author:</label>
         <select name="author" id="author" class="form-select">
-            {% for id, name in authors %}
-                <option value="{{ id }}" {% if id == 16 %}selected='yes'{% endif %}>{{ name }}</option>
-            {% endfor %}
+            <!-- Options will be populated dynamically -->
         </select>
     </fieldset>
 
@@ -121,6 +119,44 @@ Reference Search
             submit.classList.add("disabled")
         }
     }
+
+
+    async function fetchAuthors(selectObject) {
+
+        val = selectObject.value
+
+        let payload = {
+            value: val
+        };
+
+        let response = await fetch('{{ url_for ('get_authors') }}', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        let authors = await response.json();
+
+        // Clear existing options
+        let authorsSelect = document.getElementById('author');
+        authorsSelect.innerHTML = '';
+
+        // Populate new options
+        authors['content'].forEach(author => {
+            let option = document.createElement('option');
+            option.value = author[0];
+            option.textContent = author[1];
+            authorsSelect.appendChild(option);
+        });
+    }
+
+    // Call fetchAuthors on page load for 'gita'
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchAuthors(document.getElementById('corpus'));
+    });
+
 
     function copyToClipboard(element) {
         // Copying to clipboard

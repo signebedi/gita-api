@@ -213,12 +213,18 @@ corpora_df = pd.read_json('data/corpora.json')
 corpora = list(zip(corpora_df['name'], corpora_df['shorthand']))
 corpora_shorthands = list(corpora_df['shorthand'])
 
+# Here we build a list of corpus-specific datasets and their authors 
 datasets = {}
 for i in corpora_df.index:
     datasets[corpora_df['shorthand'][i]] = {
         "text": pd.read_json(corpora_df['text_path'][i]),
         "authors": list(pd.read_json(corpora_df['authors_path'][i])[['id', 'name']].itertuples(index=False, name=None))
     }
+
+# We also construct a dataset for authors hashed by corpus name
+just_authors_by_corpus = {}
+for i in corpora_df.index:
+    just_authors_by_corpus[corpora_df['shorthand'][i]] = list(pd.read_json(corpora_df['authors_path'][i])[['id', 'name']].itertuples(index=False, name=None))
 
 if app.config['CELERY_ENABLED']:
 
@@ -667,7 +673,7 @@ def admin_stats():
 @login_required
 def reference():
     return render_template('reference.html.jinja', 
-                            authors=datasets['gita']['authors'],
+                            # authors=just_authors_by_corpus,
                             corpora=corpora,
                             **standard_view_kwargs()
                             )
@@ -676,7 +682,7 @@ def reference():
 @login_required
 def fuzzy():
     return render_template('fuzzy.html.jinja', 
-                            authors=datasets['gita']['authors'],
+                            # authors=just_authors_by_corpus,
                             corpora=corpora,
                             **standard_view_kwargs()
                             )
@@ -687,7 +693,30 @@ def home():
     return render_template('about.html.jinja', **standard_view_kwargs())
 
 
+
+@app.route('/get_authors', methods=['POST'])
+@login_required
+def get_authors():
+    try:
+        # Parse the JSON payload
+        data = request.get_json()
+        corpus_name = escape(data.get('value'))
+
+        if not corpus_name:
+            return jsonify({'status': 'failure', 'msg': 'No corpus provided'}), 400
+
+        # Validate the reference
+        if corpus_name not in corpora_shorthands:
+            return jsonify({'error': 'Invalid corpus Name'}), 400
+        
+        authors = datasets[corpus_name]['authors']
+        return jsonify({'status': 'success', 'content': authors}), 200
+
+    except ValueError as e:
+        return jsonify({'status': 'failure', 'msg': str(e)}), 400
+
 @app.route('/validate_reference', methods=['POST'])
+@login_required
 def validate_reference():
     try:
         # Parse the JSON payload

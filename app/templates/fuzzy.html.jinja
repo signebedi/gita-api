@@ -12,9 +12,9 @@ Fuzzy Search
 
     <fieldset class="form-group">
         <label for="corpus" class="form-label mt-5">Select Corpus:</label>
-        <select name="corpus" id="corpus" class="form-select">
+        <select onchange="fetchAuthors(this)" name="corpus" id="corpus" class="form-select">
             {% for name, shorthand in corpora %}
-                <option value="{{ shorthand }}">{{ name }}</option>
+                <option value="{{ shorthand }}"{% if shorthand == 'gita' %} selected=""{% endif %}>{{ name }}</option>
             {% endfor %}
         </select>
     </fieldset>
@@ -23,8 +23,8 @@ Fuzzy Search
     <fieldset class="form-group">
         <label for="author" class="form-label mt-5">Select Author:</label>
         <select name="author" id="author" class="form-select">
-            {% for id, name in authors %}
-                <option value="{{ id }}" {% if id == 16 %}selected='yes'{% endif %}>{{ name }}</option>
+            {% for id, name in authors['gita'] %}
+                <option value="{{ id }}" {% if id == '16' %}selected='yes'{% endif %}>{{ name }}</option>
             {% endfor %}
         </select>
     </fieldset>
