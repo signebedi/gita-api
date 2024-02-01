@@ -32,7 +32,7 @@ df['book_id'] = '1'
 df = df[['authorName', 'author_id', 'description', 'verseNumber', 'verse_number', 'chapter_number', 'full_ref', 'book_id']]
 
 # Drop hindi-language translators
-df = df[(df['author_id'] >= 16) & (df['author_id'] <= 21)]
+df = df[(df['author_id'] >= 16) & (df['author_id'] <= 21) & (df['author_id'] != 17)]
 
 df.to_json('data/gita/cleaned_data.json')
 
