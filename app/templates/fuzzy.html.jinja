@@ -23,18 +23,16 @@ Fuzzy Search
     <fieldset class="form-group">
         <label for="author" class="form-label mt-5">Select Author:</label>
         <select name="author" id="author" class="form-select">
-            {% for id, name in authors['gita'] %}
-                <option value="{{ id }}" {% if id == '16' %}selected='yes'{% endif %}>{{ name }}</option>
-            {% endfor %}
+            <!-- Options will be populated dynamically -->
         </select>
     </fieldset>
-
+    
     <fieldset class="form-group">
         <label for="query" class="form-label mt-5">Query:</label>
         <input type="text" id="query" maxlength="100" name="query" class="form-control" placeholder="Sword Sever Knowledge Doubt Self Yoga Arise" required>
     </fieldset>
 
-    <fieldset style="padding-top: 10px;" class="form-group">
+    <fieldset style="padding-top: 20px;" class="form-group">
         <button type="submit" class="btn btn-primary" id="form-button-submit">Submit</button>
     </fieldset>
 </form>
@@ -89,20 +87,55 @@ Fuzzy Search
     });
 
 
-function getScoreColor(score) {
-    if (score <= 35) {
-        // Transition from red to orange
-        return `rgb(255, ${Math.floor(165 * (score / 35))}, 0)`; // Red to orange
-    } else if (score <= 70) {
-        // Transition from orange to green
-        let normalizedScore = (score - 35) / 35; // Normalize score between 35 and 70
-        return `rgb(${255 - Math.floor(255 * normalizedScore)}, ${165 + Math.floor(90 * normalizedScore)}, 0)`; // Orange to green
-    } else {
-        // Scores above 70 are green
-        return 'rgb(0, 255, 0)'; // Solid green
+    function getScoreColor(score) {
+        if (score <= 35) {
+            // Transition from red to orange
+            return `rgb(255, ${Math.floor(165 * (score / 35))}, 0)`; // Red to orange
+        } else if (score <= 70) {
+            // Transition from orange to green
+            let normalizedScore = (score - 35) / 35; // Normalize score between 35 and 70
+            return `rgb(${255 - Math.floor(255 * normalizedScore)}, ${165 + Math.floor(90 * normalizedScore)}, 0)`; // Orange to green
+        } else {
+            // Scores above 70 are green
+            return 'rgb(0, 255, 0)'; // Solid green
+        }
     }
-}
 
+    async function fetchAuthors(selectObject) {
+
+        val = selectObject.value
+
+        let payload = {
+            value: val
+        };
+
+        let response = await fetch('{{ url_for ('get_authors') }}', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        let authors = await response.json();
+
+        // Clear existing options
+        let authorsSelect = document.getElementById('author');
+        authorsSelect.innerHTML = '';
+
+        // Populate new options
+        authors['content'].forEach(author => {
+            let option = document.createElement('option');
+            option.value = author[0];
+            option.textContent = author[1];
+            authorsSelect.appendChild(option);
+        });
+    }
+
+    // Call fetchAuthors on page load for 'gita'
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchAuthors(document.getElementById('corpus'));
+    });
 
 
     function copyToClipboard(element) {

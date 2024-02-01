@@ -6,5 +6,13 @@
         "text_path": "data/gita/cleaned_data.json",
         "name": "Bhagavad Gita",
         "abbreviation": "Bhag. Git."
+    },
+    {
+        "id": 2,
+        "shorthand": "gallia",
+        "authors_path": "data/gallia/authors.json",
+        "text_path": "data/gallia/cleaned_data.json",
+        "name": "Bellum Gallicum",
+        "abbreviation": "Caes. BGall."
     }
 ]
