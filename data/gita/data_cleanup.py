@@ -1,9 +1,9 @@
 import pandas as pd
 
 # Load the JSON file into a DataFrame
-df = pd.read_json('data/translation.json')
-df2 = pd.read_json('data/verse.json')
-df3 = pd.read_json('data/authors.json')
+df = pd.read_json('data/gita/translation.json')
+df2 = pd.read_json('data/gita/verse.json')
+df3 = pd.read_json('data/gita/authors.json')
 authors = list(df3[['id', 'name']].itertuples(index=False, name=None))
 authors_dict = dict(authors)
 
@@ -28,4 +28,4 @@ df['full_ref'] = df.apply(lambda row: f"{row['chapter_number']}.{row['verse_numb
 df['book'] = "Bhagavad Gita"
 df['book_id'] = '1'
 
-df.to_json('data/cleaned_data.json')
+df.to_json('data/gita/cleaned_data.json')

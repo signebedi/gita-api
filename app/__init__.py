@@ -209,8 +209,10 @@ def make_session_permanent():
     session.permanent = True
 
 # Load the JSON file into a DataFrame
-df = pd.read_json('data/cleaned_data.json')
-df2 = pd.read_json('data/cleaned_authors.json')
+corpora_df = pd.read_json('data/corpora.json')
+corpora = list(zip(corpora_df['name'], corpora_df['shorthand']))
+df = pd.read_json('data/gita/cleaned_data.json')
+df2 = pd.read_json('data/gita/cleaned_authors.json')
 authors = list(df2[['id', 'name']].itertuples(index=False, name=None))
 
 
@@ -662,6 +664,7 @@ def admin_stats():
 def reference():
     return render_template('reference.html.jinja', 
                             authors=authors,
+                            corpora=corpora,
                             **standard_view_kwargs()
                             )
 
@@ -670,6 +673,7 @@ def reference():
 def fuzzy():
     return render_template('fuzzy.html.jinja', 
                             authors=authors,
+                            corpora=corpora,
                             **standard_view_kwargs()
                             )
 
@@ -742,7 +746,7 @@ def get_gita_section(corpus_name):
 
 
 
-@app.route('/api/<corpus_name>fuzzy', methods=['GET'])
+@app.route('/api/<corpus_name>/fuzzy', methods=['GET'])
 def fuzzy_search(corpus_name):
     signature = request.headers.get('X-API-KEY', None)
     if not signature:

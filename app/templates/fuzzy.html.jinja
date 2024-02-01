@@ -13,7 +13,9 @@ Fuzzy Search
     <fieldset class="form-group">
         <label for="corpus" class="form-label mt-5">Select Corpus:</label>
         <select name="corpus" id="corpus" class="form-select">
-            <option value="gita">Bhagavad Gita</option>
+            {% for name, shorthand in corpora %}
+                <option value="{{ shorthand }}">{{ name }}</option>
+            {% endfor %}
         </select>
     </fieldset>
 

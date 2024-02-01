@@ -12,7 +12,7 @@ class TestReferenceSearch(unittest.TestCase):
     def setUpClass(cls):
         # Load the dataframes if needed
         global df
-        df = pd.read_json('data/cleaned_data.json')
+        df = pd.read_json('data/gita/cleaned_data.json')
 
     # Tests for validate_ref_type
     def test_valid_chapter(self):
