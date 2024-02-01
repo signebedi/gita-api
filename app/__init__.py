@@ -697,8 +697,8 @@ def validate_reference():
         return jsonify({'status': 'failure', 'msg': str(e)}), 400
 
 
-@app.route('/api/reference', methods=['GET'])
-def get_gita_section():
+@app.route('/api/<corpus_name>/reference', methods=['GET'])
+def get_gita_section(corpus_name):
     signature = request.headers.get('X-API-KEY', None)
     if not signature:
         return jsonify({'error': 'No API key provided'}), 401
@@ -742,8 +742,8 @@ def get_gita_section():
 
 
 
-@app.route('/api/fuzzy', methods=['GET'])
-def fuzzy_search():
+@app.route('/api/<corpus_name>fuzzy', methods=['GET'])
+def fuzzy_search(corpus_name):
     signature = request.headers.get('X-API-KEY', None)
     if not signature:
         return jsonify({'error': 'No API key provided'}), 401

@@ -14,7 +14,7 @@ Reference Search
 
     <fieldset class="form-group">
         <label for="corpus" class="form-label mt-5">Select Corpus:</label>
-        <select name="corpus" id="corpus" class="form-select" disabled="">
+        <select name="corpus" id="corpus" class="form-select">
             <option value="gita">Bhagavad Gita</option>
         </select>
     </fieldset>
@@ -52,6 +52,7 @@ Reference Search
     document.getElementById('gitaForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const corpusName = document.getElementById('corpus').value;
         const authorId = document.getElementById('author').value;
         const reference = document.getElementById('reference').value;
         const container = document.getElementById('resultContainer');
@@ -61,7 +62,7 @@ Reference Search
             'X-API-KEY': '{{ current_user.api_key }}'
         });
 
-        fetch(`/api/reference?reference=${reference}&author_id=${authorId}`, { headers: headers })
+        fetch(`/api/${corpusName}/reference?reference=${reference}&author_id=${authorId}`, { headers: headers })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {

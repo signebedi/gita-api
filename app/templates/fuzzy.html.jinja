@@ -12,7 +12,7 @@ Fuzzy Search
 
     <fieldset class="form-group">
         <label for="corpus" class="form-label mt-5">Select Corpus:</label>
-        <select name="corpus" id="corpus" class="form-select" disabled="">
+        <select name="corpus" id="corpus" class="form-select">
             <option value="gita">Bhagavad Gita</option>
         </select>
     </fieldset>
@@ -48,6 +48,7 @@ Fuzzy Search
     document.getElementById('gitaForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const corpusName = document.getElementById('corpus').value;
         const authorId = document.getElementById('author').value;
         const query = document.getElementById('query').value;
         const container = document.getElementById('resultContainer');
@@ -57,7 +58,7 @@ Fuzzy Search
             'X-API-KEY': '{{ current_user.api_key }}'
         });
 
-        fetch(`/api/fuzzy?query=${query}&author_id=${authorId}`, { headers: headers })
+        fetch(`/api/${corpusName}/fuzzy?query=${query}&author_id=${authorId}`, { headers: headers })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
