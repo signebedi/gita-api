@@ -208,9 +208,11 @@ def load_user(user_id):
 def make_session_permanent():
     session.permanent = True
 
-# Load the JSON file into a DataFrame
+# Load corpora metadata into memory
 corpora_df = pd.read_json('data/corpora.json')
 corpora = list(zip(corpora_df['name'], corpora_df['shorthand']))
+corpora_shorthands = list(corpora_df['shorthand'])
+
 df = pd.read_json('data/gita/cleaned_data.json')
 df2 = pd.read_json('data/gita/cleaned_authors.json')
 authors = list(df2[['id', 'name']].itertuples(index=False, name=None))
@@ -703,7 +705,9 @@ def validate_reference():
 
 @app.route('/api/<corpus_name>/reference', methods=['GET'])
 def get_gita_section(corpus_name):
+
     signature = request.headers.get('X-API-KEY', None)
+
     if not signature:
         return jsonify({'error': 'No API key provided'}), 401
 
@@ -718,6 +722,10 @@ def get_gita_section(corpus_name):
 
     except KeyExpired:
         return jsonify({'error': 'API key expired'}), 401
+
+    # Return an error if not a valid corpus
+    if corpus_name not in corpora_shorthands:
+        return jsonify({'error': 'Invalid Corpus Name'}), 400
 
     reference = request.args.get('reference')
     author_id = int(request.args.get('author_id', default='16'))
@@ -748,6 +756,7 @@ def get_gita_section(corpus_name):
 
 @app.route('/api/<corpus_name>/fuzzy', methods=['GET'])
 def fuzzy_search(corpus_name):
+
     signature = request.headers.get('X-API-KEY', None)
     if not signature:
         return jsonify({'error': 'No API key provided'}), 401
@@ -764,6 +773,9 @@ def fuzzy_search(corpus_name):
     except KeyExpired:
         return jsonify({'error': 'API key expired'}), 401
 
+    # Return an error if not a valid corpus
+    if corpus_name not in corpora_shorthands:
+        return jsonify({'error': 'Invalid Corpus Name'}), 400
 
     search_query = request.args.get('query')
 
