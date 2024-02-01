@@ -25,7 +25,14 @@ df['chapter_number'] = merged_df['chapter_number']
 df['full_ref'] = df.apply(lambda row: f"{row['chapter_number']}.{row['verse_number']}", axis=1)
 
 # Add book name and id
-df['book'] = "Bhagavad Gita"
+# df['book'] = "Bhagavad Gita"
 df['book_id'] = '1'
 
+# Drop bloat categories
+df = df[['authorName', 'author_id', 'description', 'verseNumber', 'verse_number', 'chapter_number', 'full_ref', 'book_id']]
+
+# Drop hindi-language translators
+df = df[(df['author_id'] >= 16) & (df['author_id'] <= 21)]
+
 df.to_json('data/gita/cleaned_data.json')
+
