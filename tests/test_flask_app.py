@@ -19,24 +19,24 @@ class FlaskAppTestCase(unittest.TestCase):
         }
 
     def test_valid_request(self):
-        response = self.app.get('/api/reference?reference=1&author_id=16', headers=self.headers)
+        response = self.app.get('/api/gita/reference?reference=1&author_id=16', headers=self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertIn('content', response.get_json())
 
     def test_invalid_request_no_reference(self):
-        response = self.app.get('/api/reference?author_id=16', headers=self.headers)
+        response = self.app.get('/api/gita/reference?author_id=16', headers=self.headers)
         self.assertEqual(response.status_code, 400)
         self.assertIn('error', response.get_json())
 
     def test_invalid_request_bad_reference(self):
-        response = self.app.get('/api/reference?reference=invalid&author_id=16', headers=self.headers)
+        response = self.app.get('/api/gita/reference?reference=invalid&author_id=16', headers=self.headers)
         self.assertEqual(response.status_code, 400)
         self.assertIn('error', response.get_json())
 
     def test_rate_limit(self):
         # Test the rate limit.
         for _ in range(11):  # Assuming the limit is 10 requests per hour
-            response = self.app.get('/api/reference?reference=1&author_id=16', headers=self.headers)
+            response = self.app.get('/api/gita/reference?reference=1&author_id=16', headers=self.headers)
 
         self.assertEqual(response.status_code, 429)
 
