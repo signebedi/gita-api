@@ -213,10 +213,12 @@ corpora_df = pd.read_json('data/corpora.json')
 corpora = list(zip(corpora_df['name'], corpora_df['shorthand']))
 corpora_shorthands = list(corpora_df['shorthand'])
 
-df = pd.read_json('data/gita/cleaned_data.json')
-df2 = pd.read_json('data/gita/cleaned_authors.json')
-authors = list(df2[['id', 'name']].itertuples(index=False, name=None))
-
+datasets = {}
+for i in corpora_df.index:
+    datasets[corpora_df['shorthand'][i]] = {
+        "text": pd.read_json(corpora_df['text_path'][i]),
+        "authors": list(pd.read_json(corpora_df['authors_path'][i])[['id', 'name']].itertuples(index=False, name=None))
+    }
 
 if app.config['CELERY_ENABLED']:
 
@@ -287,15 +289,15 @@ if app.config['CELERY_ENABLED']:
             query = 'SELECT * FROM usage_log'
 
             # Read data into a pandas df
-            df = pd.read_sql(query, engine)
+            stats_df = pd.read_sql(query, engine)
             
             # Convert DataFrame to a list of dictionaries
-            data = df.to_dict(orient='records')
+            data = stats_df.to_dict(orient='records')
 
             # print(data)
-            # print(df.to_json(orient='records'))
+            # print(stats_df.to_json(orient='records'))
 
-            json_str = df.to_json(orient='records')
+            json_str = stats_df.to_json(orient='records')
 
             return Response(json_str, mimetype='application/json'), 200
 
@@ -620,12 +622,12 @@ def admin_stats():
 
     # SQL query
     query = 'SELECT * FROM usage_log'
-    df = pd.read_sql(query, engine)
+    stats_df = pd.read_sql(query, engine)
 
     # Aggregate data by day for endpoint after casting timestamp as a datetime object
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df['date'] = df['timestamp'].dt.date
-    daily_stats = df.groupby(['date', 'endpoint']).size().reset_index(name='count')
+    stats_df['timestamp'] = pd.to_datetime(stats_df['timestamp'])
+    stats_df['date'] = stats_df['timestamp'].dt.date
+    daily_stats = stats_df.groupby(['date', 'endpoint']).size().reset_index(name='count')
 
     # print(daily_stats)
 
@@ -665,7 +667,7 @@ def admin_stats():
 @login_required
 def reference():
     return render_template('reference.html.jinja', 
-                            authors=authors,
+                            authors=datasets['gita']['authors'],
                             corpora=corpora,
                             **standard_view_kwargs()
                             )
@@ -674,7 +676,7 @@ def reference():
 @login_required
 def fuzzy():
     return render_template('fuzzy.html.jinja', 
-                            authors=authors,
+                            authors=datasets['gita']['authors'],
                             corpora=corpora,
                             **standard_view_kwargs()
                             )
@@ -741,7 +743,7 @@ def get_gita_section(corpus_name):
         ref_type, chapter, verse, range_end = validate_ref_type(reference)
 
         # Fetch the relevant content
-        gita_content = get_reference(ref_type, chapter, verse, range_end, author_id, df)
+        gita_content = get_reference(ref_type, chapter, verse, range_end, author_id, datasets[corpus_name]['text'])
 
         if app.config['COLLECT_USAGE_STATISTICS']:
             # Call our Celery task
@@ -791,7 +793,7 @@ def fuzzy_search(corpus_name):
     author_id = int(request.args.get('author_id', default='16'))
 
     # Call the fuzzy search function
-    search_results = perform_fuzzy_search(search_query, df=df, author_id=author_id)
+    search_results = perform_fuzzy_search(search_query, df=datasets[corpus_name]['text'], author_id=author_id)
 
     if app.config['COLLECT_USAGE_STATISTICS']:
         # Call our Celery task

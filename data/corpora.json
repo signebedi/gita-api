@@ -2,7 +2,7 @@
     {
         "id": 1,
         "shorthand": "gita",
-        "authors_path": "data/gita/cleaned_data.json",
+        "authors_path": "data/gita/cleaned_authors.json",
         "text_path": "data/gita/cleaned_data.json",
         "name": "Bhagavad Gita",
         "abbreviation": "Bhag. Git."
