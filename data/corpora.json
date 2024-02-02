@@ -10,9 +10,41 @@
     {
         "id": 2,
         "shorthand": "gallia",
-        "authors_path": "data/gallia/authors.json",
-        "text_path": "data/gallia/cleaned_data.json",
+        "authors_path": "data/gal/authors.json",
+        "text_path": "data/gal/cleaned_data.json",
         "name": "Bellum Gallicum",
         "abbreviation": "Caes. BGall."
+    },
+    {
+        "id": 3,
+        "shorthand": "civ",
+        "authors_path": "data/civ/authors.json",
+        "text_path": "data/civ/cleaned_data.json",
+        "name": "Bellum Civile",
+        "abbreviation": "Caes. BCiv."
+    },
+    {
+        "id": 4,
+        "shorthand": "alex",
+        "authors_path": "data/alex/authors.json",
+        "text_path": "data/alex/cleaned_data.json",
+        "name": " Bellum Alexandrinum",
+        "abbreviation": "Caes. BAlex."
+    },
+    {
+        "id": 5,
+        "shorthand": "afr",
+        "authors_path": "data/afr/authors.json",
+        "text_path": "data/afr/cleaned_data.json",
+        "name": " Bellum Africum",
+        "abbreviation": "Caes. BAfr."
+    },
+    {
+        "id": 6,
+        "shorthand": "hisp",
+        "authors_path": "data/hisp/authors.json",
+        "text_path": "data/hisp/cleaned_data.json",
+        "name": " Bellum Hispaniense",
+        "abbreviation": "Caes. BHisp."
     }
 ]
