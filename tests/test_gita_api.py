@@ -30,7 +30,7 @@ class TestReferenceSearch(unittest.TestCase):
 
     def test_invalid_chapter(self):
         with self.assertRaises(ValueError):
-            validate_ref_type("19")
+            validate_ref_type("012")
 
     def test_invalid_verse_format(self):
         with self.assertRaises(ValueError):
