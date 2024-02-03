@@ -9,7 +9,7 @@
     },
     {
         "id": 2,
-        "shorthand": "gallia",
+        "shorthand": "gal",
         "authors_path": "data/gal/authors.json",
         "text_path": "data/gal/cleaned_data.json",
         "name": "Bellum Gallicum",

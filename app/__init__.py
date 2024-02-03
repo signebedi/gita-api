@@ -179,6 +179,7 @@ def standard_view_kwargs():
         "SITE_NAME": app.config['SITE_NAME'],
         "HOMEPAGE_CONTENT": app.config['HOMEPAGE_CONTENT'],
         "COLLECT_USAGE_STATISTICS": app.config["COLLECT_USAGE_STATISTICS"],
+        "PRIVACY_MESSAGE": app.config["PRIVACY_MESSAGE"],
     }
     kwargs['current_user'] = current_user
     kwargs['current_year'] = datetime.now().year
@@ -692,6 +693,11 @@ def fuzzy():
 def home():
     return render_template('about.html.jinja', **standard_view_kwargs())
 
+
+
+@app.route('/privacy', methods=['GET'])
+def privacy():
+    return render_template('privacy.html.jinja', **standard_view_kwargs())
 
 
 @app.route('/get_authors', methods=['POST'])

@@ -147,7 +147,10 @@
                     <p class="mb-0">&copy; {{ current_year }} Sig Janoska-Bedi</p>
                 </div>
                 <div class="col-md-6 text-md-right">
-                    <a href="https://github.com/signebedi/gita-api" class="text-light fixed-source">Source</a>
+                    <div class="fixed-source">
+                        <a href="https://github.com/signebedi/gita-api" class="text-light">Source</a> |
+                        <a href="{{ url_for('privacy') }}" class="text-light">Privacy</a>
+                    </div>
                 </div>
             </div>
         </div>
