@@ -48,6 +48,10 @@ Fuzzy Search
     document.getElementById('gitaForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const submitButton = document.getElementById('form-button-submit');
+        submitButton.disabled = true;  // Disable the submit button
+        submitButton.innerText = 'Loading...';  // Change submit button text to 'Loading...'
+
         const corpusName = document.getElementById('corpus').value;
         const authorId = document.getElementById('author').value;
         const query = document.getElementById('query').value;
@@ -83,6 +87,10 @@ Fuzzy Search
             .catch(error => {
                 console.error('Error:', error);
                 container.innerHTML = `<p>An error occurred: ${error}</p>`;
+            })
+            .finally(() => {
+                submitButton.disabled = false;  // Re-enable the button
+                submitButton.innerText = 'Submit';  // Change button text back to 'Submit'
             });
     });
 

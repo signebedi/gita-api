@@ -89,6 +89,12 @@ input, select, textarea {
 } */
 
 
+.loading-circle {
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+
 .score-circle {
     display: inline-block;
     width: 15px; /* Circle size */
