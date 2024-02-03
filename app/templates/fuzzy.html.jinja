@@ -34,6 +34,7 @@ Fuzzy Search
 
     <fieldset style="padding-top: 20px;" class="form-group">
         <button type="submit" class="btn btn-primary" id="form-button-submit">Submit</button>
+        <div class="spinner-border spinner-border-sm loading-circle" role="status" style="display: none;"></div>
     </fieldset>
 </form>
 
@@ -49,8 +50,11 @@ Fuzzy Search
         e.preventDefault();
 
         const submitButton = document.getElementById('form-button-submit');
+        const spinner = document.querySelector('.loading-circle');
+
         submitButton.disabled = true;  // Disable the submit button
         submitButton.innerText = 'Loading...';  // Change submit button text to 'Loading...'
+        spinner.style.display = ''; // Show the spinner
 
         const corpusName = document.getElementById('corpus').value;
         const authorId = document.getElementById('author').value;
@@ -91,6 +95,7 @@ Fuzzy Search
             .finally(() => {
                 submitButton.disabled = false;  // Re-enable the button
                 submitButton.innerText = 'Submit';  // Change button text back to 'Submit'
+                spinner.style.display = 'none'; // Hide the spinner
             });
     });
 
