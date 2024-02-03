@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import re
+import re, math
 import pandas as pd
 from fuzzywuzzy import process, fuzz
 
@@ -146,8 +146,11 @@ def get_match_score(row, search_query):
     search_query = preprocess(search_query)
     bonus = 0
     if search_query in description:  
-        # Check for exact match
-        bonus = 25    
+        # Check for exact match and buff by 25
+        bonus += 25
+    # bonus += round(math.log(len(row['description']))*2)
+    # bonus += math.log(len(row['description']))/len(search_query)
+    bonus += min(round(.01*len(row['description'])), 20)
     match_score = min(fuzz.token_sort_ratio(search_query, description) + bonus, 100)
     return match_score
 
