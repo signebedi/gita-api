@@ -199,8 +199,8 @@ def perform_fuzzy_search(search_query, df, author_id=16, threshold=10):
 
     # Apply the function to compute match scores
     # df['match_score'] = df.apply(lambda row: get_highest_match_score(row, search_query), axis=1)
-    # df['match_score'] = df.apply(lambda row: fuzzy_search_normalized(row['description'], search_query), axis=1)
-    df['match_score'] = df.apply(lambda row: get_match_score(row, search_query), axis=1)
+    # df['match_score'] = df.apply(lambda row: get_match_score(row, search_query), axis=1)
+    df['match_score'] = df.apply(lambda row: fuzzy_search_normalized(row['description'], search_query), axis=1)
 
     # Sort the DataFrame by match score
     df_sorted = df.sort_values(by='match_score', ascending=False)
