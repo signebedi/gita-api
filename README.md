@@ -136,3 +136,10 @@ And you can run celerybeat as follows.
 ```bash
 celery -A app.celery beat --loglevel=info --logfile $(pwd)/instance/log/beat.log
 ```
+
+
+## Contributing
+
+We welcome contributions to the Gita API project. To get started, check out issues tagged as [Help Wanted](https://github.com/signebedi/gita-api/labels/help%20wanted) or [Good First Issues](https://github.com/signebedi/gita-api/labels/good%20first%20issue). These tags indicate areas where your contributions would be particularly valuable. 
+
+If you'd like to make a pull request (PR), please ensure there's an existing issue for your contribution. We prefer discussing potential changes in an issue before receiving a PR. Then, you can [fork the repository](https://github.com/signebedi/gita-api/fork), make your changes in line with the discussed solution, and make appropriate commits, and then submit your PR with a link back to the relevant issue/s. When writing commit messages, please use clear, concise language. Prepend your message with a high-level action summary (e.g., "Added:", "Fixed:", "Removed:") and append the relevant issue number (Ex. `Fixed: Typo in README (#42)`)
