@@ -155,6 +155,32 @@ def get_match_score(row, search_query):
     return match_score
 
 
+def fuzzy_search_normalized(text_string, search_term, segment_length=None):
+    # Generally I think we will want to set the segment length equal to the search term
+    # itself. I can't imagine why we would want it to be longer. But, maybe shorter..
+    if segment_length is None:
+        segment_length = len(search_term)
+        # se = len(text_string)
+        # segment_length = round(se/10) if se > 10 else len(search_term)
+
+    # We default the highest score to 0
+    highest_score = 0
+
+    # Loop through the text_string based on segment_length
+    for i in range(0, len(text_string), segment_length):
+        segment = text_string[i:i+segment_length]
+
+        # Calculate the match score for the current segment
+        score = fuzz.ratio(search_term, segment)
+
+        # Set the highest score if the current score is higher 
+        # than the previous high score
+        if score > highest_score:
+            highest_score = score
+
+    return highest_score
+
+
 def perform_fuzzy_search(search_query, df, author_id=16, threshold=10):
     """
     Perform a fuzzy search on segmented text descriptions in the dataframe for a specific author_id.
@@ -173,6 +199,7 @@ def perform_fuzzy_search(search_query, df, author_id=16, threshold=10):
 
     # Apply the function to compute match scores
     # df['match_score'] = df.apply(lambda row: get_highest_match_score(row, search_query), axis=1)
+    # df['match_score'] = df.apply(lambda row: fuzzy_search_normalized(row['description'], search_query), axis=1)
     df['match_score'] = df.apply(lambda row: get_match_score(row, search_query), axis=1)
 
     # Sort the DataFrame by match score
