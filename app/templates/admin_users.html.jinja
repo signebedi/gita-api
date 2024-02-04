@@ -18,7 +18,7 @@ Admin - User Management
             <th>ID</th>
             <th>Username</th>
             <th>Email</th>
-            <th>Active</th>
+            <th>Active Status</th>
             <th>Site Admin</th>
             <th>Last Login</th>
         </tr>
@@ -29,8 +29,8 @@ Admin - User Management
             <td>{{ user.id }}</td>
             <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.active }}</td>
-            <td>{{ user.site_admin }}</td>
+            <td>{{ 'Active' if user.active else 'Inactive' }}</td>
+            <td>{{ 'Yes' if user.site_admin else 'No' }}</td>
             <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}</td>
         </tr>
         {% endfor %}
