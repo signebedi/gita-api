@@ -670,6 +670,22 @@ def admin_stats():
 
 
 
+@app.route('/admin/users', methods=['GET'])
+@login_required
+def admin_users():
+
+    if not current_user.site_admin:
+        return abort(404)
+
+    users = User.query.all()
+
+    return render_template('admin_users.html.jinja',
+                            users=users,
+                            **standard_view_kwargs()
+                            )
+
+
+
 @app.route('/reference', methods=['GET'])
 @login_required
 def reference():

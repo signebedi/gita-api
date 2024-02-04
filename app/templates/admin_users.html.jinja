@@ -1,0 +1,48 @@
+{% extends "base.html.jinja" %}
+
+
+{% block header %}
+    <link href="{{ url_for('static', filename='jquery.dataTables-1-13-7.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+Admin - User Management
+{% endblock %}
+
+{% block content %}
+<h1>User Management</h1>
+
+<table id="usersTable" class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Active</th>
+            <th>Site Admin</th>
+            <th>Last Login</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.active }}</td>
+            <td>{{ user.site_admin }}</td>
+            <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{url_for('static', filename='jquery.dataTables-1-13-7.min.js')}}"></script>
+<script>
+    $(document).ready( function () {
+        $('#usersTable').DataTable();
+    });
+</script>
+{% endblock %}
