@@ -195,7 +195,7 @@ def change_ownership(path, user, group):
 @click.option('--environment', default='production', type=click.Choice(['production', 'development']), help='Environment for the systemd service')
 @click.option('--working-directory', default=os.getcwd(), help='Working directory for the systemd service')
 @click.option('--environment-path', default=os.path.join(os.getcwd(),'venv','bin'), help='Path for the environment')
-@click.option('--gunicorn-config', default=os.path.join(os.getcwd(),'gunicorn.conf.py'), help='Gunicorn configuration file')
+@click.option('--gunicorn-config', default=os.path.join(os.getcwd(),'utils', 'gunicorn.conf.py'), help='Gunicorn configuration file')
 @click.option('--start-on-success', is_flag=True, help='Start and enable NGINX configuration on success')
 def init_gunicorn_command(user, group, environment, working_directory, environment_path, gunicorn_config, start_on_success):
 
@@ -211,6 +211,7 @@ WorkingDirectory={working_directory}
 Environment='FLASK_ENV={environment}'
 Environment='PATH={environment_path}'
 ExecStart={environment_path}/gunicorn 'wsgi:app' --config {gunicorn_config}
+ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]
 WantedBy=multi-user.target
@@ -243,6 +244,22 @@ WantedBy=multi-user.target
     click.echo(f"sudo systemctl enable {service_name}")
     if start_on_success:
         click.echo(f"{service_name} has been started and enabled.")
+
+    # If we are using gunicorn, then also want to start a CRON job that will help with 
+    # automatic service reload, see https://github.com/signebedi/gita-api/issues/83.
+
+    # Define an environment-specific CRON job
+    new_cron_job = f"*/5 * * * * /opt/gita-api/utils/gita_reload_manager.sh {environment}"
+
+    # Append new CRON job to root's crontab, see https://stackoverflow.com/a/16068840/13301284.
+    append_cron_job_cmd = f'(crontab -l 2>/dev/null; echo "{new_cron_job}") | crontab -'
+
+    # Execute the command as root
+    try:
+        subprocess.run(['sudo', 'bash', '-c', append_cron_job_cmd], check=True)
+        click.echo("Successfully created automated-restart CRON job.")
+    except subprocess.CalledProcessError as e:
+        click.echo(f"Failed to create automated-restart CRON job: {e}")
 
 
 @cli.command('celery')

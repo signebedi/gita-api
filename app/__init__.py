@@ -600,7 +600,7 @@ def trigger_restart():
     # Check if user is a site admin
     if not user or not user.site_admin:
         # If user doesn't exist or is not a site admin, return an error
-        abort(403)
+        return jsonify({'error': 'User lacks required credentials'}), 401
 
     try:
         # Touch the .reload_triggered file
