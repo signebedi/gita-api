@@ -165,6 +165,9 @@ def fuzzy_search_normalized(text_string, search_term, segment_length=None):
 
     # We default the highest score to 0
     highest_score = 0
+    
+    text_string = text_string.lower()
+    search_term = search_term.lower()
 
     # Loop through the text_string based on segment_length
     for i in range(0, len(text_string), segment_length):
