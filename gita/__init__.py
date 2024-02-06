@@ -184,7 +184,7 @@ def fuzzy_search_normalized(text_string, search_term, segment_length=None):
     return highest_score
 
 
-def perform_fuzzy_search(search_query, df, author_id=16, threshold=10):
+def perform_fuzzy_search(search_query, df, author_id=16, threshold=60):
     """
     Perform a fuzzy search on segmented text descriptions in the dataframe for a specific author_id.
 

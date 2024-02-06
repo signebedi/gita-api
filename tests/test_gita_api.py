@@ -145,7 +145,7 @@ class TestFuzzySearch(unittest.TestCase):
     def test_no_matching_records(self):
         # Test with a query that should not match any records
         with self.assertRaises(ValueError):
-            perform_fuzzy_search('Ruby', self.df, author_id=16, threshold=10)
+            perform_fuzzy_search('Ventrilloquist', self.df, author_id=16, threshold=60)
 
     def test_author_id_filtering(self):
         # Test filtering by author_id
