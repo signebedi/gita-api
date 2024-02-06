@@ -844,11 +844,17 @@ def fuzzy_search(corpus_name):
     author_id = int(request.args.get('author_id', default='16'))
 
     # Call the fuzzy search function
-    search_results = perform_fuzzy_search(search_query, df=datasets[corpus_name]['text'], author_id=author_id)
 
-    if app.config['COLLECT_USAGE_STATISTICS']:
-        # Call our Celery task
-        log_api_call.delay(signature, '/fuzzy', remote_addr=request.remote_addr, query_params={"query": search_query, "author_id": author_id})
+    try:
+
+        search_results = perform_fuzzy_search(search_query, df=datasets[corpus_name]['text'], author_id=author_id)
+
+        if app.config['COLLECT_USAGE_STATISTICS']:
+            # Call our Celery task
+            log_api_call.delay(signature, '/fuzzy', remote_addr=request.remote_addr, query_params={"query": search_query, "author_id": author_id})
+
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
 
     return jsonify({'content': search_results}), 200
