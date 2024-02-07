@@ -25,7 +25,7 @@ df['full_ref'] = df['Cite']
 df['description'] = df['Text']
 
 # Add book id
-df['book_id'] = '2'
+df['book_id'] = '4'
 
 # Drop bloat categories
 df = df[['authorName', 'author_id', 'description', 'verse_number', 'chapter_number', 'full_ref', 'book_id']]
@@ -39,12 +39,16 @@ english_df = english_df.loc[english_df['Commentary'] == "Alex"]
 english_df['author_id'] = 17
 
 # Add the full ref field
-# english_df['full_ref'] = "Caes." + " " + english_df['Commentary'] + " " + english_df['chapter_number'].astype(str) + "." + english_df['verse_number'].astype(str)
+english_df['full_ref'] = "Caes." + " " + english_df['Commentary'] + " " + english_df['chapter_number'].astype(str) + "." + english_df['verse_number'].astype(str)
 
 # Now that the english is in place, apply the author IDs
 english_df['authorName'] = english_df['author_id'].apply(get_author_name)
 
 english_df = english_df.loc[:, ~english_df.columns.isin(['Commentary'])]
+
+# Add book id
+english_df['book_id'] = '4'
+
 
 df_concatenated = pd.concat([df, english_df], ignore_index=True)
 
