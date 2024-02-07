@@ -685,6 +685,37 @@ def admin_users():
                             )
 
 
+@app.route('/admin/toggle/<username>', methods=['GET'])
+@login_required
+def admin_toggle_user_active_status(username):
+
+    if not current_user.site_admin:
+        return abort(404)
+
+    user = User.query.filter_by(username=username.lower()).first()
+
+    if not user:
+        flash (f'User {username} does not exist.', 'warning')
+        return redirect(url_for('admin_users'))
+
+    if current_user.id == user.id:
+        flash (f'You cannot deactivate the user you are currently logged in as.', 'warning')
+        return redirect(url_for('admin_users'))
+
+    if user.active == 0:
+        user.active = 1 
+        # Update user last login date when user is set to active.
+        user.last_login = datetime.datetime.now() 
+        db.session.commit()
+        flash (f'Activated user {username}. ', 'info')
+
+    else:
+        user.active = 0
+        db.session.commit()
+        flash (f'Deactivated user {username}. ', 'info')
+
+    return redirect(url_for('admin_users'))
+
 
 @app.route('/reference', methods=['GET'])
 @login_required

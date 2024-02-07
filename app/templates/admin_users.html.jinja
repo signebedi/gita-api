@@ -24,10 +24,21 @@ Admin - User Management
         </tr>
     </thead>
     <tbody>
+
+
+
+
         {% for user in users %}
         <tr>
             <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
+            <td>
+                <a class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-placement="right" role="button" aria-haspopup="true" aria-expanded="false" href="#">{{ user.username }}</a>
+                <div class="dropdown-menu">
+                    {# <a class="dropdown-item" href="{{url_for('admin_view_other_profiles',username=user.username)}}">View User</a> #}
+                    {# <a class="dropdown-item" href="{{url_for('admin_edit_profile',username=user.username)}}">Edit User Profile</a> #}
+                    <a class="dropdown-item" href="{{url_for('admin_toggle_user_active_status', username=user.username)}}">{{"Deactivate" if user.active else "Activate"}} User</a>
+                </div> 
+            </td>
             <td>{{ user.email }}</td>
             <td>{{ 'Active' if user.active else 'Inactive' }}</td>
             <td>{{ 'Yes' if user.site_admin else 'No' }}</td>
