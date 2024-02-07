@@ -138,7 +138,7 @@ celery -A app.celery beat --loglevel=info --logfile $(pwd)/instance/log/beat.log
 ```
 
 
-## Contributing
+#### Contributing
 
 We welcome contributions to the Gita API project. To get started, check out issues tagged as [Help Wanted](https://github.com/signebedi/gita-api/labels/help%20wanted) or [Good First Issues](https://github.com/signebedi/gita-api/labels/good%20first%20issue). These tags indicate areas where your contributions would be particularly valuable. 
 

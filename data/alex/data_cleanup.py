@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load the JSON file into a DataFrame
-df = pd.read_csv('data/alex/full_corpus_latin_library.csv', sep="|")
+df = pd.read_csv('data/gal/full_corpus_latin_library.csv', sep="|")
 authors_df = pd.read_json('data/alex/authors.json')
 authors = list(authors_df[['id', 'name']].itertuples(index=False, name=None))
 authors_dict = dict(authors)
@@ -30,5 +30,23 @@ df['book_id'] = '2'
 # Drop bloat categories
 df = df[['authorName', 'author_id', 'description', 'verse_number', 'chapter_number', 'full_ref', 'book_id']]
 
-df.to_json('data/alex/cleaned_data.json')
+
+# Read the english into memory
+english_df = pd.read_json('data/gal/english.json')
+english_df = english_df.loc[english_df['Commentary'] == "Alex"]
+
+# Add author ID
+english_df['author_id'] = 17
+
+# Add the full ref field
+# english_df['full_ref'] = "Caes." + " " + english_df['Commentary'] + " " + english_df['chapter_number'].astype(str) + "." + english_df['verse_number'].astype(str)
+
+# Now that the english is in place, apply the author IDs
+english_df['authorName'] = english_df['author_id'].apply(get_author_name)
+
+english_df = english_df.loc[:, ~english_df.columns.isin(['Commentary'])]
+
+df_concatenated = pd.concat([df, english_df], ignore_index=True)
+
+df_concatenated.to_json('data/alex/cleaned_data.json')
 
