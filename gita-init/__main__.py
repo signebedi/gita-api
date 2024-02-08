@@ -533,10 +533,11 @@ def add_user_command(username, password, email, opt_out, site_admin, environment
 @click.option('--password', help='New password for the user', default=None)
 @click.option('--new-email', help='New email for the user', default=None)
 @click.option('--opt-out', type=bool, help='Change opt-out of usage statistics', default=None)
+@click.option('--active', type=bool, help='Change active status', default=None)
 @click.option('--site-admin', type=bool, help='Change site admin status', default=None)
 @click.option('--headless', is_flag=True, help='Run this command headlessly')
 @click.option('--environment', type=click.Choice(['development', 'production'], case_sensitive=False), default='production', help='Set the environment (important if you use different databases for dev and prod).')
-def modify_user_command(username, password, new_email, opt_out, site_admin, headless, environment):
+def modify_user_command(username, password, new_email, opt_out, active, site_admin, headless, environment):
     """Modify an existing user in the application."""
 
     # Set FLASK_ENV
@@ -557,6 +558,9 @@ def modify_user_command(username, password, new_email, opt_out, site_admin, head
             if new_email is None and click.confirm('Do you want to change the email?'):
                 new_email = click.prompt('Enter new email', default=user.email)
 
+            if active is None and click.confirm('Do you want to change user active status?'):
+                active = click.confirm('Set user to active')
+
             if opt_out is None and click.confirm('Do you want to change the opt-out setting?'):
                 opt_out = click.confirm('Opt out of usage statistics')
 
@@ -574,7 +578,10 @@ def modify_user_command(username, password, new_email, opt_out, site_admin, head
         # Update other fields if provided
         if password:
             user.password = generate_password_hash(password)
-        
+
+        if active is not None:
+            user.active = active
+
         if opt_out is not None:
             user.opt_out = opt_out
 
