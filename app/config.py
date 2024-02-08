@@ -32,15 +32,15 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', 'False') == 'True'
     
     HCAPTCHA_ENABLED = os.getenv('HCAPTCHA_ENABLED', 'False') == 'True'
-    HCAPTCHA_SITE_KEY = os.getenv('HCAPTCHA_SITE_KEY', None)
-    HCAPTCHA_SECRET_KEY = os.getenv('HCAPTCHA_SECRET_KEY', None)
+    HCAPTCHA_SITE_KEY = os.getenv('HCAPTCHA_SITE_KEY', "")
+    HCAPTCHA_SECRET_KEY = os.getenv('HCAPTCHA_SECRET_KEY', "")
 
     SMTP_ENABLED = os.getenv('SMTP_ENABLED', 'False') == 'True'
-    SMTP_MAIL_SERVER = os.getenv('SMTP_MAIL_SERVER', None)
+    SMTP_MAIL_SERVER = os.getenv('SMTP_MAIL_SERVER', "")
     SMTP_PORT = int(os.getenv('SMTP_PORT', 25))    
-    SMTP_USERNAME = os.getenv('SMTP_USERNAME', None)
-    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', None)
-    SMTP_FROM_ADDRESS = os.getenv('SMTP_FROM_ADDRESS', None)
+    SMTP_USERNAME = os.getenv('SMTP_USERNAME', "")
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', "")
+    SMTP_FROM_ADDRESS = os.getenv('SMTP_FROM_ADDRESS', "")
 
     CELERY_ENABLED = os.getenv('CELERY_ENABLED', 'False') == 'True'
     CELERY_CONFIG = {
@@ -94,7 +94,7 @@ class ProductionConfig(Config):
     # Defaults to True / Enabled in production, with more stringent default settings
     RATE_LIMITS_ENABLED = os.getenv('RATE_LIMITS_ENABLED', 'True') == 'True'
     RATE_LIMITS_PERIOD = timedelta(minutes=int(os.getenv('RATE_LIMITS_PERIOD', 60)))
-    RATE_LIMITS_MAX_REQUESTS = int(os.getenv('RATE_LIMITS_MAX_REQUESTS', 100))
+    RATE_LIMITSSMTP_PASSWORD_MAX_REQUESTS = int(os.getenv('RATE_LIMITS_MAX_REQUESTS', 100))
 
     # MAX_LOGIN_ATTEMPTS = lambda: default_get_max_login_attempts(5)
     MAX_LOGIN_ATTEMPTS = int(os.getenv('MAX_LOGIN_ATTEMPTS', "5")) 

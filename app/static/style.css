@@ -39,6 +39,12 @@ input, select, textarea {
     border: 1px solid #555;
 }
 
+[data-theme="dark"] input:focus, [data-theme="dark"] select:focus, [data-theme="dark"] textarea:focus {
+    background-color: rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    border: 1px solid #555;
+}
+
 
 /* .copy-hover-effect {
     background-color: transparent;

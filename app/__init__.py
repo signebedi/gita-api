@@ -725,6 +725,76 @@ def admin_toggle_user_active_status(username):
     return redirect(url_for('admin_users'))
 
 
+@app.route('/admin/config/site', methods=['GET', 'POST'])
+@login_required
+def admin_config_site():
+
+    if not current_user.site_admin:
+        return abort(404)
+
+
+    return render_template('admin_config_site.html.jinja',
+                            app_config=app.config,
+                            **standard_view_kwargs()
+                            )
+
+@app.route('/admin/config/smtp', methods=['GET', 'POST'])
+@login_required
+def admin_config_smtp():
+
+    if not current_user.site_admin:
+        return abort(404)
+
+
+    return render_template('admin_config_smtp.html.jinja',
+                            app_config=app.config,
+                            **standard_view_kwargs()
+                            )
+
+
+@app.route('/admin/config/celery', methods=['GET', 'POST'])
+@login_required
+def admin_config_celery():
+
+    if not current_user.site_admin:
+        return abort(404)
+
+
+    return render_template('admin_config_celery.html.jinja',
+                            app_config=app.config,
+                            **standard_view_kwargs()
+                            )
+
+
+@app.route('/admin/config/hcaptcha', methods=['GET', 'POST'])
+@login_required
+def admin_config_hcaptcha():
+
+    if not current_user.site_admin:
+        return abort(404)
+
+
+    return render_template('admin_config_hcaptcha.html.jinja',
+                            app_config=app.config,
+                            **standard_view_kwargs()
+                            )
+
+
+@app.route('/admin/config/database', methods=['GET', 'POST'])
+@login_required
+def admin_config_database():
+
+    if not current_user.site_admin:
+        return abort(404)
+
+
+    return render_template('admin_config_database.html.jinja',
+                            app_config=app.config,
+                            **standard_view_kwargs()
+                            )
+
+
+
 @app.route('/reference', methods=['GET'])
 @login_required
 def reference():

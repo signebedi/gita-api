@@ -58,6 +58,11 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{{ url_for( 'admin_stats' ) }}">Usage Statistics</a>
                         <a class="dropdown-item" href="{{ url_for( 'admin_users' ) }}">Manage Users</a>
+                        <a class="dropdown-item" href="{{ url_for( 'admin_config_site' ) }}">Site Config</a>
+                        <a class="dropdown-item" href="{{ url_for( 'admin_config_smtp' ) }}">SMTP Config</a>
+                        <a class="dropdown-item" href="{{ url_for( 'admin_config_celery' ) }}">Celery Config</a>
+                        <a class="dropdown-item" href="{{ url_for( 'admin_config_hcaptcha' ) }}">hCaptcha Config</a>
+                        <a class="dropdown-item" href="{{ url_for( 'admin_config_database' ) }}">Database Config</a>
                     </div>
                     </li>
                     {% endif %}
@@ -84,7 +89,7 @@
 
                     {% if reload_warning_banner %}
                     <li class="nav-item">
-                        <a class="nav-link text-danger">Please Note: Site Reload Imminent, Site May Become Unavailable</a>
+                        <a class="nav-link text-danger">Please Note: Site Reload Scheduled, Site May Become Unavailable</a>
                     </li>
                     {% endif %}
 
