@@ -704,8 +704,9 @@ def admin_toggle_user_active_status(username):
 
     if user.active == 0:
         user.active = 1 
-        # Update user last login date when user is set to active.
-        user.last_login = datetime.datetime.now() 
+        # Update user last login date when user is set to active to ensure
+        # user is not immediately deactivated when they try to login.
+        user.last_login = datetime.now() 
         db.session.commit()
         flash (f'Activated user {username}. ', 'info')
 
