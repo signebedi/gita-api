@@ -869,6 +869,12 @@ def fuzzy_search(corpus_name):
     if corpus_name not in corpora_shorthands:
         return jsonify({'error': 'Invalid Corpus Name'}), 400
 
+    author_id = int(request.args.get('author_id', default='16'))
+
+    # Return an error if not a valid author
+    if not any(tuple_[0] == author_id for tuple_ in just_authors_by_corpus[corpus_name]):
+        return jsonify({'error': 'Invalid Author ID'}), 400
+
     search_query = request.args.get('query')
 
     if not search_query:
@@ -879,8 +885,6 @@ def fuzzy_search(corpus_name):
     # Limit length of the search string
     if len(search_query) > 100:
         return jsonify({'error': 'Query too long. Please keep length at or below 100 chars.'}), 400
-
-    author_id = int(request.args.get('author_id', default='16'))
 
     # Call the fuzzy search function
 
