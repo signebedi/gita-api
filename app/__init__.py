@@ -184,10 +184,12 @@ def standard_view_kwargs():
     kwargs['current_user'] = current_user
     kwargs['current_year'] = datetime.now().year
 
+    #  Here, we add a warning banner for admin users to let them know when a reload has been 
+    # triggered and stability might be impacted.
     if os.path.exists(os.path.join(os.getcwd(), 'instance','.reload_triggered')) and current_user.is_authenticated and current_user.site_admin:
-        kwargs['restart_warning_banner'] = True
+        kwargs['reload_warning_banner'] = True
     else:
-        kwargs['restart_warning_banner'] = False
+        kwargs['reload_warning_banner'] = False
 
 
     return kwargs
