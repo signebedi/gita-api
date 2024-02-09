@@ -585,43 +585,23 @@ def verify_email(signature):
     return redirect(url_for('login'))
 
 
-@app.route('/admin/trigger-restart', methods=['POST'])
-def trigger_restart():
-    # Get API key from the POST data
-    api_key = request.headers.get('X-API-KEY', None)
-
-    if not api_key:
-        return jsonify(success=False, message="API Key is required."), 400
-    
-    try:
-        valid = signatures.verify_key(api_key, scope=["api_key"])
-
-    except RateLimitExceeded:
-        return jsonify({'error': 'Rate limit exceeded'}), 429
-
-    except KeyDoesNotExist:
-        return jsonify({'error': 'Invalid API key'}), 401
-
-    except KeyExpired:
-        return jsonify({'error': 'API key expired'}), 401
-
-
-    # Find user by API key
-    user = User.query.filter_by(api_key=api_key).first()
-    
-    # Check if user is a site admin
-    if not user or not user.site_admin:
-        # If user doesn't exist or is not a site admin, return an error
-        return jsonify({'error': 'User lacks required credentials'}), 401
+@app.route('/admin/reload', methods=['GET'])
+@login_required
+def admin_trigger_reload():
+    if not current_user.site_admin:
+        return abort(404)
 
     try:
         # Touch the .reload_triggered file
         reload_file = os.path.join('instance', '.reload_triggered')          
         with open(reload_file, 'a'):
             os.utime(reload_file, None)
-        return jsonify(success=True)
+        flash (f"Reload successfully scheduled.", 'success')
+        return redirect(url_for('home'))
     except Exception as e:
-        return jsonify(success=False, error=str(e)), 500
+
+        flash (f"Error reloading application: {e}", 'warning')
+        return redirect(url_for('home'))
 
 @app.route('/admin/stats', methods=['GET'])
 @login_required
