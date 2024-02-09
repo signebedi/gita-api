@@ -52,7 +52,6 @@ from flask_login import (
 )
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_sqlalchemy import SQLAlchemy
 
 from app.config import (
     DevelopmentConfig, 
@@ -64,6 +63,8 @@ from app.config import (
 from utils.smtp import Mailer
 from utils.celery import make_celery
 from utils.scripts import check_configuration_assumptions
+from utils.custom_sqlalchemy import SQLAlchemy
+
 from gita import (
     validate_ref_type,
     get_reference,
