@@ -752,7 +752,7 @@ def admin_config_site():
             'RATE_LIMITS_ENABLED': 'RATE_LIMITS_ENABLED' in request.form,
             'REQUIRE_EMAIL_VERIFICATION': 'REQUIRE_EMAIL_VERIFICATION' in request.form,
             'COLLECT_USAGE_STATISTICS': 'COLLECT_USAGE_STATISTICS' in request.form,
-            'DISABLE_NEW_USERS': 'DISABLE_NEW_USERS' in request.form
+            'DISABLE_NEW_USERS': 'DISABLE_NEW_USERS' in request.form,
         }
 
         validate_and_write_configs(app.config, **kwargs)
@@ -772,6 +772,27 @@ def admin_config_smtp():
     if not current_user.site_admin:
         return abort(404)
 
+    if request.method == 'POST':
+
+        # Create a dictionary to hold the form inputs
+        kwargs = {
+        'SMTP_ENABLED': 'SMTP_ENABLED' in request.form,
+        'SMTP_MAIL_SERVER': request.form.get('SMTP_MAIL_SERVER'),
+        'SMTP_PORT': int(request.form.get('SMTP_PORT', 25)),
+        'SMTP_USERNAME': request.form.get('SMTP_USERNAME'),
+        'SMTP_FROM_ADDRESS': request.form.get('SMTP_FROM_ADDRESS')
+        }
+
+        # Only add SMTP_PASSWORD to kwargs if it's provided (not empty)
+        smtp_password = request.form.get('SMTP_PASSWORD', None)
+        if smtp_password and smtp_password != "":
+            kwargs['SMTP_PASSWORD'] = smtp_password
+
+
+        validate_and_write_configs(app.config, **kwargs)
+
+        flash('Configs successfully updated. App reload needed for changes to take effect.','success')
+        return redirect(url_for("admin_config_smtp"))
 
     return render_template('admin_config_smtp.html.jinja',
                             app_config=app.config,
@@ -785,6 +806,20 @@ def admin_config_celery():
 
     if not current_user.site_admin:
         return abort(404)
+
+    if request.method == 'POST':
+
+        # Create a dictionary to hold the form inputs
+        kwargs = {
+            'CELERY_ENABLED': 'CELERY_ENABLED' in request.form,
+            'CELERY_BROKER_URL': request.form.get('CELERY_BROKER_URL'),
+            'CELERY_RESULT_BACKEND': request.form.get('CELERY_RESULT_BACKEND'),
+        }
+
+        validate_and_write_configs(app.config, **kwargs)
+
+        flash('Configs successfully updated. App reload needed for changes to take effect.','success')
+        return redirect(url_for("admin_config_celery"))
 
 
     return render_template('admin_config_celery.html.jinja',
@@ -800,6 +835,24 @@ def admin_config_hcaptcha():
     if not current_user.site_admin:
         return abort(404)
 
+    if request.method == 'POST':
+
+        # Create a dictionary to hold the form inputs
+        kwargs = {
+            'HCAPTCHA_ENABLED': 'HCAPTCHA_ENABLED' in request.form,
+            'HCAPTCHA_SITE_KEY': request.form.get('HCAPTCHA_SITE_KEY'),
+        }
+
+        # Only add HCAPTCHA_SECRET_KEY to kwargs if it's provided (not empty)
+        hcaptcha_secret_key = request.form.get('HCAPTCHA_SECRET_KEY', None)
+        if hcaptcha_secret_key and hcaptcha_secret_key != "":
+            kwargs['HCAPTCHA_SECRET_KEY'] = hcaptcha_secret_key
+
+        validate_and_write_configs(app.config, **kwargs)
+
+        flash('Configs successfully updated. App reload needed for changes to take effect.','success')
+        return redirect(url_for("admin_config_hcaptcha"))
+
 
     return render_template('admin_config_hcaptcha.html.jinja',
                             app_config=app.config,
@@ -813,6 +866,18 @@ def admin_config_database():
 
     if not current_user.site_admin:
         return abort(404)
+
+    if request.method == 'POST':
+
+        # Create a dictionary to hold the form inputs
+        kwargs = {
+            'SQLALCHEMY_DATABASE_URI': request.form.get('SQLALCHEMY_DATABASE_URI'),
+        }
+
+        validate_and_write_configs(app.config, **kwargs)
+
+        flash('Configs successfully updated. App reload needed for changes to take effect.','success')
+        return redirect(url_for("admin_config_database"))
 
 
     return render_template('admin_config_database.html.jinja',
