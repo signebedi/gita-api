@@ -248,8 +248,19 @@ WantedBy=multi-user.target
     # If we are using gunicorn, then also want to start a CRON job that will help with 
     # automatic service reload, see https://github.com/signebedi/gita-api/issues/83.
 
+    # Define the path to the script you want to make executable
+    script_path = os.path.join(of.getcwd(),"utils","gita_reload_manager.sh")
+    
+    # Make the script executable using chmod +x
+    try:
+        subprocess.run(['chmod', '+x', script_path], check=True)
+        click.echo(f"Successfully made {script_path} executable.")
+    except subprocess.CalledProcessError as e:
+        click.echo(f"Failed to make {script_path} executable: {e}")
+
+
     # Define an environment-specific CRON job
-    new_cron_job = f"*/5 * * * * /opt/gita-api/utils/gita_reload_manager.sh {environment}"
+    new_cron_job = f"*/5 * * * * {script_path} {environment}"
 
     # Append new CRON job to root's crontab, see https://stackoverflow.com/a/16068840/13301284.
     append_cron_job_cmd = f'(crontab -l 2>/dev/null; echo "{new_cron_job}") | crontab -'
