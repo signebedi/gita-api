@@ -130,51 +130,32 @@ class TestingConfig(Config):
 # View functions should pass config changes as kwargs to the function below
 def validate_and_write_configs(app_config, **kwargs):
 
-    # This dictionary will store valid configs that constitute changes from 
-    # the current config
-    valid_config_changes = {}
+    config_file_path = app_config['CONFIG_FILE_PATH']
+    
+    # Ensure the .env file exists
+    if not os.path.isfile(config_file_path):
+        print(f"The file at {config_file_path} does not exist. Creating a new one.")
+        with open(config_file_path, 'w'): pass
 
-    for config_name in kwargs.keys():
-
-        # If this key not in app config, then iterate
-        try:
-            assert config_name in app_config.keys()
-        except KeyError:
+    # Load current configurations from .env file
+    current_configs = dotenv_values(config_file_path)
+    
+    for config_name, config_value in kwargs.items():
+        if config_name not in app_config.keys():
             print(f"{config_name} not found in app config.")
             continue
 
-        #  If there is no change, then iterate
-        if app_config[config_name] == kwargs[config_name]:
-            continue
+        # Convert boolean values to strings to ensure compatibility with .env files
+        config_value_str = str(config_value)
 
-        valid_config_changes[config_name] = kwargs[config_name]
+        # First we check if the config exists in the config file
+        if current_configs.get(config_name) != config_value_str:
 
-        # Stringify valid boolean configs
-        # if valid_config_changes[config_name] in [True, False]:
-        #     valid_config_changes[config_name] = str(valid_config_changes[config_name])
-        
-        valid_config_changes[config_name] = str(kwargs[config_name])
+            # Then we check if the config is set this way in the app
+            # config (if we reach this stage, it effectively means we
+            # are in default values territory)
+            if app_config[config_name] != config_value:
 
-    # Reading the dotenv file
-    config_file_path = app_config['CONFIG_FILE_PATH']
-    try:
-        with open(config_file_path, 'r') as file:
-            lines = file.readlines()
-    except FileNotFoundError:
-        print(f"The file at {config_file_path} was not found.")
-        return
-
-    # Creating a dictionary from the dotenv file content
-    dotenv_dict = {}
-    for line in lines:
-        if '=' in line:
-            key, value = line.strip().split('=', 1)
-            dotenv_dict[key] = value
-
-    # Updating the dotenv dictionary with valid config changes
-    dotenv_dict.update(valid_config_changes)
-
-    # Writing the updated configs back to the dotenv file
-    with open(config_file_path, 'w') as file:
-        for key, value in dotenv_dict.items():
-            file.write(f"{key}={value}\n")
+                # This function updates the .env file directly
+                set_key(config_file_path, config_name, config_value_str)
+                print(f"Updated {config_name} in .env file.")

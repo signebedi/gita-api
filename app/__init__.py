@@ -54,7 +54,12 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
-from app.config import DevelopmentConfig, ProductionConfig, TestingConfig
+from app.config import (
+    DevelopmentConfig, 
+    ProductionConfig, 
+    TestingConfig,
+    validate_and_write_configs,
+)
 
 from utils.smtp import Mailer
 from utils.celery import make_celery
@@ -732,6 +737,28 @@ def admin_config_site():
     if not current_user.site_admin:
         return abort(404)
 
+    if request.method == 'POST':
+
+        # Create a dictionary to hold the form inputs
+        kwargs = {
+            'SITE_NAME': request.form.get('SITE_NAME'),
+            'DOMAIN': request.form.get('DOMAIN'),
+            'HOMEPAGE_CONTENT': request.form.get('HOMEPAGE_CONTENT'),
+            'PRIVACY_MESSAGE': request.form.get('PRIVACY_MESSAGE'),
+            'RATE_LIMITS_PERIOD': int(float(request.form.get('RATE_LIMITS_PERIOD'))),
+            'RATE_LIMITS_MAX_REQUESTS': request.form.get('RATE_LIMITS_MAX_REQUESTS'),
+            'MAX_LOGIN_ATTEMPTS': request.form.get('MAX_LOGIN_ATTEMPTS'),
+            'PERMANENT_SESSION_LIFETIME': int(float(request.form.get('PERMANENT_SESSION_LIFETIME'))),
+            'RATE_LIMITS_ENABLED': 'RATE_LIMITS_ENABLED' in request.form,
+            'REQUIRE_EMAIL_VERIFICATION': 'REQUIRE_EMAIL_VERIFICATION' in request.form,
+            'COLLECT_USAGE_STATISTICS': 'COLLECT_USAGE_STATISTICS' in request.form,
+            'DISABLE_NEW_USERS': 'DISABLE_NEW_USERS' in request.form
+        }
+
+        validate_and_write_configs(app.config, **kwargs)
+
+        flash('Configs successfully updated. App reload needed for changes to take effect.','success')
+        return redirect(url_for("admin_config_site"))
 
     return render_template('admin_config_site.html.jinja',
                             app_config=app.config,
