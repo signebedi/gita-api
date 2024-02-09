@@ -1,10 +1,10 @@
-import os
+import os, shutil
 from dotenv import (
     load_dotenv, 
     dotenv_values, 
     set_key
 )
-from datetime import timedelta
+from datetime import timedelta, datetime
 from markupsafe import Markup
 from utils.scripts import check_configuration_assumptions
 from flask import flash
@@ -152,6 +152,11 @@ def validate_and_write_configs(app_config, **kwargs):
     if not os.path.isfile(config_file_path):
         print(f"The file at {config_file_path} does not exist. Creating a new one.")
         with open(config_file_path, 'w'): pass
+    else:
+        datetime_format = datetime.now().strftime("%Y%m%d%H%M%S") # This can be adjusted as needed
+        backup_file_path = f"{config_file_path}.{datetime_format}"
+        shutil.copy(config_file_path, backup_file_path)
+        print(f"Backup of the current config file created at {backup_file_path}")
 
     # Load current configurations from .env file
     current_configs = dotenv_values(config_file_path)
