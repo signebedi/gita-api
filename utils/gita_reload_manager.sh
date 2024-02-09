@@ -45,11 +45,12 @@ restart_service() {
 }
 
 # Reload services
-reload_service $GUNICORN_SERVICE
+# reload_service $GUNICORN_SERVICE
 # Celery is a bit of a strange beast, so we are just going to
 # restart these, see https://github.com/signebedi/gita-api/issues/105.
 # reload_service $CELERY_SERVICE
 # reload_service $CELERYBEAT_SERVICE
+restart_service $GUNICORN_SERVICE
 restart_service $CELERY_SERVICE
 restart_service $CELERYBEAT_SERVICE
 
