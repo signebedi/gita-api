@@ -6,6 +6,8 @@ from dotenv import (
 )
 from datetime import timedelta
 from markupsafe import Markup
+from utils.scripts import check_configuration_assumptions
+from flask import flash
 
 # Determine environment
 env = os.getenv('FLASK_ENV', 'development')
@@ -129,6 +131,20 @@ class TestingConfig(Config):
 
 # View functions should pass config changes as kwargs to the function below
 def validate_and_write_configs(app_config, **kwargs):
+
+
+    # First check assumptions
+
+    app_config_copy = app_config.copy()
+    for key in kwargs.keys():
+        app_config_copy[key] = kwargs[key]
+
+    try:
+        assert check_configuration_assumptions(config=app_config_copy)
+
+    except Exception as e:
+        flash (f"{e}", 'warning')
+        return
 
     config_file_path = app_config['CONFIG_FILE_PATH']
     
