@@ -43,7 +43,7 @@ Admin - Site Configuration
 
         <div class="form-group" style="padding-top: 10px;">
             <label for="RATE_LIMITS_PERIOD">Rate Limits Period (minutes)</label>
-            <input type="number" class="form-control" id="RATE_LIMITS_PERIOD" name="RATE_LIMITS_PERIOD" value="{{ app_config.RATE_LIMITS_PERIOD.total_seconds() // 60 }}">
+            <input type="number" class="form-control" id="RATE_LIMITS_PERIOD" name="RATE_LIMITS_PERIOD" value="{{ app_config.RATE_LIMITS_PERIOD.total_seconds() // 60 | int }}" required>
         </div>
 
         <div class="form-group" style="padding-top: 10px;">
@@ -64,7 +64,7 @@ Admin - Site Configuration
 
         <div class="form-group" style="padding-top: 10px;">
             <label for="PERMANENT_SESSION_LIFETIME">Permanent Session Lifetime (minutes)</label>
-            <input type="number" class="form-control" id="PERMANENT_SESSION_LIFETIME" name="PERMANENT_SESSION_LIFETIME" value="{{ app_config.PERMANENT_SESSION_LIFETIME.total_seconds() // 60 }}">
+            <input type="number" class="form-control" id="PERMANENT_SESSION_LIFETIME" min="30" name="PERMANENT_SESSION_LIFETIME" value="{{ app_config.PERMANENT_SESSION_LIFETIME.total_seconds() // 60 | int }}" required>
         </div>
 
         <div class="form-group" style="padding-top: 10px;">
