@@ -1,5 +1,9 @@
 import os
-from dotenv import load_dotenv
+from dotenv import (
+    load_dotenv, 
+    dotenv_values, 
+    set_key
+)
 from datetime import timedelta
 from markupsafe import Markup
 
@@ -122,3 +126,55 @@ class TestingConfig(Config):
     PERMANENT_SESSION_LIFETIME = timedelta(hours=int(os.getenv('PERMANENT_SESSION_LIFETIME', 6)))
 
 
+
+# View functions should pass config changes as kwargs to the function below
+def validate_and_write_configs(app_config, **kwargs):
+
+    # This dictionary will store valid configs that constitute changes from 
+    # the current config
+    valid_config_changes = {}
+
+    for config_name in kwargs.keys():
+
+        # If this key not in app config, then iterate
+        try:
+            assert config_name in app_config.keys()
+        except KeyError:
+            print(f"{config_name} not found in app config.")
+            continue
+
+        #  If there is no change, then iterate
+        if app_config[config_name] == kwargs[config_name]:
+            continue
+
+        valid_config_changes[config_name] = kwargs[config_name]
+
+        # Stringify valid boolean configs
+        # if valid_config_changes[config_name] in [True, False]:
+        #     valid_config_changes[config_name] = str(valid_config_changes[config_name])
+        
+        valid_config_changes[config_name] = str(kwargs[config_name])
+
+    # Reading the dotenv file
+    config_file_path = app_config['CONFIG_FILE_PATH']
+    try:
+        with open(config_file_path, 'r') as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        print(f"The file at {config_file_path} was not found.")
+        return
+
+    # Creating a dictionary from the dotenv file content
+    dotenv_dict = {}
+    for line in lines:
+        if '=' in line:
+            key, value = line.strip().split('=', 1)
+            dotenv_dict[key] = value
+
+    # Updating the dotenv dictionary with valid config changes
+    dotenv_dict.update(valid_config_changes)
+
+    # Writing the updated configs back to the dotenv file
+    with open(config_file_path, 'w') as file:
+        for key, value in dotenv_dict.items():
+            file.write(f"{key}={value}\n")
