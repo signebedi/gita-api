@@ -20,10 +20,22 @@ def validate_usage_statistics(config):
     if config.get('COLLECT_USAGE_STATISTICS') and not config.get('CELERY_ENABLED'):
         raise ConfigurationError("Celery must be enabled ('CELERY_ENABLED' = True) when collecting usage statistics ('COLLECT_USAGE_STATISTICS' = True).")
 
+def validate_help_emails_set(config):
+    if config.get('HELP_PAGE_ENABLED') and not config.get('HELP_EMAIL'):
+        raise ConfigurationError("Help email must be provided('HELP_EMAIL' = 'someone@somewhere') when enabling the user help page ('HELP_PAGE_ENABLED' = True).")
+
+def validate_help_smtp_enabled(config):
+    if config.get('HELP_PAGE_ENABLED') and not config.get('SMTP_ENABLED'):
+        raise ConfigurationError("SMTP must be enabled ('SMTP_ENABLED' = True) when enabling the user help page ('HELP_PAGE_ENABLED' = True).")
 
 # Main function to check all configurations
 def check_configuration_assumptions(config):
-    validations = [validate_domain, validate_email_verification, validate_usage_statistics]
+    validations = [validate_domain, 
+                    validate_email_verification, 
+                    validate_usage_statistics, 
+                    validate_help_emails_set,
+                    validate_help_smtp_enabled,                    
+    ]
 
     for validation in validations:
         validation(config)
