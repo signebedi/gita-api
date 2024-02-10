@@ -197,6 +197,9 @@ def standard_view_kwargs():
     else:
         kwargs['reload_warning_banner'] = False
 
+    # This determines whether the help_page_link will be displayed in the 
+    # navbar, see https://github.com/signebedi/gita-api/issues/13.
+    kwargs['show_help_page_link'] = True if app.config["HELP_PAGE_ENABLED"] and app.config['SMTP_ENABLED'] else False
 
     return kwargs
 
@@ -554,6 +557,50 @@ def create_user():
                             **standard_view_kwargs()
                             )
 
+
+@app.route('/help', methods=['GET', 'POST'])
+@login_required
+def help():
+
+    if not app.config["HELP_PAGE_ENABLED"] or not app.config['SMTP_ENABLED']:
+        return abort(404)
+
+    if request.method == 'POST':
+                
+        subject = request.form.get('subject', None)
+        category = request.form.get('category', None)
+        message = request.form.get('message', None)
+
+
+        # Return if no subject is provided, else strip and escape it
+        if not subject:
+            flash('No subject provided.', 'warning')
+            return redirect(url_for('help'))
+        subject = escape(subject).strip()
+
+        # Return if no message is provided, else escape it
+        if not message:
+            flash('No message provided.', 'warning')
+            return redirect(url_for('help'))
+        message = escape(message)
+
+        # We combine a number of values to make the email subject more detailed, following
+        # the format: [SITENAME][USERNAME][CATEGORY] User Provided Subject 
+        full_subject = f"[{app.config['SITE_NAME']}][{current_user.username}][{category}] {subject}"
+
+        # Send email, asynchronously only if celery is enabled
+        if app.config['SMTP_ENABLED']:
+            if app.config['CELERY_ENABLED']:
+                send_email_async.delay(subject=full_subject, content=message, to_address=app.config["HELP_EMAIL"], cc_address_list=[current_user.email])
+            else:
+                mailer.send_mail(subject=full_subject, content=message, to_address=app.config["HELP_EMAIL"], cc_address_list=[current_user.email])
+
+        flash("Help Request successfully submitted", "success")
+        return redirect(url_for('help'))
+
+    return render_template('help.html.jinja', 
+                            **standard_view_kwargs()
+                            )
 
 @app.route('/verify/<signature>', methods=('GET', 'POST'))
 def verify_email(signature):
