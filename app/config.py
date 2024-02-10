@@ -82,6 +82,9 @@ class Config(object):
     COLLECT_USAGE_STATISTICS = os.getenv('COLLECT_USAGE_STATISTICS', 'False') == 'True'
     DISABLE_NEW_USERS = os.getenv('DISABLE_NEW_USERS', 'False') == 'True'
 
+    HELP_PAGE_ENABLED = os.getenv('HELP_PAGE_ENABLED', 'False') == 'True'
+    HELP_EMAIL = os.getenv('HELP_EMAIL', "")
+
 class ProductionConfig(Config):
     # The DOMAIN is meant to fail in production if you have not set it
     DOMAIN = os.getenv('DOMAIN', None)
