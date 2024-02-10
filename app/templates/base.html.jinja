@@ -51,6 +51,11 @@
                         <a class="nav-link" href="{{ url_for('fuzzy') }}">Fuzzy Search</a>
                     </li>
 
+                    {% if show_help_page_link %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('help') }}">Help</a>
+                    </li>
+                    {% endif %}
 
                     {% if current_user.site_admin %}
                     <li class="nav-item dropdown">
