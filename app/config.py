@@ -82,8 +82,13 @@ class Config(object):
     COLLECT_USAGE_STATISTICS = os.getenv('COLLECT_USAGE_STATISTICS', 'False') == 'True'
     DISABLE_NEW_USERS = os.getenv('DISABLE_NEW_USERS', 'False') == 'True'
 
+    # Set help page information
     HELP_PAGE_ENABLED = os.getenv('HELP_PAGE_ENABLED', 'False') == 'True'
     HELP_EMAIL = os.getenv('HELP_EMAIL', "")
+
+    # Set site cookie configs, see https://github.com/signebedi/gita-api/issues/109
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False') == 'True'
+    SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', "None")
 
 class ProductionConfig(Config):
     # The DOMAIN is meant to fail in production if you have not set it
@@ -108,6 +113,11 @@ class ProductionConfig(Config):
     # MAX_LOGIN_ATTEMPTS = lambda: default_get_max_login_attempts(5)
     MAX_LOGIN_ATTEMPTS = int(os.getenv('MAX_LOGIN_ATTEMPTS', "5")) 
     REQUIRE_EMAIL_VERIFICATION = os.getenv('REQUIRE_EMAIL_VERIFICATION', 'True') == 'True'
+
+    # Set site cookie configs, see https://github.com/signebedi/gita-api/issues/109
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False') == 'True'
+    SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', "None")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

@@ -571,6 +571,7 @@ def help():
         category = request.form.get('category', None)
         message = request.form.get('message', None)
 
+        # print(subject, category, message)
 
         # Return if no subject is provided, else strip and escape it
         if not subject:
@@ -584,9 +585,13 @@ def help():
             return redirect(url_for('help'))
         message = escape(message)
 
+        # print(subject, category, message)
+
         # We combine a number of values to make the email subject more detailed, following
         # the format: [SITENAME][USERNAME][CATEGORY] User Provided Subject 
         full_subject = f"[{app.config['SITE_NAME']}][{current_user.username}][{category}] {subject}"
+
+        # print(full_subject)
 
         # Send email, asynchronously only if celery is enabled
         if app.config['SMTP_ENABLED']:
