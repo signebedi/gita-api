@@ -9,24 +9,13 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     <!-- Stylesheet -->
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
     <!-- Bootstrap 5 CSS -->
-    <link id="light-theme" href="{{ url_for('static', filename='bootstrap-flatly-5.3.1.min.css') }}" rel="stylesheet">
+    <link id="light-theme" href="{{ url_for('static', filename='css/bootstrap-flatly-5.3.1.css') }}" rel="stylesheet">
 
     <!-- Dark theme (initially disabled) -->
-    <link id="dark-theme" rel="stylesheet" href="{{ url_for('static', filename='bootstrap-darkly-5.3.1.min.css') }}" disabled>
-
-    <!-- Jquery -->
-    <script src="{{ url_for('static', filename='jquery-3.7.0.min.js') }}"></script>
-    <!-- Jquery UI -->
-    <script src="{{ url_for('static', filename='jquery-ui.js') }}"></script>
-
-
-    {% if config['HCAPTCHA_ENABLED'] %}
-    <!-- hCaptcha (if enabled) -->
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    {% endif %}
+    <link id="dark-theme" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-darkly-5.3.1.css') }}" disabled>
 
     {% block header %}{% endblock %}
 
@@ -180,7 +169,16 @@
 
 
     <!-- Bootstrap 5 JS  -->
-    <script src="{{ url_for('static', filename='bootstrap.bundle-5.2.3.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Jquery -->
+    <script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js') }}"></script>
+
+
+    {% if config['HCAPTCHA_ENABLED'] %}
+    <!-- hCaptcha -->
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    {% endif %}
 
     <script>
         function setTheme(theme) {

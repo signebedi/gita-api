@@ -2,7 +2,7 @@
 
 
 {% block header %}
-    <link href="{{ url_for('static', filename='jquery.dataTables-1-13-7.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/datatables.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}
@@ -50,7 +50,7 @@ Admin - User Management
 {% endblock %}
 
 {% block scripts %}
-<script src="{{url_for('static', filename='jquery.dataTables-1-13-7.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/datatables.js')}}"></script>
 <script>
     $(document).ready( function () {
         $('#usersTable').DataTable();
