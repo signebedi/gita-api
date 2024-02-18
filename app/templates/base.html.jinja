@@ -153,14 +153,12 @@
     <footer class="bg-dark text-light">
         <div class="container py-1">
             <div class="row">
-                <!-- Use col-12 for full width on small screens and col-md-6 for medium and larger screens -->
-                <div class="col-12 col-md-6 mb-2 mb-md-0">
-                    <p class="mb-0">&copy; {{ current_year }} Sig Janoska-Bedi</p>
-                </div>
-                <!-- Use col-12 for full width on small screens and col-md-6 for medium and larger screens, align text right on md and larger screens -->
-                <div class="col-12 col-md-6 text-end">
-                    <a href="https://github.com/signebedi/gita-api" class="text-light">Source</a> |
-                    <a href="{{ url_for('privacy') }}" class="text-light">Privacy</a>
+                <div class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-center"> <!-- Possibly align-left -->
+                    <p class="mb-0 mb-md-0">&copy; {{ current_year }} Sig Janoska-Bedi</p>
+                    <div>
+                        <a href="https://github.com/signebedi/gita-api" class="text-light">Source</a> |
+                        <a href="{{ url_for('privacy') }}" class="text-light">Privacy</a>
+                    </div>
                 </div>
             </div>
         </div>
