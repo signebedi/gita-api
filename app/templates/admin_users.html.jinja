@@ -53,7 +53,9 @@ Admin - User Management
 <script src="{{url_for('static', filename='js/datatables.js')}}"></script>
 <script>
     $(document).ready( function () {
-        $('#usersTable').DataTable();
+        $('#usersTable').DataTable({
+            "scrollX": true
+        });
     });
 </script>
 {% endblock %}
