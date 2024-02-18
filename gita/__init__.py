@@ -21,7 +21,7 @@ import pandas as pd
 from fuzzywuzzy import process, fuzz
 
 
-__version__ = "5.0.0"
+__version__ = "6.0.0"
 __name__ = "gita"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]

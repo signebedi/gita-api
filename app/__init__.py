@@ -71,7 +71,7 @@ from gita import (
     perform_fuzzy_search,
 )
 
-__version__ = "5.0.0"
+__version__ = "6.0.0"
 __name__ = "app"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
