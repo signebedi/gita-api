@@ -17,6 +17,23 @@
 
 .theme-button:hover {
     transform: scale(1.1);
+    /* transform-origin: left; */
+    /* color: var(--bs-highlight-color);  */
+}
+
+@media (max-width: 1000px) {
+    .theme-button:hover {
+        transform: none; /* Disable scaling on small screens */
+    }
+    .navbar-collapse {
+        text-align: right;
+    }
+    .navbar-nav {
+        justify-content: flex-end;
+    }
+    .nav-item {
+        display: block;
+    }
 }
 
 .icon {

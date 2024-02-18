@@ -8,14 +8,14 @@
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-    <!-- Stylesheet -->
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-
     <!-- Bootstrap 5 CSS -->
     <link id="light-theme" href="{{ url_for('static', filename='css/bootstrap-flatly-5.3.1.css') }}" rel="stylesheet">
 
     <!-- Dark theme (initially disabled) -->
     <link id="dark-theme" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-darkly-5.3.1.css') }}" disabled>
+
+    <!-- Stylesheet -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
     {% block header %}{% endblock %}
 
@@ -26,6 +26,11 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('home') }}">{{ config['SITE_NAME'] }}<small> v.{{ version }}</small></a>
+
+            <!-- Navbar toggler button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
 
@@ -145,9 +150,9 @@
         {% endwith %}
     </div>
     
-    <div class="container mt-5 content">
+    <main class="container mt-5 content">
     {% block content %}{% endblock %}
-    </div>
+    </main>
 
 
     <footer class="bg-dark text-light">
