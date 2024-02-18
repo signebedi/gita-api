@@ -12,14 +12,8 @@
     background-color: transparent;
     border: none;
     cursor: pointer;
-    /* transition: transform 0.3s ease; */
 }
 
-/* .theme-button:hover {
-    transform: scale(1.1);
-} */
-/* transform-origin: left; */
-/* color: var(--bs-highlight-color);  */
 
 .icon {
     width: 10px;
@@ -28,9 +22,6 @@
 
 
 @media (max-width: 1000px) {
-    .theme-button:hover {
-        transform: none; /* Disable scaling on small screens */
-    }
     .navbar-collapse {
         text-align: right;
     }
@@ -132,3 +123,4 @@ body {
 .content {
     flex: 1;
 }
+
