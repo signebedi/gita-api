@@ -8,18 +8,24 @@
 }
 
 .theme-button {
+    margin-top: 3px;
     background-color: transparent;
     border: none;
     cursor: pointer;
-    padding: 8px;
-    transition: transform 0.3s ease;
+    /* transition: transform 0.3s ease; */
 }
 
-.theme-button:hover {
+/* .theme-button:hover {
     transform: scale(1.1);
-    /* transform-origin: left; */
-    /* color: var(--bs-highlight-color);  */
+} */
+/* transform-origin: left; */
+/* color: var(--bs-highlight-color);  */
+
+.icon {
+    width: 10px;
+    height: 10px;
 }
+
 
 @media (max-width: 1000px) {
     .theme-button:hover {
@@ -34,11 +40,6 @@
     .nav-item {
         display: block;
     }
-}
-
-.icon {
-    width: 24px;
-    height: 24px;
 }
 
 /* Default light theme styles for text inputs and text areas */
@@ -63,27 +64,14 @@ input, select, textarea {
 }
 
 
-/* .copy-hover-effect {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding-left: 8px;
-    transition: transform 0.3s ease;
-    z-index: 999;
-}
-
-.copy-hover-effect:hover {
-    transform: scale(1.05);
-} */
-
 .results-div {
-    width: 300px;      /* Adjust the width as needed */
-    height: 300px;     /* Adjust the height as needed */
-    overflow: auto;    /* This makes the div scrollable */
+    width: 300px;
+    height: 300px; 
+    overflow: auto;
 }
 
 #resultContainer p {
-    font-family: 'Arial', sans-serif; /* Example font */
+    font-family: 'Arial', sans-serif;
     line-height: 1.6;
     letter-spacing: 0.5px;
 }
@@ -96,20 +84,6 @@ input, select, textarea {
 #text-entry:hover {
     filter: brightness(125%);
 }
-
-
-/* .copy-hover-effect {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding-left: 8px;
-    transition: transform 0.3s ease;
-    z-index: 999;
-}
-
-.copy-hover-effect:hover {
-    transform: scale(1.05);
-} */
 
 
 .loading-circle {
@@ -158,9 +132,3 @@ body {
 .content {
     flex: 1;
 }
-
-
-/* .fixed-source {
-    position: fixed;
-    right: 20%;
-} */
