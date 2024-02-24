@@ -28,7 +28,7 @@
         "shorthand": "alex",
         "authors_path": "data/alex/authors.json",
         "text_path": "data/alex/cleaned_data.json",
-        "name": " Bellum Alexandrinum",
+        "name": "Bellum Alexandrinum",
         "abbreviation": "Caes. BAlex."
     },
     {
@@ -36,7 +36,7 @@
         "shorthand": "afr",
         "authors_path": "data/afr/authors.json",
         "text_path": "data/afr/cleaned_data.json",
-        "name": " Bellum Africum",
+        "name": "Bellum Africum",
         "abbreviation": "Caes. BAfr."
     },
     {
@@ -44,7 +44,15 @@
         "shorthand": "hisp",
         "authors_path": "data/hisp/authors.json",
         "text_path": "data/hisp/cleaned_data.json",
-        "name": " Bellum Hispaniense",
+        "name": "Bellum Hispaniense",
         "abbreviation": "Caes. BHisp."
+    },
+    {
+        "id": 7,
+        "shorthand": "const",
+        "authors_path": "data/const/authors.json",
+        "text_path": "data/const/cleaned_data.json",
+        "name": "United States Constitution",
+        "abbreviation": "U.S. Const."
     }
 ]
