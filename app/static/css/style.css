@@ -56,8 +56,6 @@ input, select, textarea {
 
 
 .results-div {
-    width: 300px;
-    height: 300px; 
     overflow: auto;
 }
 
