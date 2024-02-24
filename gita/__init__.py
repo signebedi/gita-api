@@ -37,9 +37,9 @@ pd.options.mode.chained_assignment = None
 
 
 # Regular expressions for different types of references
-CHAPTER_REGEX = re.compile(r'^([1-9]+)$')
-VERSE_REGEX = re.compile(r'^([1-9]+)\.([0-9]+)$')
-RANGE_REGEX = re.compile(r'^([1-9]+)\.([0-9]+)-([0-9]+)$')
+CHAPTER_REGEX = re.compile(r'^([1-9]||[1-9][0-9]+)$')
+VERSE_REGEX = re.compile(r'^([1-9]||[1-9][0-9]+)\.([0-9]+)$')
+RANGE_REGEX = re.compile(r'^([1-9]||[1-9][0-9]+)\.([0-9]+)-([0-9]+)$')
 
 
 def validate_ref_type(reference):

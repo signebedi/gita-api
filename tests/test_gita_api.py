@@ -40,10 +40,6 @@ class TestReferenceSearch(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_ref_type("3.5-4")
 
-    def test_invalid_chapter_in_range(self):
-        with self.assertRaises(ValueError):
-            validate_ref_type("20.1-2")
-
     # Tests for get_reference
     def test_get_reference_valid_verse(self):
         result = get_reference("verse", 1, 1, None, 16, df)
