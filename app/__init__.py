@@ -186,6 +186,7 @@ def standard_view_kwargs():
         "HOMEPAGE_CONTENT": app.config['HOMEPAGE_CONTENT'],
         "COLLECT_USAGE_STATISTICS": app.config["COLLECT_USAGE_STATISTICS"],
         "PRIVACY_MESSAGE": app.config["PRIVACY_MESSAGE"],
+        "SITE_SOURCE_URL": app.config["SITE_SOURCE_URL"],
     }
     kwargs['current_user'] = current_user
     kwargs['current_year'] = datetime.now().year
